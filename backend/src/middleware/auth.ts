@@ -1,13 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
 import passport from 'passport';
-import { User } from '@prisma/client';
 
 export interface AuthRequest extends Request {
-  user?: User;
+  user?: Express.User;
 }
 
 export const authenticate = (req: AuthRequest, res: Response, next: NextFunction): void => {
-  passport.authenticate('jwt', { session: false }, (err: Error | null, user: User | false) => {
+  passport.authenticate('jwt', { session: false }, (err: Error | null, user: Express.User | false) => {
     if (err) { next(err); return; }
     if (!user) { res.status(401).json({ message: 'Unauthorized' }); return; }
     req.user = user;
@@ -16,7 +15,7 @@ export const authenticate = (req: AuthRequest, res: Response, next: NextFunction
 };
 
 export const optionalAuth = (req: AuthRequest, res: Response, next: NextFunction): void => {
-  passport.authenticate('jwt', { session: false }, (_err: Error | null, user: User | false) => {
+  passport.authenticate('jwt', { session: false }, (_err: Error | null, user: Express.User | false) => {
     if (user) req.user = user;
     next();
   })(req, res, next);

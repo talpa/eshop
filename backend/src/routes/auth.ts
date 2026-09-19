@@ -32,7 +32,8 @@ router.post('/register', async (req: Request, res: Response, next: NextFunction)
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
       process.env.JWT_SECRET || 'jwt_secret',
-      { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      { expiresIn: (process.env.JWT_EXPIRES_IN || '7d') as any }
     );
 
     res.status(201).json({ token, user: { id: user.id, email: user.email, name: user.name, role: user.role } });
@@ -53,7 +54,8 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction): P
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
       process.env.JWT_SECRET || 'jwt_secret',
-      { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      { expiresIn: (process.env.JWT_EXPIRES_IN || '7d') as any }
     );
 
     res.json({ token, user: { id: user.id, email: user.email, name: user.name, role: user.role } });
