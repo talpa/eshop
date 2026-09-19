@@ -1,6 +1,5 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
-import { Decimal } from '@prisma/client/runtime/library';
 import { prisma } from '../lib/prisma';
 import { authenticate, requireAdmin, AuthRequest } from '../middleware/auth';
 import { generateVariableSymbol, generateQrPayload } from '../lib/fio';
