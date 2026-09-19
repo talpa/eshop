@@ -1,0 +1,67 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: eshop_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: eshop
+      POSTGRES_USER: eshop
+      POSTGRES_PASSWORD: eshop_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U eshop -d eshop"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+      target: development
+    container_name: eshop_backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://eshop:eshop_password@db:5432/eshop
+      JWT_SECRET: ${JWT_SECRET:-super_secret_jwt_key_change_in_production}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      PORT: 3000
+      BACKEND_URL: ${BACKEND_URL:-http://localhost:3000}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
+      SHOP_IBAN: ${SHOP_IBAN:-}
+      SHOP_BANK_ACCOUNT: ${SHOP_BANK_ACCOUNT:-}
+      FIO_API_TOKEN: ${FIO_API_TOKEN:-}
+      NODE_ENV: development
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+      - uploads_data:/app/uploads
+
+  frontend:
+    build:
+      context: ./frontend
+      target: development
+    container_name: eshop_frontend
+    restart: unless-stopped
+    environment:
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:3000/api}
+      CHOKIDAR_USEPOLLING: "true"
+      CHOKIDAR_INTERVAL: "300"
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
+  uploads_data:
