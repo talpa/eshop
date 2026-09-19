@@ -1,0 +1,189 @@
+name: Docker Production Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: docker-main-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAMESPACE: ${{ github.repository_owner }}
+
+jobs:
+  build-backend-prod:
+    name: Build BE production image
+    runs-on: ubuntu-latest
+    env:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Login to Docker Hub
+        if: ${{ env.DOCKERHUB_USERNAME != '' && env.DOCKERHUB_TOKEN != '' }}
+        uses: docker/login-action@v3
+        with:
+          username: ${{ env.DOCKERHUB_USERNAME }}
+          password: ${{ env.DOCKERHUB_TOKEN }}
+
+      - name: Build and push BE production image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          target: production
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/eshop-backend:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/eshop-backend:${{ github.sha }}
+
+  build-frontend-prod:
+    name: Build FE production image
+    runs-on: ubuntu-latest
+    env:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Login to Docker Hub
+        if: ${{ env.DOCKERHUB_USERNAME != '' && env.DOCKERHUB_TOKEN != '' }}
+        uses: docker/login-action@v3
+        with:
+          username: ${{ env.DOCKERHUB_USERNAME }}
+          password: ${{ env.DOCKERHUB_TOKEN }}
+
+      - name: Build and push FE production image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          target: production
+          push: true
+          build-args: |
+            VITE_API_URL=${{ secrets.VITE_API_URL_PROD }}
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/eshop-frontend:latest
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/eshop-frontend:${{ github.sha }}
+
+  deploy-production:
+    name: Trigger Coolify production deploy
+    runs-on: ubuntu-latest
+    needs:
+      - build-backend-prod
+      - build-frontend-prod
+    env:
+      COOLIFY_WEBHOOK_BE_PROD: ${{ secrets.COOLIFY_WEBHOOK_BE_PROD }}
+      COOLIFY_WEBHOOK_FE_PROD: ${{ secrets.COOLIFY_WEBHOOK_FE_PROD }}
+      COOLIFY_API_TOKEN_PROD: ${{ secrets.COOLIFY_API_TOKEN_PROD }}
+
+    steps:
+      - name: Trigger BE production deploy
+        if: ${{ env.COOLIFY_WEBHOOK_BE_PROD != '' }}
+        run: |
+          URL="$COOLIFY_WEBHOOK_BE_PROD"
+          TOKEN="${COOLIFY_API_TOKEN_PROD#Bearer }"
+          TOKEN="${TOKEN#bearer }"
+
+          call_webhook() {
+            local header="$1"
+            if [ -n "$header" ]; then
+              curl -sS -o /dev/null -w "%{http_code}" -X POST "$URL" -H "$header"
+            else
+              curl -sS -o /dev/null -w "%{http_code}" -X POST "$URL"
+            fi
+          }
+
+          if [ -z "$TOKEN" ]; then
+            code=$(call_webhook "")
+            echo "BE prod webhook HTTP $code"
+            [ "$code" -ge 200 ] && [ "$code" -lt 300 ]
+            exit $?
+          fi
+
+          code=$(call_webhook "Authorization: Bearer $TOKEN")
+          echo "BE prod webhook with Bearer HTTP $code"
+          if [ "$code" -ge 200 ] && [ "$code" -lt 300 ]; then
+            exit 0
+          fi
+
+          code=$(call_webhook "Authorization: $TOKEN")
+          echo "BE prod webhook with raw Authorization HTTP $code"
+          if [ "$code" -ge 200 ] && [ "$code" -lt 300 ]; then
+            exit 0
+          fi
+
+          code=$(call_webhook "x-api-key: $TOKEN")
+          echo "BE prod webhook with x-api-key HTTP $code"
+          [ "$code" -ge 200 ] && [ "$code" -lt 300 ]
+
+      - name: Trigger FE production deploy
+        if: ${{ env.COOLIFY_WEBHOOK_FE_PROD != '' }}
+        run: |
+          URL="$COOLIFY_WEBHOOK_FE_PROD"
+          TOKEN="${COOLIFY_API_TOKEN_PROD#Bearer }"
+          TOKEN="${TOKEN#bearer }"
+
+          call_webhook() {
+            local header="$1"
+            if [ -n "$header" ]; then
+              curl -sS -o /dev/null -w "%{http_code}" -X POST "$URL" -H "$header"
+            else
+              curl -sS -o /dev/null -w "%{http_code}" -X POST "$URL"
+            fi
+          }
+
+          if [ -z "$TOKEN" ]; then
+            code=$(call_webhook "")
+            echo "FE prod webhook HTTP $code"
+            [ "$code" -ge 200 ] && [ "$code" -lt 300 ]
+            exit $?
+          fi
+
+          code=$(call_webhook "Authorization: Bearer $TOKEN")
+          echo "FE prod webhook with Bearer HTTP $code"
+          if [ "$code" -ge 200 ] && [ "$code" -lt 300 ]; then
+            exit 0
+          fi
+
+          code=$(call_webhook "Authorization: $TOKEN")
+          echo "FE prod webhook with raw Authorization HTTP $code"
+          if [ "$code" -ge 200 ] && [ "$code" -lt 300 ]; then
+            exit 0
+          fi
+
+          code=$(call_webhook "x-api-key: $TOKEN")
+          echo "FE prod webhook with x-api-key HTTP $code"
+          [ "$code" -ge 200 ] && [ "$code" -lt 300 ]
