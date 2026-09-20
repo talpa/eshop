@@ -1,8 +1,9 @@
 import { useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { QRCodeSVG } from 'qrcode.react';
-import { CheckCircle, RefreshCw, FileText } from 'lucide-react';
+import { CheckCircle, RefreshCw, FileText, Download } from 'lucide-react';
 import { api } from '../../lib/api';
+import { useAuthStore } from '../../store/authStore';
 import { Order } from '../../types';
 import { formatPrice } from '../../lib/utils';
 import toast from 'react-hot-toast';
@@ -20,10 +21,17 @@ export default function OrderPage() {
   const { id } = useParams<{ id: string }>();
   const qc = useQueryClient();
 
+  const user = useAuthStore(s => s.user);
+
   const { data: order, isLoading } = useQuery({
     queryKey: ['order', id],
     queryFn: () => api.get<Order>(`/orders/${id}`).then(r => r.data),
   });
+
+  const downloadPdf = () => {
+    const base = (import.meta.env.VITE_API_URL || '/api').replace(/\/$/, '');
+    window.open(`${base}/orders/${id}/confirmation/pdf`, '_blank');
+  };
 
   const checkMutation = useMutation({
     mutationFn: () => api.post<{ paid: boolean }>(`/payments/${id}/check`).then(r => r.data),
@@ -84,15 +92,27 @@ export default function OrderPage() {
       )}
 
       {isPaid && (
-        <div className="bg-green-50 border border-green-200 rounded-xl p-6 mb-6 flex items-center gap-3">
-          <CheckCircle size={24} className="text-green-600 flex-shrink-0" />
-          <div>
+        <div className="bg-green-50 border border-green-200 rounded-xl p-6 mb-6 flex items-start gap-3">
+          <CheckCircle size={24} className="text-green-600 flex-shrink-0 mt-0.5" />
+          <div className="flex-1">
             <p className="font-semibold text-green-800">Dar přijat — děkujeme!</p>
-            <p className="text-sm text-green-600">
+            <p className="text-sm text-green-600 mb-3">
               {order.confirmationSentAt
                 ? `Potvrzení o daru bylo odesláno na ${order.customerEmail}.`
                 : 'Potvrzení o daru Vám bude odesláno na email.'}
             </p>
+            <button
+              onClick={downloadPdf}
+              className="inline-flex items-center gap-2 px-3 py-1.5 bg-white border border-green-300 hover:border-green-500 text-green-800 rounded-lg text-sm font-medium transition-colors"
+            >
+              <Download size={14} />
+              Stáhnout potvrzení (PDF)
+            </button>
+            {!user && (
+              <p className="text-xs text-green-600 mt-2">
+                <Link to="/login" className="underline">Přihlaste se</Link> pro opakované stažení kdykoliv.
+              </p>
+            )}
           </div>
         </div>
       )}

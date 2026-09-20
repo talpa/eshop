@@ -5,6 +5,7 @@ import { optionalAuth, authenticate, requireAdmin, AuthRequest } from '../middle
 import { generateVariableSymbol, generateQrPayload } from '../lib/fio';
 import { sendEmail } from '../lib/email';
 import { buildDonationConfirmationEmail } from '../lib/donationEmail';
+import { generateDonationPdf } from '../lib/donationPdf';
 
 const router = Router();
 
@@ -185,6 +186,26 @@ router.get('/:id/confirmation', optionalAuth, async (req: AuthRequest, res: Resp
 
     const email = buildDonationConfirmationEmail(order as Parameters<typeof buildDonationConfirmationEmail>[0]);
     res.json(email);
+  } catch (err) { next(err); }
+});
+
+router.get('/:id/confirmation/pdf', optionalAuth, async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const isAdmin = req.user?.role === 'ADMIN';
+    const order = await prisma.order.findFirst({
+      where: {
+        id: req.params.id,
+        ...(isAdmin || !req.user ? {} : { userId: req.user.id }),
+      },
+      include: { items: true, militaryUnit: true },
+    });
+    if (!order) { res.status(404).json({ message: 'Objednávka nenalezena.' }); return; }
+    if (order.status !== 'PAID') { res.status(400).json({ message: 'Dar zatím nebyl přijat.' }); return; }
+    if (!isAdmin && req.user && order.userId && order.userId !== req.user.id) {
+      res.status(403).json({ message: 'Přístup odepřen.' }); return;
+    }
+
+    generateDonationPdf(order as Parameters<typeof generateDonationPdf>[0], res);
   } catch (err) { next(err); }
 });
 
