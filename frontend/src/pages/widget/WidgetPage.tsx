@@ -25,122 +25,153 @@ const unitSchema = z.object({
 });
 type UnitFormData = z.infer<typeof unitSchema>;
 
-function ActivityView({ activities, shopConfig, defaultActivityId, defaultAmount }: {
+function AmountPicker({ value, onChange }: { value: number; onChange: (n: number) => void }) {
+  const [input, setInput] = useState(value.toFixed(0));
+  return (
+    <div>
+      <div className="flex gap-1.5 mb-2 flex-wrap">
+        {PRESETS.map(p => (
+          <button key={p} type="button"
+            onClick={() => { onChange(p); setInput(p.toFixed(0)); }}
+            className={`px-3 py-1.5 rounded-lg border text-xs font-medium transition-colors ${value === p ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-300 hover:border-brand-400'}`}
+          >
+            {formatPrice(p)}
+          </button>
+        ))}
+      </div>
+      <div className="relative">
+        <input
+          type="number" min={1} step={1} value={input}
+          onChange={e => { setInput(e.target.value); const n = parseFloat(e.target.value); if (!isNaN(n) && n > 0) onChange(n); }}
+          placeholder="Jiná částka"
+          className="w-full border border-slate-300 rounded-lg px-3 py-2 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+        />
+        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">Kč</span>
+      </div>
+    </div>
+  );
+}
+
+function PaymentBlock({ qr, accountNumber, iban, variableSymbol, amount, message }: {
+  qr: string; accountNumber?: string; iban?: string; variableSymbol?: string; amount: number; message?: string;
+}) {
+  return (
+    <div className="bg-slate-50 rounded-xl p-4 space-y-3">
+      {qr && <div className="flex justify-center pb-1"><QRCodeSVG value={qr} size={150} /></div>}
+      <div className="space-y-1.5 text-sm">
+        {accountNumber && (
+          <div className="flex justify-between">
+            <span className="text-slate-500">Číslo účtu</span>
+            <span className="font-mono font-medium text-xs">{accountNumber}</span>
+          </div>
+        )}
+        {iban && (
+          <div className="flex justify-between">
+            <span className="text-slate-500">IBAN</span>
+            <span className="font-mono text-xs">{iban}</span>
+          </div>
+        )}
+        {variableSymbol && (
+          <div className="flex justify-between border-t border-slate-200 pt-1.5">
+            <span className="text-slate-500">VS</span>
+            <span className="font-mono font-bold text-slate-800">{variableSymbol}</span>
+          </div>
+        )}
+        {message && (
+          <div className="flex justify-between">
+            <span className="text-slate-500">Zpráva</span>
+            <span className="font-mono text-xs text-slate-700">{message}</span>
+          </div>
+        )}
+        <div className="flex justify-between border-t border-slate-200 pt-1.5">
+          <span className="text-slate-500">Částka</span>
+          <span className="font-bold text-brand-600">{formatPrice(amount)}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ActivityWidget({ activities, shopConfig, fixedActivity, defaultActivityId, defaultAmount, title }: {
   activities: Activity[];
   shopConfig: { accountNumber: string; iban: string } | undefined;
+  fixedActivity: Activity | undefined;
   defaultActivityId: string;
   defaultAmount: number;
+  title: string | null;
 }) {
-  const [activityId, setActivityId] = useState(defaultActivityId);
+  const [activityId, setActivityId] = useState(fixedActivity?.id || defaultActivityId);
   const [amount, setAmount] = useState(defaultAmount);
-  const [amountInput, setAmountInput] = useState(defaultAmount.toFixed(0));
 
-  const activity = activities.find(a => a.id === activityId);
+  const activity = fixedActivity || activities.find(a => a.id === activityId);
   const message = activity ? `${activity.code} ${activity.name}`.slice(0, 60) : '';
   const qr = activity && shopConfig?.iban ? buildQr(shopConfig.iban, amount, message) : '';
 
   return (
     <div className="space-y-4">
       <div>
-        <select
-          value={activityId}
-          onChange={e => setActivityId(e.target.value)}
-          className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
-        >
-          <option value="">— Vyberte účel —</option>
-          {activities.map(a => (
-            <option key={a.id} value={a.id}>{a.code} – {a.name}</option>
-          ))}
-        </select>
-      </div>
-
-      <div>
-        <div className="flex gap-1.5 mb-2 flex-wrap">
-          {PRESETS.map(p => (
-            <button key={p} type="button"
-              onClick={() => { setAmount(p); setAmountInput(p.toFixed(0)); }}
-              className={`px-3 py-1.5 rounded-lg border text-xs font-medium transition-colors ${amount === p ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-300 hover:border-brand-400'}`}
-            >
-              {formatPrice(p)}
-            </button>
-          ))}
-        </div>
-        <div className="relative">
-          <input
-            type="number" min={1} step={1}
-            value={amountInput}
-            onChange={e => {
-              setAmountInput(e.target.value);
-              const n = parseFloat(e.target.value);
-              if (!isNaN(n) && n > 0) setAmount(n);
-            }}
-            placeholder="Jiná částka"
-            className="w-full border border-slate-300 rounded-lg px-3 py-2 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
-          />
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">Kč</span>
-        </div>
-      </div>
-
-      {activity && shopConfig && (
-        <div className="bg-slate-50 rounded-xl p-4 space-y-3">
-          {qr && (
-            <div className="flex justify-center pb-1">
-              <QRCodeSVG value={qr} size={150} />
-            </div>
-          )}
-          <div className="space-y-1.5 text-sm">
-            {shopConfig.accountNumber && (
-              <div className="flex justify-between">
-                <span className="text-slate-500">Číslo účtu</span>
-                <span className="font-mono font-medium text-xs">{shopConfig.accountNumber}</span>
-              </div>
-            )}
-            {shopConfig.iban && (
-              <div className="flex justify-between">
-                <span className="text-slate-500">IBAN</span>
-                <span className="font-mono text-xs">{shopConfig.iban}</span>
-              </div>
-            )}
-            <div className="flex justify-between border-t border-slate-200 pt-1.5">
-              <span className="text-slate-500">Zpráva / účel</span>
-              <span className="font-mono font-bold text-slate-800 text-xs">{activity.code}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-slate-500">Částka</span>
-              <span className="font-bold text-brand-600">{formatPrice(amount)}</span>
-            </div>
-          </div>
-          <p className="text-xs text-slate-400 text-center leading-relaxed">
-            Naskenujte QR kód nebo převeďte na uvedený účet.<br />Do zprávy uveďte kód <strong>{activity.code}</strong>.
+        <p className="text-xs text-slate-500 mb-0.5">
+          {title || 'Darovat Nadačnímu fondu České stopy'}
+        </p>
+        {fixedActivity ? (
+          <p className="font-semibold text-slate-800">
+            na <span className="text-brand-700">{fixedActivity.code} – {fixedActivity.name}</span>
           </p>
-        </div>
+        ) : (
+          <select
+            value={activityId}
+            onChange={e => setActivityId(e.target.value)}
+            className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+          >
+            <option value="">— Vyberte účel —</option>
+            {activities.map(a => (
+              <option key={a.id} value={a.id}>{a.code} – {a.name}</option>
+            ))}
+          </select>
+        )}
+      </div>
+
+      <AmountPicker value={amount} onChange={setAmount} />
+
+      {activity && shopConfig ? (
+        <PaymentBlock
+          qr={qr}
+          accountNumber={shopConfig.accountNumber}
+          iban={shopConfig.iban}
+          amount={amount}
+          message={activity.code}
+        />
+      ) : (
+        <p className="text-xs text-slate-400 text-center py-2">Vyberte účel pro zobrazení platebních instrukcí.</p>
       )}
 
-      {!activity && (
-        <p className="text-xs text-slate-400 text-center py-4">
-          Vyberte účel pro zobrazení platebních instrukcí.
+      {activity && (
+        <p className="text-xs text-slate-400 text-center leading-relaxed">
+          Do zprávy uveďte kód <strong>{activity.code}</strong>.
         </p>
       )}
     </div>
   );
 }
 
-function UnitView({ units, shopConfig, defaultUnitId, defaultAmount }: {
+function UnitWidget({ units, shopConfig, fixedUnit, defaultUnitId, defaultAmount, title }: {
   units: MilitaryUnit[];
   shopConfig: { accountNumber: string; iban: string } | undefined;
+  fixedUnit: MilitaryUnit | undefined;
   defaultUnitId: string;
   defaultAmount: number;
+  title: string | null;
 }) {
   const [order, setOrder] = useState<Order | null>(null);
-  const [amountInput, setAmountInput] = useState(defaultAmount.toFixed(0));
+  const [amount, setAmount] = useState(defaultAmount);
 
   const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<UnitFormData>({
     resolver: zodResolver(unitSchema),
-    defaultValues: { donationAmount: defaultAmount, militaryUnitId: defaultUnitId },
+    defaultValues: { donationAmount: defaultAmount, militaryUnitId: fixedUnit?.id || defaultUnitId },
   });
 
   const militaryUnitId = watch('militaryUnitId');
-  const selectedUnit = units.find(u => u.id === militaryUnitId);
+  const selectedUnit = fixedUnit || units.find(u => u.id === militaryUnitId);
 
   const mutation = useMutation({
     mutationFn: (data: UnitFormData) =>
@@ -148,7 +179,7 @@ function UnitView({ units, shopConfig, defaultUnitId, defaultAmount }: {
         customerName: data.customerName,
         customerEmail: data.customerEmail,
         donationAmount: data.donationAmount,
-        militaryUnitId: data.militaryUnitId || undefined,
+        militaryUnitId: fixedUnit?.id || data.militaryUnitId || undefined,
         items: [],
       }).then(r => r.data),
     onSuccess: (o) => setOrder(o),
@@ -161,43 +192,15 @@ function UnitView({ units, shopConfig, defaultUnitId, defaultAmount }: {
           <CheckCircle size={18} />
           <span className="font-semibold text-sm">Dar zaregistrován</span>
         </div>
-        <p className="text-xs text-slate-600">Zašlete dar převodem — platební instrukce jsme Vám odeslali emailem.</p>
-
-        {order.payment?.qrPayload && (
-          <div className="flex justify-center py-1">
-            <QRCodeSVG value={order.payment.qrPayload} size={150} />
-          </div>
-        )}
-
-        <div className="bg-slate-50 rounded-xl p-3 space-y-1.5 text-sm">
-          {shopConfig?.accountNumber && (
-            <div className="flex justify-between">
-              <span className="text-slate-500">Číslo účtu</span>
-              <span className="font-mono font-medium text-xs">{shopConfig.accountNumber}</span>
-            </div>
-          )}
-          {shopConfig?.iban && (
-            <div className="flex justify-between">
-              <span className="text-slate-500">IBAN</span>
-              <span className="font-mono text-xs">{shopConfig.iban}</span>
-            </div>
-          )}
-          <div className="flex justify-between border-t border-slate-200 pt-1.5">
-            <span className="text-slate-500">VS</span>
-            <span className="font-mono font-bold text-slate-800">{order.variableSymbol}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-slate-500">Částka</span>
-            <span className="font-bold text-brand-600">{formatPrice(Number(order.donationAmount))}</span>
-          </div>
-          {order.paymentNote && (
-            <div className="flex justify-between">
-              <span className="text-slate-500">Zpráva</span>
-              <span className="font-mono text-xs text-slate-700">{order.paymentNote}</span>
-            </div>
-          )}
-        </div>
-
+        <p className="text-xs text-slate-600">Platební instrukce jsme odeslali na Váš email.</p>
+        <PaymentBlock
+          qr={order.payment?.qrPayload || ''}
+          accountNumber={shopConfig?.accountNumber}
+          iban={shopConfig?.iban}
+          variableSymbol={order.variableSymbol}
+          amount={Number(order.donationAmount)}
+          message={order.paymentNote || undefined}
+        />
         <button onClick={() => setOrder(null)} className="w-full text-xs text-brand-600 hover:underline text-center">
           Darovat znovu
         </button>
@@ -206,42 +209,29 @@ function UnitView({ units, shopConfig, defaultUnitId, defaultAmount }: {
   }
 
   return (
-    <form onSubmit={handleSubmit(d => mutation.mutate(d))} className="space-y-3">
+    <form onSubmit={handleSubmit(d => { setValue('donationAmount', amount); mutation.mutate({ ...d, donationAmount: amount }); })} className="space-y-4">
       <div>
-        <select {...register('militaryUnitId')} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
-          <option value="">— Vyberte jednotku —</option>
-          {units.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
-        </select>
-        {selectedUnit?.activity && (
-          <p className="text-xs text-slate-500 mt-1">
-            Kód: <span className="font-mono font-medium">{selectedUnit.activity.code}</span>
+        <p className="text-xs text-slate-500 mb-0.5">
+          {title || 'Darovat Nadačnímu fondu České stopy'}
+        </p>
+        {fixedUnit ? (
+          <p className="font-semibold text-slate-800">
+            pro <span className="text-brand-700">{fixedUnit.name}</span>
           </p>
+        ) : (
+          <div>
+            <select {...register('militaryUnitId')} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+              <option value="">— Vyberte jednotku —</option>
+              {units.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
+            </select>
+            {selectedUnit?.activity && (
+              <p className="text-xs text-slate-500 mt-1">Kód: <span className="font-mono font-medium">{selectedUnit.activity.code}</span></p>
+            )}
+          </div>
         )}
       </div>
 
-      <div>
-        <div className="flex gap-1.5 mb-2 flex-wrap">
-          {PRESETS.map(p => (
-            <button key={p} type="button"
-              onClick={() => { setValue('donationAmount', p); setAmountInput(p.toFixed(0)); }}
-              className={`px-3 py-1.5 rounded-lg border text-xs font-medium transition-colors ${Number(amountInput) === p ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-300 hover:border-brand-400'}`}
-            >
-              {formatPrice(p)}
-            </button>
-          ))}
-        </div>
-        <div className="relative">
-          <input
-            type="number" min={1} step={1}
-            value={amountInput}
-            onChange={e => { setAmountInput(e.target.value); const n = parseFloat(e.target.value); if (!isNaN(n)) setValue('donationAmount', n); }}
-            placeholder="Jiná částka"
-            className="w-full border border-slate-300 rounded-lg px-3 py-2 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
-          />
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400">Kč</span>
-        </div>
-        {errors.donationAmount && <p className="text-red-500 text-xs">{errors.donationAmount.message}</p>}
-      </div>
+      <AmountPicker value={amount} onChange={n => { setAmount(n); setValue('donationAmount', n); }} />
 
       <input {...register('customerName')} placeholder="Jméno a příjmení" className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
       {errors.customerName && <p className="text-red-500 text-xs">{errors.customerName.message}</p>}
@@ -267,9 +257,18 @@ function UnitView({ units, shopConfig, defaultUnitId, defaultAmount }: {
 export default function WidgetPage() {
   const [searchParams] = useSearchParams();
 
-  const unitSlugParam = searchParams.get('unit') || '';
-  const activityCodeParam = searchParams.get('activity') || '';
+  const unitParam = searchParams.get('unit') || '';
+  const defaultUnitParam = searchParams.get('default-unit') || '';
+  const activityParam = searchParams.get('activity') || '';
+  const defaultActivityParam = searchParams.get('default-activity') || '';
   const amountParam = parseFloat(searchParams.get('amount') || '0') || 500;
+  const titleParam = searchParams.get('title') || null;
+
+  const hasUnitHint = !!(unitParam || defaultUnitParam);
+  const hasActivityHint = !!(activityParam || defaultActivityParam);
+  const defaultMode: 'unit' | 'activity' = hasActivityHint ? 'activity' : 'unit';
+  const [mode, setMode] = useState<'unit' | 'activity'>(defaultMode);
+  const showToggle = !hasUnitHint && !hasActivityHint;
 
   const { data: units = [] } = useQuery<MilitaryUnit[]>({
     queryKey: ['military-units'],
@@ -289,11 +288,12 @@ export default function WidgetPage() {
     staleTime: Infinity,
   });
 
-  const defaultTarget: 'unit' | 'activity' = activityCodeParam ? 'activity' : 'unit';
-  const [target, setTarget] = useState<'unit' | 'activity'>(defaultTarget);
+  const fixedUnit = unitParam ? units.find(u => u.slug === unitParam) : undefined;
+  const defaultUnit = defaultUnitParam ? units.find(u => u.slug === defaultUnitParam) : undefined;
+  const fixedActivity = activityParam ? activities.find(a => a.code === activityParam) : undefined;
+  const defaultActivity = defaultActivityParam ? activities.find(a => a.code === defaultActivityParam) : undefined;
 
-  const preselectedUnit = units.find(u => u.slug === unitSlugParam);
-  const preselectedActivity = activities.find(a => a.code === activityCodeParam);
+  const effectiveMode = showToggle ? mode : (hasActivityHint ? 'activity' : 'unit');
 
   return (
     <div className="w-full max-w-sm bg-white rounded-2xl shadow-xl border border-slate-100 p-6">
@@ -302,46 +302,48 @@ export default function WidgetPage() {
           <Heart size={16} className="text-brand-600" />
         </div>
         <div>
-          <p className="font-bold text-slate-800 text-sm leading-tight">Darovat — Česká stopa</p>
+          <p className="font-bold text-slate-800 text-sm leading-tight">Česká stopa</p>
           <p className="text-xs text-slate-500">Nadační fond</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-1.5 mb-4">
-        {([
-          { value: 'unit', label: 'Jednotce' },
-          { value: 'activity', label: 'Účelu fondu' },
-        ] as const).map(({ value, label }) => (
-          <button
-            key={value}
-            type="button"
-            onClick={() => setTarget(value)}
-            className={`flex items-center gap-1.5 p-2.5 border-2 rounded-lg transition-colors text-xs font-medium ${target === value ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-200 text-slate-600 hover:border-slate-300'}`}
-          >
-            <span className={`w-2.5 h-2.5 rounded-full border-2 flex-shrink-0 ${target === value ? 'border-brand-500 bg-brand-500' : 'border-slate-400'}`} />
-            {label}
-          </button>
-        ))}
-      </div>
+      {showToggle && (
+        <div className="grid grid-cols-2 gap-1.5 mb-4">
+          {([
+            { value: 'unit', label: 'Jednotce' },
+            { value: 'activity', label: 'Účelu fondu' },
+          ] as const).map(({ value, label }) => (
+            <button key={value} type="button" onClick={() => setMode(value)}
+              className={`flex items-center gap-1.5 p-2.5 border-2 rounded-lg transition-colors text-xs font-medium ${mode === value ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-200 text-slate-600 hover:border-slate-300'}`}
+            >
+              <span className={`w-2.5 h-2.5 rounded-full border-2 flex-shrink-0 ${mode === value ? 'border-brand-500 bg-brand-500' : 'border-slate-400'}`} />
+              {label}
+            </button>
+          ))}
+        </div>
+      )}
 
-      {target === 'activity' ? (
-        <ActivityView
+      {effectiveMode === 'activity' ? (
+        <ActivityWidget
           activities={activities}
           shopConfig={shopConfig}
-          defaultActivityId={preselectedActivity?.id || ''}
+          fixedActivity={fixedActivity}
+          defaultActivityId={defaultActivity?.id || ''}
           defaultAmount={amountParam}
+          title={titleParam}
         />
       ) : (
-        <UnitView
+        <UnitWidget
           units={units}
           shopConfig={shopConfig}
-          defaultUnitId={preselectedUnit?.id || ''}
+          fixedUnit={fixedUnit}
+          defaultUnitId={defaultUnit?.id || ''}
           defaultAmount={amountParam}
+          title={titleParam}
         />
       )}
 
       <p className="text-xs text-slate-400 text-center mt-4">
-        Dar pro{' '}
         <a href="/" target="_blank" rel="noopener noreferrer" className="underline hover:text-slate-600">
           Česká stopa — Nadační fond
         </a>

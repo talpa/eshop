@@ -92,9 +92,12 @@ export default function WidgetGuidePage() {
                 </thead>
                 <tbody className="divide-y divide-slate-50 text-xs">
                   {[
-                    { param: 'unit', desc: 'Slug jednotky', ex: 'unit=arisovy-poletuchy' },
-                    { param: 'activity', desc: 'Kód aktivity', ex: 'activity=2110' },
-                    { param: 'amount', desc: 'Výše daru v Kč', ex: 'amount=500' },
+                    { param: 'unit', ex: 'unit=arisovy-poletuchy', desc: 'Fixní jednotka — zobrazí text, skryje select' },
+                    { param: 'default-unit', ex: 'default-unit=arisovy-poletuchy', desc: 'Předvolená jednotka, select zůstane' },
+                    { param: 'activity', ex: 'activity=2110', desc: 'Fixní aktivita — zobrazí text, skryje select' },
+                    { param: 'default-activity', ex: 'default-activity=2110', desc: 'Předvolená aktivita, select zůstane' },
+                    { param: 'amount', ex: 'amount=500', desc: 'Předvyplněná výše daru v Kč' },
+                    { param: 'title', ex: 'title=Podpořte+nás', desc: 'Přepíše nadpisový text widgetu' },
                   ].map(r => (
                     <tr key={r.param} className="hover:bg-slate-50">
                       <td className="px-4 py-2.5 font-mono text-brand-700 font-medium">{r.param}</td>
@@ -184,6 +187,22 @@ export default function WidgetGuidePage() {
               >
                 amount=1000
               </button>
+              {units && units.length > 0 && (
+                <button
+                  onClick={() => setPreviewParams(`default-unit=${units[0].slug}`)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${previewParams === `default-unit=${units[0].slug}` ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-300 text-slate-600 hover:border-slate-400'}`}
+                >
+                  default-unit
+                </button>
+              )}
+              {activities && activities.length > 0 && (
+                <button
+                  onClick={() => setPreviewParams(`default-activity=${activities[0].code}`)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${previewParams === `default-activity=${activities[0].code}` ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-300 text-slate-600 hover:border-slate-400'}`}
+                >
+                  default-activity
+                </button>
+              )}
             </div>
             <p className="text-xs text-slate-400 mb-4">
               <code className="bg-slate-100 px-1 py-0.5 rounded">{origin}/widget{previewParams ? `?${previewParams}` : ''}</code>
@@ -244,14 +263,32 @@ export default function WidgetGuidePage() {
               />
               {units && units.length > 0 && (
                 <CodeBlock
-                  label="Jednotka + částka 1000 Kč"
+                  label={`Fixní jednotka + částka — ${units[0].name}`}
                   code={iframeHtml(`unit=${units[0].slug}&amount=1000`, `Darovat — ${units[0].name}`)}
+                />
+              )}
+              {units && units.length > 0 && (
+                <CodeBlock
+                  label={`Předvolená jednotka (select zůstane) — ${units[0].name}`}
+                  code={iframeHtml(`default-unit=${units[0].slug}`, `Darovat — ${units[0].name}`)}
                 />
               )}
               {activities && activities.length > 0 && (
                 <CodeBlock
-                  label="Aktivita + částka 500 Kč"
+                  label={`Fixní aktivita + částka — ${activities[0].code}`}
                   code={iframeHtml(`activity=${activities[0].code}&amount=500`, activities[0].name)}
+                />
+              )}
+              {activities && activities.length > 0 && (
+                <CodeBlock
+                  label={`Předvolená aktivita (select zůstane) — ${activities[0].code}`}
+                  code={iframeHtml(`default-activity=${activities[0].code}`)}
+                />
+              )}
+              {units && units.length > 0 && (
+                <CodeBlock
+                  label="Vlastní nadpis (title=)"
+                  code={iframeHtml(`unit=${units[0].slug}&title=Podpořte+naši+jednotku`, 'Darovat')}
                 />
               )}
             </div>
