@@ -5,6 +5,7 @@ import { optionalAuth, authenticate, requireAdmin, AuthRequest } from '../middle
 import { generateVariableSymbol, generateQrPayload } from '../lib/fio';
 import { sendEmail } from '../lib/email';
 import { buildDonationConfirmationEmail } from '../lib/donationEmail';
+import { buildOrderCreatedEmail } from '../lib/orderCreatedEmail';
 import { generateDonationPdf } from '../lib/donationPdf';
 
 const router = Router();
@@ -129,6 +130,21 @@ router.post('/', optionalAuth, async (req: AuthRequest, res: Response, next: Nex
         create: { email: body.customerEmail, name: body.customerName },
       }).catch(() => {});
     }
+
+    const frontendUrl = (process.env.FRONTEND_URL || 'http://localhost:5173').split(',')[0].trim();
+    const email = buildOrderCreatedEmail({
+      customerName: order.customerName,
+      customerEmail: order.customerEmail,
+      variableSymbol: order.variableSymbol,
+      donationAmount: Number(order.donationAmount),
+      totalCzk: Number(order.totalCzk),
+      unitName: order.militaryUnit?.name,
+      accountNumber: process.env.SHOP_BANK_ACCOUNT || '',
+      iban: process.env.SHOP_IBAN || '',
+      orderUrl: `${frontendUrl}/orders/${order.id}`,
+      items: order.items.map(i => ({ productName: i.productName, quantity: i.quantity })),
+    });
+    sendEmail(email).catch(err => console.error('[email] Order created email failed:', err));
 
     res.status(201).json(order);
   } catch (err) { next(err); }

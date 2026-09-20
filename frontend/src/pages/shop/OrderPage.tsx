@@ -28,6 +28,12 @@ export default function OrderPage() {
     queryFn: () => api.get<Order>(`/orders/${id}`).then(r => r.data),
   });
 
+  const { data: shopConfig } = useQuery<{ accountNumber: string; iban: string }>({
+    queryKey: ['shop-config'],
+    queryFn: () => api.get('/config').then(r => r.data),
+    staleTime: Infinity,
+  });
+
   const downloadPdf = () => {
     const base = (import.meta.env.VITE_API_URL || '/api').replace(/\/$/, '');
     window.open(`${base}/orders/${id}/confirmation/pdf`, '_blank');
@@ -86,22 +92,25 @@ export default function OrderPage() {
           ) : null}
 
           <div className="bg-slate-50 rounded-lg px-4 py-3 mb-4 space-y-1.5 text-sm">
-            {order.payment?.qrPayload && (() => {
-              const iban = order.payment!.qrPayload.match(/ACC:([^*]+)/)?.[1];
-              return iban ? (
-                <div className="flex justify-between">
-                  <span className="text-slate-500">Číslo účtu (IBAN)</span>
-                  <span className="font-mono font-medium">{iban}</span>
-                </div>
-              ) : null;
-            })()}
-            <div className="flex justify-between">
+            {shopConfig?.accountNumber && (
+              <div className="flex justify-between">
+                <span className="text-slate-500">Číslo účtu</span>
+                <span className="font-mono font-medium">{shopConfig.accountNumber}</span>
+              </div>
+            )}
+            {shopConfig?.iban && (
+              <div className="flex justify-between">
+                <span className="text-slate-500">IBAN</span>
+                <span className="font-mono font-medium text-xs">{shopConfig.iban}</span>
+              </div>
+            )}
+            <div className="flex justify-between border-t border-slate-200 pt-1.5 mt-1.5">
               <span className="text-slate-500">Variabilní symbol</span>
-              <span className="font-mono font-bold text-slate-800">{order.variableSymbol}</span>
+              <span className="font-mono font-bold text-slate-800 text-base">{order.variableSymbol}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-slate-500">Částka</span>
-              <span className="font-bold text-brand-600">{formatPrice(Number(order.donationAmount))}</span>
+              <span className="font-bold text-brand-600 text-base">{formatPrice(Number(order.donationAmount))}</span>
             </div>
           </div>
 

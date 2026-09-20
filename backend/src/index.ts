@@ -50,6 +50,10 @@ app.use(express.json({ limit: '10mb' }));
 app.use(passport.initialize());
 
 app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
+app.get('/api/config', (_req, res) => res.json({
+  accountNumber: process.env.SHOP_BANK_ACCOUNT || '',
+  iban: process.env.SHOP_IBAN || '',
+}));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
