@@ -31,19 +31,22 @@ function CodeBlock({ label, code, lang = 'html' }: { label?: string; code: strin
 
 const IFRAME_STYLE = `border:none;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,0.10);`;
 
-function iframeHtml(params: string, title = 'Darovat — Česká stopa') {
+function iframeHtml(path: string, params: string, title = 'Darovat — Česká stopa') {
   const origin = window.location.origin;
-  const src = `${origin}/widget${params ? `?${params}` : ''}`;
+  const src = `${origin}${path}${params ? `?${params}` : ''}`;
   return `<iframe\n  src="${src}"\n  width="380"\n  height="560"\n  style="${IFRAME_STYLE}"\n  title="${title}"\n></iframe>`;
 }
 
-function iframeReact(params: string, title = 'Darovat — Česká stopa') {
+function iframeReact(path: string, params: string, title = 'Darovat — Česká stopa') {
   const origin = window.location.origin;
-  const src = `${origin}/widget${params ? `?${params}` : ''}`;
+  const src = `${origin}${path}${params ? `?${params}` : ''}`;
   return `<iframe\n  src="${src}"\n  width={380}\n  height={560}\n  style={{ border: 'none', borderRadius: 12, boxShadow: '0 4px 24px rgba(0,0,0,.1)' }}\n  title="${title}"\n/>`;
 }
 
+type WidgetRoute = '/widget' | '/widget/unit' | '/widget/activity';
+
 export default function WidgetGuidePage() {
+  const [previewRoute, setPreviewRoute] = useState<WidgetRoute>('/widget');
   const [previewParams, setPreviewParams] = useState('');
   const [activeTab, setActiveTab] = useState<'html' | 'react'>('html');
 
@@ -58,6 +61,7 @@ export default function WidgetGuidePage() {
   });
 
   const origin = window.location.origin;
+  const previewSrc = `${origin}${previewRoute}${previewParams ? `?${previewParams}` : ''}`;
 
   return (
     <div className="max-w-screen-xl mx-auto px-6 py-10">
@@ -73,44 +77,71 @@ export default function WidgetGuidePage() {
         </div>
       </div>
 
+      {/* Varianty widgetu */}
+      <div className="grid sm:grid-cols-3 gap-4 mb-10">
+        {[
+          {
+            route: '/widget' as WidgetRoute,
+            title: '/widget',
+            desc: 'Obecný widget — zobrazí přepínač "Jednotce / Účelu fondu". Chování řídí URL parametry.',
+            color: 'border-slate-300',
+          },
+          {
+            route: '/widget/unit' as WidgetRoute,
+            title: '/widget/unit',
+            desc: 'Widget pro konkrétní vojenskou jednotku. Vyžaduje zadání jména a e-mailu, vytvoří objednávku.',
+            color: 'border-brand-400',
+          },
+          {
+            route: '/widget/activity' as WidgetRoute,
+            title: '/widget/activity',
+            desc: 'Widget pro účel fondu (čísla aktivit). QR kód generuje přímo v prohlížeči — nevzniká žádná objednávka.',
+            color: 'border-brand-400',
+          },
+        ].map(v => (
+          <div key={v.route} className={`bg-white border-2 ${v.color} rounded-xl p-5`}>
+            <code className="text-sm font-bold text-brand-700 bg-brand-50 px-2 py-1 rounded">{v.route}</code>
+            <p className="text-sm text-slate-600 mt-2 leading-relaxed">{v.desc}</p>
+          </div>
+        ))}
+      </div>
+
       <div className="grid xl:grid-cols-[320px_400px_1fr] lg:grid-cols-[380px_1fr] gap-10 items-start">
 
-        {/* Levý sloupec: parametry + živý náhled */}
+        {/* Levý sloupec: parametry + dostupné hodnoty */}
         <div className="space-y-8">
 
-          {/* Parametry */}
           <section>
             <h2 className="text-lg font-semibold mb-3">URL parametry</h2>
             <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
               <table className="w-full text-sm">
                 <thead className="bg-slate-50 border-b border-slate-100">
                   <tr>
-                    {['Parametr', 'Příklad'].map(h => (
-                      <th key={h} className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">{h}</th>
+                    {['Parametr', 'Platí pro', 'Popis'].map(h => (
+                      <th key={h} className="text-left px-3 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50 text-xs">
                   {[
-                    { param: 'unit', ex: 'unit=arisovy-poletuchy', desc: 'Fixní jednotka — zobrazí text, skryje select' },
-                    { param: 'default-unit', ex: 'default-unit=arisovy-poletuchy', desc: 'Předvolená jednotka, select zůstane' },
-                    { param: 'activity', ex: 'activity=2110', desc: 'Fixní aktivita — zobrazí text, skryje select' },
-                    { param: 'default-activity', ex: 'default-activity=2110', desc: 'Předvolená aktivita, select zůstane' },
-                    { param: 'amount', ex: 'amount=500', desc: 'Předvyplněná výše daru v Kč' },
-                    { param: 'title', ex: 'title=Podpořte+nás', desc: 'Přepíše nadpisový text widgetu' },
+                    { param: 'unit', for: '/unit', desc: 'Fixní jednotka — zobrazí text, skryje select' },
+                    { param: 'default-unit', for: '/unit', desc: 'Předvolená jednotka, select zůstane viditelný' },
+                    { param: 'activity', for: '/activity', desc: 'Fixní aktivita — zobrazí text, skryje select' },
+                    { param: 'default-activity', for: '/activity', desc: 'Předvolená aktivita, select zůstane viditelný' },
+                    { param: 'amount', for: 'vše', desc: 'Předvyplněná výše daru v Kč' },
+                    { param: 'title', for: 'vše', desc: 'Přepíše nadpisový text widgetu' },
                   ].map(r => (
                     <tr key={r.param} className="hover:bg-slate-50">
-                      <td className="px-4 py-2.5 font-mono text-brand-700 font-medium">{r.param}</td>
-                      <td className="px-4 py-2.5 font-mono text-slate-500">{r.ex}</td>
+                      <td className="px-3 py-2.5 font-mono text-brand-700 font-medium">{r.param}</td>
+                      <td className="px-3 py-2.5 font-mono text-slate-400">{r.for}</td>
+                      <td className="px-3 py-2.5 text-slate-600">{r.desc}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
-            <p className="text-xs text-slate-400 mt-2">Kombinace: <code className="bg-slate-100 px-1 py-0.5 rounded">?unit=slug&amount=500</code></p>
           </section>
 
-          {/* Dostupné hodnoty */}
           {(units || activities) && (
             <section>
               <h2 className="text-lg font-semibold mb-3">Dostupné hodnoty</h2>
@@ -158,58 +189,57 @@ export default function WidgetGuidePage() {
         <div className="space-y-4">
           <section>
             <h2 className="text-lg font-semibold mb-3">Živý náhled</h2>
-            <div className="flex flex-wrap gap-2 mb-3">
-              <button
-                onClick={() => setPreviewParams('')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${previewParams === '' ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-300 text-slate-600 hover:border-slate-400'}`}
-              >
-                Obecný
-              </button>
-              {units?.slice(0, 3).map(u => (
-                <button key={u.id}
-                  onClick={() => setPreviewParams(`unit=${u.slug}`)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${previewParams === `unit=${u.slug}` ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-300 text-slate-600 hover:border-slate-400'}`}
+
+            {/* Přepínač routy */}
+            <div className="flex gap-1.5 mb-3 flex-wrap">
+              {(['/widget', '/widget/unit', '/widget/activity'] as WidgetRoute[]).map(r => (
+                <button key={r}
+                  onClick={() => { setPreviewRoute(r); setPreviewParams(''); }}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-mono font-medium border transition-colors ${previewRoute === r ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-300 text-slate-600 hover:border-slate-400'}`}
                 >
-                  {u.name}
+                  {r}
                 </button>
               ))}
-              {activities?.slice(0, 2).map(a => (
+            </div>
+
+            {/* Parametry podle routy */}
+            <div className="flex flex-wrap gap-1.5 mb-3">
+              <button
+                onClick={() => setPreviewParams('')}
+                className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-colors ${previewParams === '' ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-300 text-slate-600 hover:border-slate-400'}`}
+              >
+                bez params
+              </button>
+              {previewRoute !== '/widget/activity' && units?.slice(0, 2).map(u => (
+                <button key={u.id}
+                  onClick={() => setPreviewParams(`unit=${u.slug}`)}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-colors ${previewParams === `unit=${u.slug}` ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-300 text-slate-600 hover:border-slate-400'}`}
+                >
+                  {u.slug}
+                </button>
+              ))}
+              {previewRoute !== '/widget/unit' && activities?.slice(0, 2).map(a => (
                 <button key={a.id}
                   onClick={() => setPreviewParams(`activity=${a.code}`)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${previewParams === `activity=${a.code}` ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-300 text-slate-600 hover:border-slate-400'}`}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-colors ${previewParams === `activity=${a.code}` ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-300 text-slate-600 hover:border-slate-400'}`}
                 >
                   {a.code}
                 </button>
               ))}
               <button
                 onClick={() => setPreviewParams('amount=1000')}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${previewParams === 'amount=1000' ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-300 text-slate-600 hover:border-slate-400'}`}
+                className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-colors ${previewParams === 'amount=1000' ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-300 text-slate-600 hover:border-slate-400'}`}
               >
                 amount=1000
               </button>
-              {units && units.length > 0 && (
-                <button
-                  onClick={() => setPreviewParams(`default-unit=${units[0].slug}`)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${previewParams === `default-unit=${units[0].slug}` ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-300 text-slate-600 hover:border-slate-400'}`}
-                >
-                  default-unit
-                </button>
-              )}
-              {activities && activities.length > 0 && (
-                <button
-                  onClick={() => setPreviewParams(`default-activity=${activities[0].code}`)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${previewParams === `default-activity=${activities[0].code}` ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-300 text-slate-600 hover:border-slate-400'}`}
-                >
-                  default-activity
-                </button>
-              )}
             </div>
-            <p className="text-xs text-slate-400 mb-4">
-              <code className="bg-slate-100 px-1 py-0.5 rounded">{origin}/widget{previewParams ? `?${previewParams}` : ''}</code>
+
+            <p className="text-xs text-slate-400 mb-4 break-all">
+              <code className="bg-slate-100 px-1 py-0.5 rounded">{previewSrc}</code>
             </p>
             <iframe
-              key={previewParams}
-              src={`${origin}/widget${previewParams ? `?${previewParams}` : ''}`}
+              key={previewSrc}
+              src={previewSrc}
               width={380}
               height={560}
               style={{ border: 'none', borderRadius: 12, boxShadow: '0 4px 24px rgba(0,0,0,0.10)' }}
@@ -221,7 +251,6 @@ export default function WidgetGuidePage() {
         {/* Pravý sloupec: kódy */}
         <div className="space-y-8">
 
-          {/* Základní embed */}
           <section>
             <h2 className="text-lg font-semibold mb-3">Základní vložení</h2>
             <div className="flex gap-2 mb-3">
@@ -234,67 +263,59 @@ export default function WidgetGuidePage() {
                 </button>
               ))}
             </div>
-            {activeTab === 'html' ? (
-              <CodeBlock code={iframeHtml('')} lang="html" />
-            ) : (
-              <CodeBlock code={iframeReact('')} lang="jsx" />
-            )}
+            <div className="space-y-4">
+              <CodeBlock label="/widget — obecný (s přepínačem)" code={activeTab === 'html' ? iframeHtml('/widget', '') : iframeReact('/widget', '')} lang={activeTab === 'html' ? 'html' : 'jsx'} />
+              <CodeBlock label="/widget/unit — pro jednotku" code={activeTab === 'html' ? iframeHtml('/widget/unit', '') : iframeReact('/widget/unit', '')} lang={activeTab === 'html' ? 'html' : 'jsx'} />
+              <CodeBlock label="/widget/activity — pro účel fondu" code={activeTab === 'html' ? iframeHtml('/widget/activity', '') : iframeReact('/widget/activity', '')} lang={activeTab === 'html' ? 'html' : 'jsx'} />
+            </div>
           </section>
 
-          {/* S parametry */}
           <section>
             <h2 className="text-lg font-semibold mb-3">Příklady s parametry</h2>
             <div className="space-y-5">
               {units && units.length > 0 && (
                 <CodeBlock
-                  label={`Předvolená jednotka — ${units[0].name}`}
-                  code={iframeHtml(`unit=${units[0].slug}`, `Darovat — ${units[0].name}`)}
-                />
-              )}
-              {activities && activities.length > 0 && (
-                <CodeBlock
-                  label={`Předvolená aktivita — ${activities[0].code}`}
-                  code={iframeHtml(`activity=${activities[0].code}`, activities[0].name)}
-                />
-              )}
-              <CodeBlock
-                label="Předvolená částka 500 Kč"
-                code={iframeHtml('amount=500')}
-              />
-              {units && units.length > 0 && (
-                <CodeBlock
-                  label={`Fixní jednotka + částka — ${units[0].name}`}
-                  code={iframeHtml(`unit=${units[0].slug}&amount=1000`, `Darovat — ${units[0].name}`)}
+                  label={`Fixní jednotka — ${units[0].name}`}
+                  code={iframeHtml('/widget/unit', `unit=${units[0].slug}`, `Darovat — ${units[0].name}`)}
                 />
               )}
               {units && units.length > 0 && (
                 <CodeBlock
                   label={`Předvolená jednotka (select zůstane) — ${units[0].name}`}
-                  code={iframeHtml(`default-unit=${units[0].slug}`, `Darovat — ${units[0].name}`)}
+                  code={iframeHtml('/widget/unit', `default-unit=${units[0].slug}`, `Darovat — ${units[0].name}`)}
+                />
+              )}
+              {units && units.length > 0 && (
+                <CodeBlock
+                  label={`Fixní jednotka + částka — ${units[0].name}`}
+                  code={iframeHtml('/widget/unit', `unit=${units[0].slug}&amount=1000`, `Darovat — ${units[0].name}`)}
                 />
               )}
               {activities && activities.length > 0 && (
                 <CodeBlock
-                  label={`Fixní aktivita + částka — ${activities[0].code}`}
-                  code={iframeHtml(`activity=${activities[0].code}&amount=500`, activities[0].name)}
+                  label={`Fixní aktivita — ${activities[0].code} ${activities[0].name}`}
+                  code={iframeHtml('/widget/activity', `activity=${activities[0].code}`, activities[0].name)}
                 />
               )}
               {activities && activities.length > 0 && (
                 <CodeBlock
                   label={`Předvolená aktivita (select zůstane) — ${activities[0].code}`}
-                  code={iframeHtml(`default-activity=${activities[0].code}`)}
+                  code={iframeHtml('/widget/activity', `default-activity=${activities[0].code}`)}
                 />
               )}
-              {units && units.length > 0 && (
+              {activities && activities.length > 0 && (
                 <CodeBlock
-                  label="Vlastní nadpis (title=)"
-                  code={iframeHtml(`unit=${units[0].slug}&title=Podpořte+naši+jednotku`, 'Darovat')}
+                  label={`Fixní aktivita + částka — ${activities[0].code}`}
+                  code={iframeHtml('/widget/activity', `activity=${activities[0].code}&amount=500`, activities[0].name)}
                 />
               )}
+              <CodeBlock
+                label="Vlastní nadpis (title=)"
+                code={iframeHtml('/widget/unit', `title=Podpořte+naši+jednotku`)}
+              />
             </div>
           </section>
 
-          {/* Kompletní HTML stránka */}
           <section>
             <h2 className="text-lg font-semibold mb-3">Kompletní HTML stránka</h2>
             <CodeBlock
@@ -314,7 +335,7 @@ export default function WidgetGuidePage() {
 <body>
   <h2>Podpořte naši jednotku</h2>
   <iframe
-    src="${origin}/widget?unit=vas-slug&amount=500"
+    src="${origin}/widget/unit?unit=vas-slug&amount=500"
     width="380"
     height="560"
     style="${IFRAME_STYLE}"

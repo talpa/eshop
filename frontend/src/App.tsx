@@ -20,6 +20,8 @@ const AdminActivitiesPage = lazy(() => import('./pages/admin/AdminActivitiesPage
 const DonatePage = lazy(() => import('./pages/shop/DonatePage'));
 const WidgetGuidePage = lazy(() => import('./pages/shop/WidgetGuidePage'));
 const WidgetPage = lazy(() => import('./pages/widget/WidgetPage'));
+const UnitWidgetPage = lazy(() => import('./pages/widget/UnitWidgetPage'));
+const ActivityWidgetPage = lazy(() => import('./pages/widget/ActivityWidgetPage'));
 
 function Loader() {
   return <div className="p-8 text-sm text-slate-500 text-center">Načítám...</div>;
@@ -67,6 +69,8 @@ export default function App() {
 
         <Route path="/widget" element={<WidgetLayout />}>
           <Route index element={wrap(<WidgetPage />)} />
+          <Route path="unit" element={wrap(<UnitWidgetPage />)} />
+          <Route path="activity" element={wrap(<ActivityWidgetPage />)} />
         </Route>
 
         <Route path="/admin" element={<RequireAdmin><AdminLayout /></RequireAdmin>}>
