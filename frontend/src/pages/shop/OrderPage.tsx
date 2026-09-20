@@ -1,7 +1,7 @@
 import { useParams, Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { QRCodeSVG } from 'qrcode.react';
-import { CheckCircle, RefreshCw, FileText, Download } from 'lucide-react';
+import { CheckCircle, RefreshCw, FileText, Download, MapPin, Package } from 'lucide-react';
 import { api } from '../../lib/api';
 import { useAuthStore } from '../../store/authStore';
 import { Order } from '../../types';
@@ -133,9 +133,30 @@ export default function OrderPage() {
         </div>
       </div>
 
-      <div className="text-sm text-slate-500">
-        <p><strong>Doručit na:</strong> {order.shippingAddress}</p>
-        {order.note && <p className="mt-1"><strong>Poznámka:</strong> {order.note}</p>}
+      <div className="bg-white border border-slate-200 rounded-xl p-4 text-sm text-slate-600">
+        <h2 className="font-semibold mb-2 text-sm text-slate-800">Doručení</h2>
+        {order.deliveryType === 'PACKETA' ? (
+          <div className="flex items-start gap-2">
+            <Package size={14} className="text-slate-400 mt-0.5 flex-shrink-0" />
+            <div>
+              <p className="font-medium">{order.packetaPointName || 'Zásilkovna'}</p>
+              {order.packetaPointId && <p className="text-xs text-slate-400">ID: {order.packetaPointId}</p>}
+            </div>
+          </div>
+        ) : (
+          <div className="flex items-start gap-2">
+            <MapPin size={14} className="text-slate-400 mt-0.5 flex-shrink-0" />
+            <div>
+              {order.street && <p>{order.street}</p>}
+              {(order.city || order.zip) && (
+                <p>{[order.zip, order.city].filter(Boolean).join(' ')}</p>
+              )}
+              {order.country && order.country !== 'CZ' && <p className="text-xs text-slate-400">{order.country}</p>}
+              {!order.street && order.shippingAddress && <p>{order.shippingAddress}</p>}
+            </div>
+          </div>
+        )}
+        {order.note && <p className="mt-2 pt-2 border-t border-slate-100"><strong>Poznámka:</strong> {order.note}</p>}
       </div>
 
       <Link to="/my-orders" className="inline-block mt-6 text-sm text-brand-600 hover:underline">
