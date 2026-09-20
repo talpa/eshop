@@ -1,13 +1,13 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Pencil, Trash2, X } from 'lucide-react';
+import { Plus, Pencil, Trash2, X, Upload, ImageOff } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import toast from 'react-hot-toast';
 import { api } from '../../lib/api';
 import { Product, Category, MilitaryUnit } from '../../types';
-import { formatPrice } from '../../lib/utils';
+import { formatPrice, getImageUrl } from '../../lib/utils';
 
 const schema = z.object({
   name: z.string().min(1, 'Název je povinný'),
@@ -25,6 +25,9 @@ export default function AdminProductsPage() {
   const [editing, setEditing] = useState<Product | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [selectedUnitIds, setSelectedUnitIds] = useState<string[]>([]);
+  const [productImages, setProductImages] = useState<string[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data, isLoading } = useQuery({
     queryKey: ['admin-products'],
@@ -44,7 +47,7 @@ export default function AdminProductsPage() {
   const { register, handleSubmit, reset, formState: { errors } } = useForm<FormData>({ resolver: zodResolver(schema) });
 
   const saveMutation = useMutation({
-    mutationFn: (data: FormData & { militaryUnitIds: string[] }) =>
+    mutationFn: (data: FormData & { militaryUnitIds: string[]; images: string[] }) =>
       editing
         ? api.patch(`/products/${editing.id}`, data)
         : api.post('/products', data),
@@ -54,10 +57,35 @@ export default function AdminProductsPage() {
       setShowForm(false);
       setEditing(null);
       setSelectedUnitIds([]);
+      setProductImages([]);
       reset();
     },
     onError: () => toast.error('Chyba při ukládání.'),
   });
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/upload/image', {
+        method: 'POST',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+        body: fd,
+      });
+      if (!res.ok) throw new Error((await res.json()).message || 'Chyba');
+      const { url } = await res.json();
+      setProductImages(prev => [...prev, url]);
+    } catch (err: any) {
+      toast.error(err.message || 'Chyba při nahrávání obrázku.');
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
 
   const deleteMutation = useMutation({
     mutationFn: (id: string) => api.delete(`/products/${id}`),
@@ -67,6 +95,7 @@ export default function AdminProductsPage() {
   const openEdit = (product: Product) => {
     setEditing(product);
     setSelectedUnitIds((product.militaryUnits || []).map(u => u.id));
+    setProductImages(product.images || []);
     reset({
       name: product.name,
       slug: product.slug,
@@ -82,6 +111,7 @@ export default function AdminProductsPage() {
   const openNew = () => {
     setEditing(null);
     setSelectedUnitIds([]);
+    setProductImages([]);
     reset({ isActive: true, stock: 0 });
     setShowForm(true);
   };
@@ -105,7 +135,7 @@ export default function AdminProductsPage() {
               <h2 className="text-lg font-bold">{editing ? 'Upravit produkt' : 'Nový produkt'}</h2>
               <button onClick={() => setShowForm(false)}><X size={20} /></button>
             </div>
-            <form onSubmit={handleSubmit(d => saveMutation.mutate({ ...d, militaryUnitIds: selectedUnitIds }))} className="space-y-3">
+            <form onSubmit={handleSubmit(d => saveMutation.mutate({ ...d, militaryUnitIds: selectedUnitIds, images: productImages }))} className="space-y-3">
               {[
                 { name: 'name' as const, label: 'Název' },
                 { name: 'slug' as const, label: 'Slug (URL)' },
@@ -120,6 +150,47 @@ export default function AdminProductsPage() {
                 <label className="block text-xs font-medium mb-1">Popis</label>
                 <textarea {...register('description')} rows={2} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
               </div>
+
+              <div>
+                <label className="block text-xs font-medium mb-2">Obrázky</label>
+                {productImages.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    {productImages.map((url, i) => (
+                      <div key={i} className="relative group">
+                        <img
+                          src={getImageUrl(url)}
+                          alt=""
+                          className="w-20 h-20 object-cover rounded-lg border border-slate-200"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setProductImages(prev => prev.filter((_, j) => j !== i))}
+                          className="absolute -top-1.5 -right-1.5 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <X size={10} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/jpeg,image/png,image/webp,image/gif"
+                  onChange={handleImageUpload}
+                  className="hidden"
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                  className="flex items-center gap-2 px-3 py-2 text-xs border border-dashed border-slate-300 rounded-lg text-slate-500 hover:border-brand-400 hover:text-brand-600 transition-colors disabled:opacity-50"
+                >
+                  <Upload size={14} />
+                  {uploading ? 'Nahrávám...' : 'Nahrát obrázek'}
+                </button>
+              </div>
+
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-medium mb-1">Min. dar (Kč)</label>
@@ -177,7 +248,7 @@ export default function AdminProductsPage() {
         <table className="w-full text-sm">
           <thead className="bg-slate-50 border-b border-slate-200">
             <tr>
-              {['Název', 'Kategorie', 'Min. dar', 'Jednotky', 'Sklad', 'Aktivní', ''].map(h => (
+              {['', 'Název', 'Kategorie', 'Min. dar', 'Jednotky', 'Sklad', 'Aktivní', ''].map(h => (
                 <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">{h}</th>
               ))}
             </tr>
@@ -185,6 +256,15 @@ export default function AdminProductsPage() {
           <tbody className="divide-y divide-slate-100">
             {data?.products.map(p => (
               <tr key={p.id} className="hover:bg-slate-50">
+                <td className="px-4 py-3">
+                  {p.images?.[0] ? (
+                    <img src={getImageUrl(p.images[0])} alt="" className="w-10 h-10 object-cover rounded-lg border border-slate-200" />
+                  ) : (
+                    <div className="w-10 h-10 rounded-lg border border-slate-200 bg-slate-100 flex items-center justify-center">
+                      <ImageOff size={14} className="text-slate-300" />
+                    </div>
+                  )}
+                </td>
                 <td className="px-4 py-3 font-medium">{p.name}</td>
                 <td className="px-4 py-3 text-slate-500">{p.category?.name || '—'}</td>
                 <td className="px-4 py-3 font-semibold text-brand-600">{formatPrice(p.priceCzk)}</td>

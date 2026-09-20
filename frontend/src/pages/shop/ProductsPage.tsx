@@ -5,7 +5,7 @@ import { ShoppingCart, Search, Shield, Heart, FileText, ChevronRight } from 'luc
 import { api } from '../../lib/api';
 import { useCartStore } from '../../store/cartStore';
 import { Product, ProductsResponse, Category, MilitaryUnit } from '../../types';
-import { formatPrice } from '../../lib/utils';
+import { formatPrice, getImageUrl } from '../../lib/utils';
 import toast from 'react-hot-toast';
 
 const HOW_IT_WORKS = [
@@ -157,7 +157,7 @@ export default function ProductsPage() {
               <Link to={`/products/${product.slug}`}>
                 <div className="aspect-square bg-slate-100 flex items-center justify-center">
                   {product.images[0] ? (
-                    <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
+                    <img src={getImageUrl(product.images[0])} alt={product.name} className="w-full h-full object-cover" />
                   ) : (
                     <span className="text-slate-300 text-4xl">🎁</span>
                   )}

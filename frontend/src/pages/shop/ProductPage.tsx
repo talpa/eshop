@@ -5,7 +5,7 @@ import { ShoppingCart, ArrowLeft, Plus, Minus, Shield } from 'lucide-react';
 import { api } from '../../lib/api';
 import { useCartStore } from '../../store/cartStore';
 import { Product } from '../../types';
-import { formatPrice } from '../../lib/utils';
+import { formatPrice, getImageUrl } from '../../lib/utils';
 import toast from 'react-hot-toast';
 
 export default function ProductPage() {
@@ -34,7 +34,7 @@ export default function ProductPage() {
       <div className="grid md:grid-cols-2 gap-8">
         <div className="aspect-square bg-slate-100 rounded-xl flex items-center justify-center overflow-hidden">
           {product.images[0] ? (
-            <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
+            <img src={getImageUrl(product.images[0])} alt={product.name} className="w-full h-full object-cover" />
           ) : (
             <span className="text-slate-300 text-6xl">🎁</span>
           )}
