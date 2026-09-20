@@ -1,8 +1,20 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { TrendingUp, Banknote, CheckCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { api } from '../../lib/api';
 import { MilitaryUnit } from '../../types';
+import { formatPrice } from '../../lib/utils';
+
+interface UnitStats {
+  id: string;
+  name: string;
+  slug: string;
+  isActive: boolean;
+  orderCount: number;
+  totalReceived: number;
+  totalUsed: number;
+}
 
 export default function AdminMilitaryUnitsPage() {
   const qc = useQueryClient();
@@ -15,7 +27,15 @@ export default function AdminMilitaryUnitsPage() {
     queryFn: () => api.get<MilitaryUnit[]>('/military-units/admin').then(r => r.data),
   });
 
-  const invalidate = () => qc.invalidateQueries({ queryKey: ['admin-military-units'] });
+  const { data: stats } = useQuery<UnitStats[]>({
+    queryKey: ['military-units-stats'],
+    queryFn: () => api.get<UnitStats[]>('/military-units/stats').then(r => r.data),
+  });
+
+  const invalidate = () => {
+    qc.invalidateQueries({ queryKey: ['admin-military-units'] });
+    qc.invalidateQueries({ queryKey: ['military-units-stats'] });
+  };
 
   const createMutation = useMutation({
     mutationFn: (data: typeof form) => api.post('/military-units', data),
@@ -38,6 +58,10 @@ export default function AdminMilitaryUnitsPage() {
   const slugify = (name: string) =>
     name.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
+  const totalReceived = stats?.reduce((s, u) => s + u.totalReceived, 0) ?? 0;
+  const totalUsed = stats?.reduce((s, u) => s + u.totalUsed, 0) ?? 0;
+  const totalOrders = stats?.reduce((s, u) => s + u.orderCount, 0) ?? 0;
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
@@ -49,6 +73,80 @@ export default function AdminMilitaryUnitsPage() {
           + Přidat jednotku
         </button>
       </div>
+
+      {/* Souhrnné statistiky */}
+      <div className="grid sm:grid-cols-3 gap-4 mb-8">
+        <div className="bg-white border border-slate-200 rounded-xl p-4 flex items-center gap-3">
+          <div className="w-10 h-10 bg-brand-50 rounded-lg flex items-center justify-center flex-shrink-0">
+            <TrendingUp size={18} className="text-brand-600" />
+          </div>
+          <div>
+            <p className="text-xs text-slate-500">Celkem darů</p>
+            <p className="text-lg font-bold">{totalOrders}</p>
+          </div>
+        </div>
+        <div className="bg-white border border-slate-200 rounded-xl p-4 flex items-center gap-3">
+          <div className="w-10 h-10 bg-green-50 rounded-lg flex items-center justify-center flex-shrink-0">
+            <Banknote size={18} className="text-green-600" />
+          </div>
+          <div>
+            <p className="text-xs text-slate-500">Celkem přijato</p>
+            <p className="text-lg font-bold text-green-700">{formatPrice(totalReceived)}</p>
+          </div>
+        </div>
+        <div className="bg-white border border-slate-200 rounded-xl p-4 flex items-center gap-3">
+          <div className="w-10 h-10 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
+            <CheckCircle size={18} className="text-blue-600" />
+          </div>
+          <div>
+            <p className="text-xs text-slate-500">Celkem vyplaceno</p>
+            <p className="text-lg font-bold text-blue-700">{formatPrice(totalUsed)}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Statistiky per jednotka */}
+      {stats && stats.some(s => s.orderCount > 0) && (
+        <div className="bg-white border border-slate-200 rounded-xl overflow-hidden mb-8">
+          <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
+            <h2 className="font-semibold text-sm">Statistiky per jednotka</h2>
+          </div>
+          <table className="w-full text-sm">
+            <thead className="border-b border-slate-100">
+              <tr>
+                {['Jednotka', 'Počet darů', 'Přijato', 'Vyplaceno', 'Zbývá'].map(h => (
+                  <th key={h} className="text-left px-4 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-50">
+              {stats.filter(s => s.orderCount > 0).sort((a, b) => b.totalReceived - a.totalReceived).map(s => (
+                <tr key={s.id} className="hover:bg-slate-50">
+                  <td className="px-4 py-3 font-medium">{s.name}</td>
+                  <td className="px-4 py-3 text-slate-600">{s.orderCount}</td>
+                  <td className="px-4 py-3 font-semibold text-green-700">{formatPrice(s.totalReceived)}</td>
+                  <td className="px-4 py-3 text-blue-700">{formatPrice(s.totalUsed)}</td>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <span className={`font-medium ${s.totalReceived - s.totalUsed > 0 ? 'text-amber-700' : 'text-slate-400'}`}>
+                        {formatPrice(s.totalReceived - s.totalUsed)}
+                      </span>
+                      {s.totalReceived > 0 && (
+                        <div className="flex-1 max-w-20 bg-slate-100 rounded-full h-1.5">
+                          <div
+                            className="bg-blue-500 h-1.5 rounded-full"
+                            style={{ width: `${Math.min(100, (s.totalUsed / s.totalReceived) * 100)}%` }}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {(creating || editing) && (
         <div className="bg-white border border-slate-200 rounded-xl p-5 mb-6">

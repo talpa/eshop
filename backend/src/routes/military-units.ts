@@ -33,6 +33,41 @@ router.get('/admin', authenticate, requireAdmin, async (_req: Request, res: Resp
   } catch (err) { next(err); }
 });
 
+router.get('/stats', authenticate, requireAdmin, async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const PAID_STATUSES = ['PAID', 'PROCESSING', 'SHIPPED', 'DELIVERED'] as const;
+
+    const units = await prisma.militaryUnit.findMany({ orderBy: { name: 'asc' } });
+
+    const stats = await Promise.all(units.map(async (unit) => {
+      const [received, used] = await Promise.all([
+        prisma.order.aggregate({
+          where: { militaryUnitId: unit.id, status: { in: [...PAID_STATUSES] } },
+          _sum: { donationAmount: true },
+          _count: { id: true },
+        }),
+        prisma.order.aggregate({
+          where: { militaryUnitId: unit.id, fundsUsed: true },
+          _sum: { donationAmount: true },
+          _count: { id: true },
+        }),
+      ]);
+
+      return {
+        id: unit.id,
+        name: unit.name,
+        slug: unit.slug,
+        isActive: unit.isActive,
+        orderCount: received._count.id,
+        totalReceived: Number(received._sum.donationAmount ?? 0),
+        totalUsed: Number(used._sum.donationAmount ?? 0),
+      };
+    }));
+
+    res.json(stats);
+  } catch (err) { next(err); }
+});
+
 router.post('/', authenticate, requireAdmin, async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const body = unitSchema.parse(req.body);
