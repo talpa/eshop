@@ -26,6 +26,7 @@ export interface Product {
   isActive: boolean;
   categoryId?: string;
   category?: { id: string; name: string; slug: string };
+  militaryUnits?: { id: string; name: string; slug: string }[];
   createdAt: string;
 }
 
@@ -62,6 +63,8 @@ export interface Payment {
   createdAt: string;
 }
 
+export type DeliveryType = 'HOME' | 'PACKETA';
+
 export interface Order {
   id: string;
   status: OrderStatus;
@@ -70,7 +73,14 @@ export interface Order {
   variableSymbol: string;
   customerName: string;
   customerEmail: string;
-  shippingAddress: string;
+  shippingAddress?: string | null;
+  street?: string | null;
+  city?: string | null;
+  zip?: string | null;
+  country?: string;
+  deliveryType?: DeliveryType;
+  packetaPointId?: string | null;
+  packetaPointName?: string | null;
   note?: string;
   militaryUnitId?: string;
   militaryUnit?: { id: string; name: string } | null;

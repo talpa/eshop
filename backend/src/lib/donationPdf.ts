@@ -60,7 +60,10 @@ export const generateDonationPdf = (order: OrderWithDetails, res: Response): voi
   doc.text(order.customerName, margin + 12, boxY + 24);
   doc.font(FONT_REGULAR).fontSize(9).fillColor(TEXT_GRAY);
   doc.text(order.customerEmail, margin + 12, boxY + 38);
-  doc.text(order.shippingAddress, margin + 12, boxY + 52, { width: contentW / 2 - 24 });
+  const addressDisplay = order.shippingAddress
+    || [order.street, order.city, order.zip].filter(Boolean).join(', ')
+    || '—';
+  doc.text(addressDisplay, margin + 12, boxY + 52, { width: contentW / 2 - 24 });
 
   doc.font(FONT_BOLD).fontSize(9).fillColor(TEXT_GRAY);
   doc.text('DATUM DARU', col2, boxY + 12);

@@ -7,19 +7,23 @@ const router = Router();
 
 router.get('/', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { categorySlug, search, page = '1', limit = '20' } = req.query as Record<string, string>;
+    const { categorySlug, search, page = '1', limit = '20', unitSlug } = req.query as Record<string, string>;
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
     const where = {
       isActive: true,
       ...(categorySlug && { category: { slug: categorySlug } }),
       ...(search && { name: { contains: search, mode: 'insensitive' as const } }),
+      ...(unitSlug && { militaryUnits: { some: { slug: unitSlug } } }),
     };
 
     const [products, total] = await Promise.all([
       prisma.product.findMany({
         where,
-        include: { category: { select: { id: true, name: true, slug: true } } },
+        include: {
+          category: { select: { id: true, name: true, slug: true } },
+          militaryUnits: { where: { isActive: true }, select: { id: true, name: true, slug: true } },
+        },
         orderBy: { createdAt: 'desc' },
         skip,
         take: parseInt(limit),
@@ -35,7 +39,10 @@ router.get('/:slug', async (req: Request, res: Response, next: NextFunction): Pr
   try {
     const product = await prisma.product.findUnique({
       where: { slug: req.params.slug },
-      include: { category: { select: { id: true, name: true, slug: true } } },
+      include: {
+        category: { select: { id: true, name: true, slug: true } },
+        militaryUnits: { where: { isActive: true }, select: { id: true, name: true, slug: true, description: true } },
+      },
     });
     if (!product || !product.isActive) { res.status(404).json({ message: 'Produkt nenalezen.' }); return; }
     res.json(product);
@@ -51,20 +58,38 @@ const productSchema = z.object({
   images: z.array(z.string()).default([]),
   isActive: z.boolean().default(true),
   categoryId: z.string().optional(),
+  militaryUnitIds: z.array(z.string()).optional(),
 });
 
 router.post('/', authenticate, requireAdmin, async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const body = productSchema.parse(req.body);
-    const product = await prisma.product.create({ data: body });
+    const { militaryUnitIds, ...body } = productSchema.parse(req.body);
+    const product = await prisma.product.create({
+      data: {
+        ...body,
+        ...(militaryUnitIds?.length && {
+          militaryUnits: { connect: militaryUnitIds.map(id => ({ id })) },
+        }),
+      },
+      include: { militaryUnits: { select: { id: true, name: true } } },
+    });
     res.status(201).json(product);
   } catch (err) { next(err); }
 });
 
 router.patch('/:id', authenticate, requireAdmin, async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const body = productSchema.partial().parse(req.body);
-    const product = await prisma.product.update({ where: { id: req.params.id }, data: body });
+    const { militaryUnitIds, ...body } = productSchema.partial().parse(req.body);
+    const product = await prisma.product.update({
+      where: { id: req.params.id },
+      data: {
+        ...body,
+        ...(militaryUnitIds !== undefined && {
+          militaryUnits: { set: militaryUnitIds.map(id => ({ id })) },
+        }),
+      },
+      include: { militaryUnits: { select: { id: true, name: true } } },
+    });
     res.json(product);
   } catch (err) { next(err); }
 });

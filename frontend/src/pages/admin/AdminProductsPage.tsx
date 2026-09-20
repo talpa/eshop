@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import toast from 'react-hot-toast';
 import { api } from '../../lib/api';
-import { Product, Category } from '../../types';
+import { Product, Category, MilitaryUnit } from '../../types';
 import { formatPrice } from '../../lib/utils';
 
 const schema = z.object({
@@ -24,6 +24,7 @@ export default function AdminProductsPage() {
   const qc = useQueryClient();
   const [editing, setEditing] = useState<Product | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [selectedUnitIds, setSelectedUnitIds] = useState<string[]>([]);
 
   const { data, isLoading } = useQuery({
     queryKey: ['admin-products'],
@@ -35,10 +36,15 @@ export default function AdminProductsPage() {
     queryFn: () => api.get<Category[]>('/categories').then(r => r.data),
   });
 
+  const { data: units } = useQuery<MilitaryUnit[]>({
+    queryKey: ['admin-military-units'],
+    queryFn: () => api.get<MilitaryUnit[]>('/military-units/admin').then(r => r.data),
+  });
+
   const { register, handleSubmit, reset, formState: { errors } } = useForm<FormData>({ resolver: zodResolver(schema) });
 
   const saveMutation = useMutation({
-    mutationFn: (data: FormData) =>
+    mutationFn: (data: FormData & { militaryUnitIds: string[] }) =>
       editing
         ? api.patch(`/products/${editing.id}`, data)
         : api.post('/products', data),
@@ -47,6 +53,7 @@ export default function AdminProductsPage() {
       qc.invalidateQueries({ queryKey: ['admin-products'] });
       setShowForm(false);
       setEditing(null);
+      setSelectedUnitIds([]);
       reset();
     },
     onError: () => toast.error('Chyba při ukládání.'),
@@ -59,6 +66,7 @@ export default function AdminProductsPage() {
 
   const openEdit = (product: Product) => {
     setEditing(product);
+    setSelectedUnitIds((product.militaryUnits || []).map(u => u.id));
     reset({
       name: product.name,
       slug: product.slug,
@@ -71,12 +79,20 @@ export default function AdminProductsPage() {
     setShowForm(true);
   };
 
-  const openNew = () => { setEditing(null); reset({ isActive: true, stock: 0 }); setShowForm(true); };
+  const openNew = () => {
+    setEditing(null);
+    setSelectedUnitIds([]);
+    reset({ isActive: true, stock: 0 });
+    setShowForm(true);
+  };
+
+  const toggleUnit = (id: string) =>
+    setSelectedUnitIds(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
 
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Produkty</h1>
+        <h1 className="text-2xl font-bold">Produkty / Dárky</h1>
         <button onClick={openNew} className="flex items-center gap-2 px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-lg text-sm font-medium transition-colors">
           <Plus size={16} /> Nový produkt
         </button>
@@ -84,12 +100,12 @@ export default function AdminProductsPage() {
 
       {showForm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg p-6">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-lg font-bold">{editing ? 'Upravit produkt' : 'Nový produkt'}</h2>
               <button onClick={() => setShowForm(false)}><X size={20} /></button>
             </div>
-            <form onSubmit={handleSubmit(d => saveMutation.mutate(d))} className="space-y-3">
+            <form onSubmit={handleSubmit(d => saveMutation.mutate({ ...d, militaryUnitIds: selectedUnitIds }))} className="space-y-3">
               {[
                 { name: 'name' as const, label: 'Název' },
                 { name: 'slug' as const, label: 'Slug (URL)' },
@@ -106,7 +122,7 @@ export default function AdminProductsPage() {
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium mb-1">Cena (Kč)</label>
+                  <label className="block text-xs font-medium mb-1">Min. dar (Kč)</label>
                   <input {...register('priceCzk')} type="number" step="0.01" className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
                   {errors.priceCzk && <p className="text-red-500 text-xs mt-1">{errors.priceCzk.message}</p>}
                 </div>
@@ -122,6 +138,26 @@ export default function AdminProductsPage() {
                   {categories?.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
                 </select>
               </div>
+
+              {units && units.length > 0 && (
+                <div>
+                  <label className="block text-xs font-medium mb-2">Vojenské jednotky</label>
+                  <div className="space-y-1 max-h-36 overflow-y-auto border border-slate-200 rounded-lg p-2">
+                    {units.filter(u => u.isActive).map(unit => (
+                      <label key={unit.id} className="flex items-center gap-2 text-sm cursor-pointer hover:bg-slate-50 rounded px-1 py-0.5">
+                        <input
+                          type="checkbox"
+                          checked={selectedUnitIds.includes(unit.id)}
+                          onChange={() => toggleUnit(unit.id)}
+                          className="rounded"
+                        />
+                        {unit.name}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <label className="flex items-center gap-2 text-sm">
                 <input {...register('isActive')} type="checkbox" className="rounded" /> Aktivní
               </label>
@@ -141,7 +177,7 @@ export default function AdminProductsPage() {
         <table className="w-full text-sm">
           <thead className="bg-slate-50 border-b border-slate-200">
             <tr>
-              {['Název', 'Kategorie', 'Cena', 'Sklad', 'Aktivní', ''].map(h => (
+              {['Název', 'Kategorie', 'Min. dar', 'Jednotky', 'Sklad', 'Aktivní', ''].map(h => (
                 <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">{h}</th>
               ))}
             </tr>
@@ -152,6 +188,13 @@ export default function AdminProductsPage() {
                 <td className="px-4 py-3 font-medium">{p.name}</td>
                 <td className="px-4 py-3 text-slate-500">{p.category?.name || '—'}</td>
                 <td className="px-4 py-3 font-semibold text-brand-600">{formatPrice(p.priceCzk)}</td>
+                <td className="px-4 py-3">
+                  <div className="flex flex-wrap gap-1">
+                    {p.militaryUnits?.length ? p.militaryUnits.map(u => (
+                      <span key={u.id} className="text-xs bg-brand-50 text-brand-700 px-1.5 py-0.5 rounded-full">{u.name}</span>
+                    )) : <span className="text-slate-300 text-xs">—</span>}
+                  </div>
+                </td>
                 <td className="px-4 py-3">{p.stock}</td>
                 <td className="px-4 py-3">
                   <span className={`text-xs px-2 py-0.5 rounded-full ${p.isActive ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>

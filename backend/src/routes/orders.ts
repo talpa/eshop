@@ -12,7 +12,13 @@ const router = Router();
 const createOrderSchema = z.object({
   customerName: z.string().min(2),
   customerEmail: z.string().email(),
-  shippingAddress: z.string().min(5),
+  street: z.string().min(2).optional(),
+  city: z.string().min(2).optional(),
+  zip: z.string().min(3).optional(),
+  country: z.string().default('CZ'),
+  deliveryType: z.enum(['HOME', 'PACKETA']).default('HOME'),
+  packetaPointId: z.string().optional(),
+  packetaPointName: z.string().optional(),
   note: z.string().optional(),
   militaryUnitId: z.string().optional(),
   donationAmount: z.number().positive(),
@@ -63,13 +69,24 @@ router.post('/', optionalAuth, async (req: AuthRequest, res: Response, next: Nex
       : '';
 
     const order = await prisma.$transaction(async (tx) => {
+      const shippingAddress = body.deliveryType === 'PACKETA'
+        ? `Zásilkovna: ${body.packetaPointName || body.packetaPointId || '—'}`
+        : [body.street, body.city, body.zip, body.country].filter(Boolean).join(', ');
+
       const newOrder = await tx.order.create({
         data: {
           userId: req.user?.id || null,
           militaryUnitId: body.militaryUnitId || null,
           customerName: body.customerName,
           customerEmail: body.customerEmail,
-          shippingAddress: body.shippingAddress,
+          shippingAddress,
+          street: body.street,
+          city: body.city,
+          zip: body.zip,
+          country: body.country,
+          deliveryType: body.deliveryType,
+          packetaPointId: body.packetaPointId,
+          packetaPointName: body.packetaPointName,
           note: body.note,
           totalCzk: minTotal,
           donationAmount: body.donationAmount,

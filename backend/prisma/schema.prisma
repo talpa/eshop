@@ -27,15 +27,21 @@ enum PaymentStatus {
   EXPIRED
 }
 
+enum DeliveryType {
+  HOME
+  PACKETA
+}
+
 model MilitaryUnit {
-  id          String   @id @default(cuid())
+  id          String    @id @default(cuid())
   name        String
-  slug        String   @unique
+  slug        String    @unique
   description String?
-  isActive    Boolean  @default(true)
+  isActive    Boolean   @default(true)
   orders      Order[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  products    Product[] @relation("ProductMilitaryUnits")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 model NewsletterSubscriber {
@@ -71,19 +77,20 @@ model Category {
 }
 
 model Product {
-  id          String      @id @default(cuid())
-  name        String
-  slug        String      @unique
-  description String?
-  priceCzk    Decimal     @db.Decimal(10, 2)
-  stock       Int         @default(0)
-  images      String[]
-  isActive    Boolean     @default(true)
-  categoryId  String?
-  category    Category?   @relation(fields: [categoryId], references: [id])
-  orderItems  OrderItem[]
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
+  id            String         @id @default(cuid())
+  name          String
+  slug          String         @unique
+  description   String?
+  priceCzk      Decimal        @db.Decimal(10, 2)
+  stock         Int            @default(0)
+  images        String[]
+  isActive      Boolean        @default(true)
+  categoryId    String?
+  category      Category?      @relation(fields: [categoryId], references: [id])
+  orderItems    OrderItem[]
+  militaryUnits MilitaryUnit[] @relation("ProductMilitaryUnits")
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
 }
 
 model Order {
@@ -98,7 +105,14 @@ model Order {
   variableSymbol      String        @unique
   customerName        String
   customerEmail       String
-  shippingAddress     String
+  shippingAddress     String?
+  street              String?
+  city                String?
+  zip                 String?
+  country             String        @default("CZ")
+  deliveryType        DeliveryType  @default(HOME)
+  packetaPointId      String?
+  packetaPointName    String?
   note                String?
   fundsUsed           Boolean       @default(false)
   confirmationSentAt  DateTime?
