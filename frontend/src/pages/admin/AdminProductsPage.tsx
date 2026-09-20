@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import toast from 'react-hot-toast';
 import { api } from '../../lib/api';
+import { useAuthStore } from '../../store/authStore';
 import { Product, Category, MilitaryUnit } from '../../types';
 import { formatPrice, getImageUrl } from '../../lib/utils';
 
@@ -70,7 +71,7 @@ export default function AdminProductsPage() {
     try {
       const fd = new FormData();
       fd.append('file', file);
-      const token = localStorage.getItem('token');
+      const token = useAuthStore.getState().token;
       const res = await fetch('/api/upload/image', {
         method: 'POST',
         headers: token ? { Authorization: `Bearer ${token}` } : {},

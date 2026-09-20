@@ -1,12 +1,73 @@
 import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { ShoppingCart, ArrowLeft, Plus, Minus, Shield } from 'lucide-react';
+import { ShoppingCart, ArrowLeft, Plus, Minus, Shield, ChevronLeft, ChevronRight } from 'lucide-react';
 import { api } from '../../lib/api';
 import { useCartStore } from '../../store/cartStore';
 import { Product } from '../../types';
 import { formatPrice, getImageUrl } from '../../lib/utils';
 import toast from 'react-hot-toast';
+
+function ImageSlider({ images }: { images: string[] }) {
+  const [current, setCurrent] = useState(0);
+
+  if (images.length === 0) {
+    return (
+      <div className="aspect-square bg-slate-100 rounded-xl flex items-center justify-center">
+        <span className="text-slate-300 text-6xl">🎁</span>
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative aspect-square bg-slate-100 rounded-xl overflow-hidden group">
+      <img
+        src={getImageUrl(images[current])}
+        alt=""
+        className="w-full h-full object-cover"
+      />
+
+      {images.length > 1 && (
+        <>
+          <button
+            onClick={() => setCurrent(i => (i - 1 + images.length) % images.length)}
+            className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
+          >
+            <ChevronLeft size={18} />
+          </button>
+          <button
+            onClick={() => setCurrent(i => (i + 1) % images.length)}
+            className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity"
+          >
+            <ChevronRight size={18} />
+          </button>
+
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+            {images.map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrent(i)}
+                className={`w-2 h-2 rounded-full transition-colors ${i === current ? 'bg-white' : 'bg-white/40'}`}
+              />
+            ))}
+          </div>
+
+          <div className="flex gap-1.5 mt-3 px-1">
+            {images.map((url, i) => (
+              <button
+                key={i}
+                onClick={() => setCurrent(i)}
+                className={`flex-shrink-0 w-14 h-14 rounded-lg overflow-hidden border-2 transition-colors ${i === current ? 'border-brand-500' : 'border-transparent'}`}
+              >
+                <img src={getImageUrl(url)} alt="" className="w-full h-full object-cover" />
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
 
 export default function ProductPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -32,13 +93,8 @@ export default function ProductPage() {
         <ArrowLeft size={14} /> Zpět na výběr dárků
       </Link>
       <div className="grid md:grid-cols-2 gap-8">
-        <div className="aspect-square bg-slate-100 rounded-xl flex items-center justify-center overflow-hidden">
-          {product.images[0] ? (
-            <img src={getImageUrl(product.images[0])} alt={product.name} className="w-full h-full object-cover" />
-          ) : (
-            <span className="text-slate-300 text-6xl">🎁</span>
-          )}
-        </div>
+        <ImageSlider images={product.images || []} />
+
         <div>
           {product.category && (
             <Link to={`/products?category=${product.category.slug}`} className="text-xs text-brand-600 uppercase tracking-wider font-medium">
