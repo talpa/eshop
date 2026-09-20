@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <!-- Shield background -->
+  <path d="M16 2L4 7v9c0 7 5.5 12.5 12 14 6.5-1.5 12-7 12-14V7L16 2z" fill="#1e3a6e"/>
+  <!-- Shield border -->
+  <path d="M16 2L4 7v9c0 7 5.5 12.5 12 14 6.5-1.5 12-7 12-14V7L16 2z" stroke="#3b6abf" stroke-width="0.5" fill="none"/>
+  <!-- Heart inside shield -->
+  <path d="M16 22s-7-4.5-7-9a4 4 0 0 1 7-2.6A4 4 0 0 1 23 13c0 4.5-7 9-7 9z" fill="#e63946"/>
+  <!-- Small white star/highlight -->
+  <circle cx="16" cy="11" r="1" fill="white" opacity="0.6"/>
+</svg>
