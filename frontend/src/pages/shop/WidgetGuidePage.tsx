@@ -60,7 +60,7 @@ export default function WidgetGuidePage() {
   const origin = window.location.origin;
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-10">
+    <div className="max-w-screen-xl mx-auto px-6 py-10">
       <div className="flex items-start gap-4 mb-8">
         <div className="w-12 h-12 bg-brand-100 rounded-xl flex items-center justify-center flex-shrink-0">
           <Code2 size={22} className="text-brand-600" />
@@ -73,7 +73,9 @@ export default function WidgetGuidePage() {
         </div>
       </div>
 
-      <div className="grid lg:grid-cols-2 gap-10">
+      <div className="grid xl:grid-cols-[320px_400px_1fr] lg:grid-cols-[380px_1fr] gap-10 items-start">
+
+        {/* Levý sloupec: parametry + živý náhled */}
         <div className="space-y-8">
 
           {/* Parametry */}
@@ -83,80 +85,121 @@ export default function WidgetGuidePage() {
               <table className="w-full text-sm">
                 <thead className="bg-slate-50 border-b border-slate-100">
                   <tr>
-                    {['Parametr', 'Popis', 'Příklad'].map(h => (
+                    {['Parametr', 'Příklad'].map(h => (
                       <th key={h} className="text-left px-4 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50 text-xs">
                   {[
-                    { param: 'unit', desc: 'Slug vojenské jednotky (předvolba)', ex: 'unit=arisovy-poletuchy' },
-                    { param: 'activity', desc: 'Kód aktivity z číselníku (předvolba)', ex: 'activity=2110' },
-                    { param: 'amount', desc: 'Předvyplněná výše daru v Kč', ex: 'amount=500' },
+                    { param: 'unit', desc: 'Slug jednotky', ex: 'unit=arisovy-poletuchy' },
+                    { param: 'activity', desc: 'Kód aktivity', ex: 'activity=2110' },
+                    { param: 'amount', desc: 'Výše daru v Kč', ex: 'amount=500' },
                   ].map(r => (
                     <tr key={r.param} className="hover:bg-slate-50">
                       <td className="px-4 py-2.5 font-mono text-brand-700 font-medium">{r.param}</td>
-                      <td className="px-4 py-2.5 text-slate-600">{r.desc}</td>
                       <td className="px-4 py-2.5 font-mono text-slate-500">{r.ex}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
-            <p className="text-xs text-slate-400 mt-2">Parametry lze kombinovat: <code className="bg-slate-100 px-1 py-0.5 rounded">?unit=slug&amount=500</code></p>
+            <p className="text-xs text-slate-400 mt-2">Kombinace: <code className="bg-slate-100 px-1 py-0.5 rounded">?unit=slug&amount=500</code></p>
           </section>
 
-          {/* Živý náhled — výběr */}
+          {/* Dostupné hodnoty */}
+          {(units || activities) && (
+            <section>
+              <h2 className="text-lg font-semibold mb-3">Dostupné hodnoty</h2>
+              <div className="space-y-4">
+                {units && units.length > 0 && (
+                  <div>
+                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Jednotky <code className="font-mono normal-case text-slate-400">unit=</code></p>
+                    <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
+                      <table className="w-full text-xs">
+                        <tbody className="divide-y divide-slate-50">
+                          {units.map(u => (
+                            <tr key={u.id} className="hover:bg-slate-50">
+                              <td className="px-3 py-2 text-slate-700">{u.name}</td>
+                              <td className="px-3 py-2 font-mono text-brand-700">{u.slug}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+                {activities && activities.length > 0 && (
+                  <div>
+                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Aktivity <code className="font-mono normal-case text-slate-400">activity=</code></p>
+                    <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
+                      <table className="w-full text-xs">
+                        <tbody className="divide-y divide-slate-50">
+                          {activities.map(a => (
+                            <tr key={a.id} className="hover:bg-slate-50">
+                              <td className="px-3 py-2 font-mono text-brand-700 font-medium w-12">{a.code}</td>
+                              <td className="px-3 py-2 text-slate-600">{a.name}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </section>
+          )}
+        </div>
+
+        {/* Střední sloupec: živý náhled */}
+        <div className="space-y-4">
           <section>
             <h2 className="text-lg font-semibold mb-3">Živý náhled</h2>
-            <div className="space-y-2 mb-4">
-              <div className="flex flex-wrap gap-2">
-                <button
-                  onClick={() => setPreviewParams('')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${previewParams === '' ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-300 text-slate-600 hover:border-slate-400'}`}
+            <div className="flex flex-wrap gap-2 mb-3">
+              <button
+                onClick={() => setPreviewParams('')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${previewParams === '' ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-300 text-slate-600 hover:border-slate-400'}`}
+              >
+                Obecný
+              </button>
+              {units?.slice(0, 3).map(u => (
+                <button key={u.id}
+                  onClick={() => setPreviewParams(`unit=${u.slug}`)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${previewParams === `unit=${u.slug}` ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-300 text-slate-600 hover:border-slate-400'}`}
                 >
-                  Obecný
+                  {u.name}
                 </button>
-                {units?.slice(0, 3).map(u => (
-                  <button key={u.id}
-                    onClick={() => setPreviewParams(`unit=${u.slug}`)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${previewParams === `unit=${u.slug}` ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-300 text-slate-600 hover:border-slate-400'}`}
-                  >
-                    {u.name}
-                  </button>
-                ))}
-                {activities?.slice(0, 2).map(a => (
-                  <button key={a.id}
-                    onClick={() => setPreviewParams(`activity=${a.code}`)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${previewParams === `activity=${a.code}` ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-300 text-slate-600 hover:border-slate-400'}`}
-                  >
-                    {a.code}
-                  </button>
-                ))}
-                <button
-                  onClick={() => setPreviewParams('amount=1000')}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${previewParams === 'amount=1000' ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-300 text-slate-600 hover:border-slate-400'}`}
+              ))}
+              {activities?.slice(0, 2).map(a => (
+                <button key={a.id}
+                  onClick={() => setPreviewParams(`activity=${a.code}`)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${previewParams === `activity=${a.code}` ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-300 text-slate-600 hover:border-slate-400'}`}
                 >
-                  amount=1000
+                  {a.code}
                 </button>
-              </div>
-              <p className="text-xs text-slate-400">
-                URL: <code className="bg-slate-100 px-1 py-0.5 rounded">{origin}/widget{previewParams ? `?${previewParams}` : ''}</code>
-              </p>
+              ))}
+              <button
+                onClick={() => setPreviewParams('amount=1000')}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors ${previewParams === 'amount=1000' ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-300 text-slate-600 hover:border-slate-400'}`}
+              >
+                amount=1000
+              </button>
             </div>
-            <div className="flex justify-center">
-              <iframe
-                key={previewParams}
-                src={`${origin}/widget${previewParams ? `?${previewParams}` : ''}`}
-                width={380}
-                height={560}
-                style={{ border: 'none', borderRadius: 12, boxShadow: '0 4px 24px rgba(0,0,0,0.10)' }}
-                title="Náhled widgetu"
-              />
-            </div>
+            <p className="text-xs text-slate-400 mb-4">
+              <code className="bg-slate-100 px-1 py-0.5 rounded">{origin}/widget{previewParams ? `?${previewParams}` : ''}</code>
+            </p>
+            <iframe
+              key={previewParams}
+              src={`${origin}/widget${previewParams ? `?${previewParams}` : ''}`}
+              width={380}
+              height={560}
+              style={{ border: 'none', borderRadius: 12, boxShadow: '0 4px 24px rgba(0,0,0,0.10)' }}
+              title="Náhled widgetu"
+            />
           </section>
         </div>
 
+        {/* Pravý sloupec: kódy */}
         <div className="space-y-8">
 
           {/* Základní embed */}
@@ -245,49 +288,6 @@ export default function WidgetGuidePage() {
               lang="html"
             />
           </section>
-
-          {/* Dostupné slug / kódy */}
-          {(units || activities) && (
-            <section>
-              <h2 className="text-lg font-semibold mb-3">Dostupné hodnoty</h2>
-              <div className="space-y-4">
-                {units && units.length > 0 && (
-                  <div>
-                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Jednotky (parametr <code className="font-mono normal-case">unit=</code>)</p>
-                    <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
-                      <table className="w-full text-xs">
-                        <tbody className="divide-y divide-slate-50">
-                          {units.map(u => (
-                            <tr key={u.id} className="hover:bg-slate-50">
-                              <td className="px-4 py-2 text-slate-700 font-medium">{u.name}</td>
-                              <td className="px-4 py-2 font-mono text-brand-700">{u.slug}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                )}
-                {activities && activities.length > 0 && (
-                  <div>
-                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Aktivity (parametr <code className="font-mono normal-case">activity=</code>)</p>
-                    <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
-                      <table className="w-full text-xs">
-                        <tbody className="divide-y divide-slate-50">
-                          {activities.map(a => (
-                            <tr key={a.id} className="hover:bg-slate-50">
-                              <td className="px-4 py-2 font-mono text-brand-700 font-medium w-16">{a.code}</td>
-                              <td className="px-4 py-2 text-slate-600">{a.name}</td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </section>
-          )}
 
           <div className="flex items-center gap-3 p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-600">
             <ExternalLink size={16} className="text-slate-400 flex-shrink-0" />
