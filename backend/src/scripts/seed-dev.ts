@@ -11,9 +11,14 @@ async function main() {
     // Kategorie
     const cats = await Promise.all([
       prisma.category.upsert({
-        where: { slug: 'odznaky-plakety' },
+        where: { slug: 'sevrony-odznaky' },
         update: {},
-        create: { name: 'Odznaky a plakety', slug: 'odznaky-plakety', description: 'Bojové odznaky, pamětní plakety a insignie' },
+        create: { name: 'Ševrony a odznaky', slug: 'sevrony-odznaky', description: 'Nášivky, ševrony a bojové odznaky jednotek' },
+      }),
+      prisma.category.upsert({
+        where: { slug: 'vlajky' },
+        update: {},
+        create: { name: 'Vlajky', slug: 'vlajky', description: 'Vlajky České republiky, Ukrajiny a vojenských jednotek' },
       }),
       prisma.category.upsert({
         where: { slug: 'obleceni' },
@@ -21,20 +26,15 @@ async function main() {
         create: { name: 'Oblečení', slug: 'obleceni', description: 'Trička, mikiny a kšiltovky s motivem České stopy' },
       }),
       prisma.category.upsert({
-        where: { slug: 'vybaveni' },
+        where: { slug: 'hrnecky-darky' },
         update: {},
-        create: { name: 'Vybavení', slug: 'vybaveni', description: 'Praktické vybavení a doplňky pro misi' },
-      }),
-      prisma.category.upsert({
-        where: { slug: 'pametni-predmety' },
-        update: {},
-        create: { name: 'Pamětní předměty', slug: 'pametni-predmety', description: 'Unikátní předměty z mise a sběratelské položky' },
+        create: { name: 'Hrnečky a dárky', slug: 'hrnecky-darky', description: 'Hrnečky, termohrnky a ručně vyráběné dárky' },
       }),
     ]);
 
     console.log('✓ Kategorie:', cats.map(c => c.name).join(', '));
 
-    const [odznaky, obleceni, vybaveni, pametni] = cats;
+    const [sevrony, vlajky, obleceni, hrnecky] = cats;
 
     // Vojenské jednotky
     const units = await Promise.all([
@@ -72,97 +72,125 @@ async function main() {
 
     console.log('✓ Vojenské jednotky:', units.map(u => u.name).join(', '));
 
-    // Produkty – tematicky vhodné dárky
+    // Produkty
     const products = [
+      // Ševrony a odznaky
       {
-        name: 'Bojový odznak České stopy',
-        slug: 'bojovy-odznak-ceske-stopy',
-        priceCzk: 490,
-        stock: 50,
-        categoryId: odznaky.id,
-        description: 'Originální kovový odznak s logem nadačního fondu České stopy. Ručně lakovaný, průměr 4 cm. Každý kus je číslován.',
-        images: ['https://images.unsplash.com/photo-1608889476561-6242cfdbf622?w=640&h=640&fit=crop'],
+        name: 'Ševrón Česká stopa – vyšívaný',
+        slug: 'sevron-ceska-stopa-vysivany',
+        priceCzk: 290,
+        stock: 100,
+        categoryId: sevrony.id,
+        description: 'Vyšívaný rukávový ševrón s logem České stopy. Rozměr 9×7 cm, suchý zip na zadní straně. Vhodný na uniformu i batoh.',
+        images: ['https://images.unsplash.com/photo-1579762715118-a6f1d4b934f1?w=640&h=640&fit=crop'],
       },
       {
-        name: 'Pamětní plaketa mise Ukrajina',
-        slug: 'pametni-plaketa-mise-ukrajina',
-        priceCzk: 1290,
-        stock: 20,
-        categoryId: odznaky.id,
-        description: 'Mosazná plaketa na dřevěném podstavci s gravírovaným věnováním. Rozměr 15×10 cm. Vhodná jako dekorativní předmět.',
-        images: ['https://images.unsplash.com/photo-1569025690938-a00729c9e1f9?w=640&h=640&fit=crop'],
+        name: 'Ševrón vlajka ČR+UA – vyšívaný',
+        slug: 'sevron-vlajka-cr-ua-vysivany',
+        priceCzk: 190,
+        stock: 150,
+        categoryId: sevrony.id,
+        description: 'Kombinovaný ševrón s českou a ukrajinskou vlajkou. Symbolizuje spojenectví. Rozměr 8×5 cm, suchý zip.',
+        images: ['https://images.unsplash.com/photo-1575908539614-ff89490f4a78?w=640&h=640&fit=crop'],
       },
       {
-        name: 'Tričko Česká stopa – pánské',
-        slug: 'tricko-ceska-stopa-panske',
+        name: 'Sada ševrónů České stopy – 3 ks',
+        slug: 'sada-sevronu-ceske-stopy-3ks',
+        priceCzk: 590,
+        stock: 45,
+        categoryId: sevrony.id,
+        description: 'Sada tří vyšívaných ševrónů: logo České stopy, vlajky ČR+UA a bojový odznak. Vše se suchým zipem.',
+        images: [
+          'https://images.unsplash.com/photo-1579762715118-a6f1d4b934f1?w=640&h=640&fit=crop',
+          'https://images.unsplash.com/photo-1575908539614-ff89490f4a78?w=640&h=640&fit=crop',
+        ],
+      },
+
+      // Vlajky
+      {
+        name: 'Vlajka České republiky 90×60 cm',
+        slug: 'vlajka-ceske-republiky-90x60',
+        priceCzk: 349,
+        stock: 60,
+        categoryId: vlajky.id,
+        description: 'Prémiová tkaná vlajka ČR. Rozměr 90×60 cm, polyester 110g/m², dvě průchodky pro zavěšení.',
+        images: ['https://images.unsplash.com/photo-1519750383296-a0c6f61b7b1f?w=640&h=640&fit=crop'],
+      },
+      {
+        name: 'Vlajka Ukrajiny 90×60 cm',
+        slug: 'vlajka-ukrajiny-90x60',
+        priceCzk: 349,
+        stock: 60,
+        categoryId: vlajky.id,
+        description: 'Prémiová tkaná vlajka Ukrajiny. Rozměr 90×60 cm, polyester 110g/m², dvě průchodky pro zavěšení.',
+        images: ['https://images.unsplash.com/photo-1648826891786-bfe94cef2588?w=640&h=640&fit=crop'],
+      },
+      {
+        name: 'Stolní vlajka ČR+UA – sada',
+        slug: 'stolni-vlajka-cr-ua-sada',
+        priceCzk: 290,
+        stock: 40,
+        categoryId: vlajky.id,
+        description: 'Sada dvou stolních vlajek (ČR a UA) na plastovém stojánku. Rozměr vlajky 14×21 cm. Vhodné na stůl nebo poličku.',
+        images: ['https://images.unsplash.com/photo-1575908539614-ff89490f4a78?w=640&h=640&fit=crop'],
+      },
+
+      // Oblečení
+      {
+        name: 'Tričko Česká stopa – navy',
+        slug: 'tricko-ceska-stopa-navy',
         priceCzk: 590,
         stock: 80,
         categoryId: obleceni.id,
-        description: '100% česaná bavlna, výšivka loga na hrudi. Unisex střih, dostupné v S–XXL. Prané na 40°C.',
-        images: ['https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=640&h=640&fit=crop'],
+        description: '100% česaná bavlna 180g/m². Vyšívka loga na hrudi, tisk na zádech. Dostupné S–XXL v navy blue.',
+        images: ['https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=640&h=640&fit=crop'],
       },
       {
         name: 'Mikina s kapucí Česká stopa',
-        slug: 'mikina-ceska-stopa',
+        slug: 'mikina-s-kapuci-ceska-stopa',
         priceCzk: 990,
-        stock: 40,
+        stock: 35,
         categoryId: obleceni.id,
-        description: 'Těžká bavlněná mikina 320g/m², vyšité logo, zip. Unisex střih v navy blue barvě. Dostupné S–XXL.',
+        description: 'Těžká bavlna 320g/m², klokaní kapsa, zip, vyšité logo. Unisex střih v navy blue. Dostupné S–XXL.',
         images: ['https://images.unsplash.com/photo-1556821840-3a63f15732ce?w=640&h=640&fit=crop'],
       },
       {
         name: 'Kšiltovka Česká stopa',
         slug: 'ksiltovka-ceska-stopa',
         priceCzk: 390,
-        stock: 60,
+        stock: 55,
         categoryId: obleceni.id,
-        description: 'Šestipanelová kšiltovka s kovovou přezkou. Vyšité logo, navy blue. Nastavitelná velikost.',
+        description: 'Šestipanelová kšiltovka, kovová přezka, vyšité logo. Navy blue. Nastavitelná velikost.',
         images: ['https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=640&h=640&fit=crop'],
       },
+
+      // Hrnečky a dárky
       {
-        name: 'Taktický paracord náramek',
-        slug: 'takticky-paracord-naramek',
-        priceCzk: 290,
-        stock: 100,
-        categoryId: vybaveni.id,
-        description: 'Ručně pletený náramek z 550lb paracordu v barvách ČR. Obsahuje nožík, křesadlo a píšťalku. Obvod 20–24 cm.',
-        images: ['https://images.unsplash.com/photo-1617038260897-41a1f14a8ca0?w=640&h=640&fit=crop'],
-      },
-      {
-        name: 'Kapesní multitool EDC',
-        slug: 'kapesni-multitool-edc',
-        priceCzk: 890,
-        stock: 30,
-        categoryId: vybaveni.id,
-        description: '14 funkcí v nerezové oceli: nůž, pilník, šroubovák, otvírák a více. Dodáváno v pouzdře s klipem na opasek.',
-        images: ['https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=640&h=640&fit=crop'],
-      },
-      {
-        name: 'Termohrnek s logem 400ml',
-        slug: 'termohrnek-logo-400ml',
-        priceCzk: 490,
-        stock: 55,
-        categoryId: pametni.id,
-        description: 'Dvojitá nerezová stěna, udržuje teplotu 8 h. Laserově gravírované logo. Bezpečnostní víčko, BPA free.',
+        name: 'Keramický hrnek Česká stopa 330ml',
+        slug: 'keramicky-hrnek-ceska-stopa-330ml',
+        priceCzk: 390,
+        stock: 70,
+        categoryId: hrnecky.id,
+        description: 'Ručně malovaný keramický hrnek s logem České stopy. Objem 330 ml, matná glazura navy blue, myčka odolný.',
         images: ['https://images.unsplash.com/photo-1514228742587-6b1558fcca3d?w=640&h=640&fit=crop'],
       },
       {
-        name: 'Kniha "Česká stopa na Ukrajině"',
-        slug: 'kniha-ceska-stopa-na-ukrajine',
-        priceCzk: 349,
-        stock: 25,
-        categoryId: pametni.id,
-        description: 'Dokumentární publikace mapující působení českých vojáků a dobrovolníků. 180 stran, bohatá fotografická příloha.',
-        images: ['https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=640&h=640&fit=crop'],
+        name: 'Termohrnek nerezový 400ml',
+        slug: 'termohrnek-nerezovy-400ml',
+        priceCzk: 590,
+        stock: 45,
+        categoryId: hrnecky.id,
+        description: 'Dvojitá nerezová stěna, udržuje teplotu 8 h. Laserově gravírované logo. Bezpečnostní víčko, BPA free.',
+        images: ['https://images.unsplash.com/photo-1553361371-9b22f78e8b1d?w=640&h=640&fit=crop'],
       },
       {
-        name: 'Samolepky Česká stopa – sada 10 ks',
-        slug: 'samolepky-ceska-stopa-sada',
-        priceCzk: 149,
-        stock: 200,
-        categoryId: pametni.id,
-        description: 'Vinylové UV odolné samolepky s logem a motivy mise. Vhodné na auto, helmu nebo notebook. Rozměry 5–10 cm.',
-        images: ['https://images.unsplash.com/photo-1572375992501-4b0892d50c69?w=640&h=640&fit=crop'],
+        name: 'Háčkovaný zajíc – ručně vyrobený',
+        slug: 'hackovany-zajic-rucne-vyrobeny',
+        priceCzk: 490,
+        stock: 20,
+        categoryId: hrnecky.id,
+        description: 'Ručně háčkovaný zajíček v barvách ČR — bílý s modrými a červenými detaily. Výška cca 18 cm. Hypoalergenní výplň. Každý kus je originál.',
+        images: ['https://images.unsplash.com/photo-1585155770447-2f66e2a397b5?w=640&h=640&fit=crop'],
       },
     ];
 
