@@ -4,7 +4,7 @@ import { useAuthStore } from '../../store/authStore';
 
 const navItems = [
   { to: '/admin/products', label: 'Produkty', icon: Package },
-  { to: '/admin/orders', label: 'Dary', icon: ShoppingBag },
+  { to: '/admin/orders', label: 'Darovací smlouvy', icon: ShoppingBag },
   { to: '/admin/military-units', label: 'Jednotky', icon: Shield },
 ];
 
