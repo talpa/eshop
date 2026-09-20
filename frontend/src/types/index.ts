@@ -29,6 +29,16 @@ export interface Product {
   createdAt: string;
 }
 
+export interface MilitaryUnit {
+  id: string;
+  name: string;
+  slug: string;
+  description?: string;
+  isActive?: boolean;
+  _count?: { orders: number };
+  createdAt?: string;
+}
+
 export type OrderStatus = 'PENDING' | 'PAID' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED';
 export type PaymentStatus = 'PENDING' | 'PAID' | 'FAILED' | 'EXPIRED';
 
@@ -56,11 +66,16 @@ export interface Order {
   id: string;
   status: OrderStatus;
   totalCzk: number | string;
+  donationAmount: number | string;
   variableSymbol: string;
   customerName: string;
   customerEmail: string;
   shippingAddress: string;
   note?: string;
+  militaryUnitId?: string;
+  militaryUnit?: { id: string; name: string } | null;
+  fundsUsed: boolean;
+  confirmationSentAt?: string | null;
   items: OrderItem[];
   payment?: Payment;
   createdAt: string;
@@ -71,4 +86,13 @@ export interface ProductsResponse {
   total: number;
   page: number;
   limit: number;
+}
+
+export interface NewsletterSubscriber {
+  id: string;
+  email: string;
+  name?: string;
+  isActive: boolean;
+  subscribedAt: string;
+  unsubscribedAt?: string | null;
 }

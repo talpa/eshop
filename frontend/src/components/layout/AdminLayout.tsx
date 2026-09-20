@@ -1,10 +1,11 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { Package, ShoppingBag, LogOut, ArrowLeft } from 'lucide-react';
+import { Package, ShoppingBag, LogOut, ArrowLeft, Shield } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 
 const navItems = [
   { to: '/admin/products', label: 'Produkty', icon: Package },
-  { to: '/admin/orders', label: 'Objednávky', icon: ShoppingBag },
+  { to: '/admin/orders', label: 'Dary', icon: ShoppingBag },
+  { to: '/admin/military-units', label: 'Jednotky', icon: Shield },
 ];
 
 export default function AdminLayout() {

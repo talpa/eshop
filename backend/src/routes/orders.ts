@@ -1,23 +1,28 @@
-import { Router, Request, Response, NextFunction } from 'express';
+import { Router, Response, NextFunction } from 'express';
 import { z } from 'zod';
 import { prisma } from '../lib/prisma';
-import { authenticate, requireAdmin, AuthRequest } from '../middleware/auth';
+import { optionalAuth, authenticate, requireAdmin, AuthRequest } from '../middleware/auth';
 import { generateVariableSymbol, generateQrPayload } from '../lib/fio';
+import { sendEmail } from '../lib/email';
+import { buildDonationConfirmationEmail } from '../lib/donationEmail';
 
 const router = Router();
 
 const createOrderSchema = z.object({
-  customerName: z.string().min(1),
+  customerName: z.string().min(2),
   customerEmail: z.string().email(),
   shippingAddress: z.string().min(5),
   note: z.string().optional(),
+  militaryUnitId: z.string().optional(),
+  donationAmount: z.number().positive(),
+  subscribeNewsletter: z.boolean().optional(),
   items: z.array(z.object({
     productId: z.string(),
     quantity: z.number().int().positive(),
   })).min(1),
 });
 
-router.post('/', authenticate, async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+router.post('/', optionalAuth, async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const body = createOrderSchema.parse(req.body);
 
@@ -30,34 +35,43 @@ router.post('/', authenticate, async (req: AuthRequest, res: Response, next: Nex
       return;
     }
 
-    for (const item of body.items) {
-      const product = products.find(p => p.id === item.productId)!;
-      if (product.stock < item.quantity) {
-        res.status(400).json({ message: `Nedostatečný sklad pro produkt: ${product.name}` });
-        return;
-      }
-    }
-
-    const totalCzk = body.items.reduce((sum, item) => {
+    const minTotal = body.items.reduce((sum, item) => {
       const product = products.find(p => p.id === item.productId)!;
       return sum + Number(product.priceCzk) * item.quantity;
     }, 0);
 
+    if (body.donationAmount < minTotal - 0.01) {
+      res.status(400).json({ message: `Minimální dar je ${minTotal.toFixed(2)} Kč.` });
+      return;
+    }
+
+    if (body.militaryUnitId) {
+      const unit = await prisma.militaryUnit.findFirst({
+        where: { id: body.militaryUnitId, isActive: true },
+      });
+      if (!unit) {
+        res.status(400).json({ message: 'Vybraná vojenská jednotka neexistuje.' });
+        return;
+      }
+    }
+
     const variableSymbol = generateVariableSymbol();
     const iban = process.env.SHOP_IBAN || '';
     const qrPayload = iban
-      ? generateQrPayload(iban, totalCzk, variableSymbol, `Objednavka ${variableSymbol}`)
+      ? generateQrPayload(iban, body.donationAmount, variableSymbol, `Dar ${variableSymbol}`)
       : '';
 
     const order = await prisma.$transaction(async (tx) => {
       const newOrder = await tx.order.create({
         data: {
-          userId: req.user!.id,
+          userId: req.user?.id || null,
+          militaryUnitId: body.militaryUnitId || null,
           customerName: body.customerName,
           customerEmail: body.customerEmail,
           shippingAddress: body.shippingAddress,
           note: body.note,
-          totalCzk,
+          totalCzk: minTotal,
+          donationAmount: body.donationAmount,
           variableSymbol,
           items: {
             create: body.items.map(item => {
@@ -72,12 +86,12 @@ router.post('/', authenticate, async (req: AuthRequest, res: Response, next: Nex
           },
           payment: {
             create: {
-              amountCzk: totalCzk,
+              amountCzk: body.donationAmount,
               qrPayload,
             },
           },
         },
-        include: { items: true, payment: true },
+        include: { items: true, payment: true, militaryUnit: true },
       });
 
       for (const item of body.items) {
@@ -90,6 +104,14 @@ router.post('/', authenticate, async (req: AuthRequest, res: Response, next: Nex
       return newOrder;
     });
 
+    if (body.subscribeNewsletter) {
+      await prisma.newsletterSubscriber.upsert({
+        where: { email: body.customerEmail },
+        update: { name: body.customerName, isActive: true, unsubscribedAt: null },
+        create: { email: body.customerEmail, name: body.customerName },
+      }).catch(() => {});
+    }
+
     res.status(201).json(order);
   } catch (err) { next(err); }
 });
@@ -99,28 +121,70 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response, next: Next
     const isAdmin = req.user!.role === 'ADMIN';
     const orders = await prisma.order.findMany({
       where: isAdmin ? {} : { userId: req.user!.id },
-      include: { items: true, payment: { select: { status: true, paidAt: true } } },
+      include: {
+        items: true,
+        payment: { select: { status: true, paidAt: true } },
+        militaryUnit: { select: { id: true, name: true } },
+      },
       orderBy: { createdAt: 'desc' },
     });
     res.json(orders);
   } catch (err) { next(err); }
 });
 
-router.get('/:id', authenticate, async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+router.get('/my', optionalAuth, async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const isAdmin = req.user!.role === 'ADMIN';
+    if (!req.user) { res.json([]); return; }
+    const orders = await prisma.order.findMany({
+      where: { userId: req.user.id },
+      include: {
+        items: true,
+        payment: { select: { status: true, paidAt: true } },
+        militaryUnit: { select: { id: true, name: true } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+    res.json(orders);
+  } catch (err) { next(err); }
+});
+
+router.get('/:id', optionalAuth, async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const isAdmin = req.user?.role === 'ADMIN';
     const order = await prisma.order.findFirst({
       where: {
         id: req.params.id,
-        ...(isAdmin ? {} : { userId: req.user!.id }),
+        ...(isAdmin || !req.user ? {} : { userId: req.user.id }),
       },
       include: {
         items: { include: { product: { select: { id: true, slug: true, images: true } } } },
         payment: true,
+        militaryUnit: true,
       },
     });
     if (!order) { res.status(404).json({ message: 'Objednávka nenalezena.' }); return; }
+    if (!isAdmin && req.user && order.userId && order.userId !== req.user.id) {
+      res.status(403).json({ message: 'Přístup odepřen.' }); return;
+    }
     res.json(order);
+  } catch (err) { next(err); }
+});
+
+router.get('/:id/confirmation', optionalAuth, async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const isAdmin = req.user?.role === 'ADMIN';
+    const order = await prisma.order.findFirst({
+      where: {
+        id: req.params.id,
+        ...(isAdmin || !req.user ? {} : { userId: req.user.id }),
+      },
+      include: { items: true, militaryUnit: true },
+    });
+    if (!order) { res.status(404).json({ message: 'Objednávka nenalezena.' }); return; }
+    if (order.status !== 'PAID') { res.status(400).json({ message: 'Objednávka zatím není zaplacena.' }); return; }
+
+    const email = buildDonationConfirmationEmail(order as Parameters<typeof buildDonationConfirmationEmail>[0]);
+    res.json(email);
   } catch (err) { next(err); }
 });
 
@@ -128,7 +192,7 @@ const updateStatusSchema = z.object({
   status: z.enum(['PENDING', 'PAID', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED']),
 });
 
-router.patch('/:id/status', authenticate, requireAdmin, async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+router.patch('/:id/status', authenticate, requireAdmin, async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const { status } = updateStatusSchema.parse(req.body);
     const order = await prisma.order.update({
@@ -136,6 +200,37 @@ router.patch('/:id/status', authenticate, requireAdmin, async (req: Request, res
       data: { status },
     });
     res.json(order);
+  } catch (err) { next(err); }
+});
+
+router.patch('/:id/funds-used', authenticate, requireAdmin, async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { fundsUsed } = z.object({ fundsUsed: z.boolean() }).parse(req.body);
+    const order = await prisma.order.update({
+      where: { id: req.params.id },
+      data: { fundsUsed },
+    });
+    res.json(order);
+  } catch (err) { next(err); }
+});
+
+router.post('/:id/resend-confirmation', authenticate, async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const isAdmin = req.user!.role === 'ADMIN';
+    const order = await prisma.order.findFirst({
+      where: {
+        id: req.params.id,
+        ...(isAdmin ? {} : { userId: req.user!.id }),
+      },
+      include: { items: true, militaryUnit: true },
+    });
+    if (!order) { res.status(404).json({ message: 'Objednávka nenalezena.' }); return; }
+    if (order.status !== 'PAID') { res.status(400).json({ message: 'Objednávka zatím není zaplacena.' }); return; }
+
+    const emailData = buildDonationConfirmationEmail(order as Parameters<typeof buildDonationConfirmationEmail>[0]);
+    await sendEmail({ to: order.customerEmail, ...emailData });
+    await prisma.order.update({ where: { id: order.id }, data: { confirmationSentAt: new Date() } });
+    res.json({ message: 'Potvrzení bylo odesláno.' });
   } catch (err) { next(err); }
 });
 

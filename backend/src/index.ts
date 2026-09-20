@@ -12,6 +12,10 @@ import productRoutes from './routes/products';
 import categoryRoutes from './routes/categories';
 import orderRoutes from './routes/orders';
 import paymentRoutes from './routes/payments';
+import militaryUnitRoutes from './routes/military-units';
+import newsletterRoutes from './routes/newsletter';
+import { prisma } from './lib/prisma';
+import { startPaymentReconciler } from './jobs/paymentReconciler';
 
 import './lib/passport';
 
@@ -51,12 +55,15 @@ app.use('/api/products', productRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/payments', paymentRoutes);
+app.use('/api/military-units', militaryUnitRoutes);
+app.use('/api/newsletter', newsletterRoutes);
 
 app.use(errorHandler);
 
 const PORT = parseInt(process.env.PORT || '3000', 10);
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on port ${PORT}`);
+  startPaymentReconciler(prisma);
 });
 
 export default app;
