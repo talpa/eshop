@@ -94,6 +94,7 @@ jobs:
           push: true
           build-args: |
             VITE_API_URL=${{ secrets.VITE_API_URL_DEV }}
+            VITE_PACKETA_API_KEY=${{ secrets.VITE_PACKETA_API_KEY }}
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/eshop-frontend:dev
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAMESPACE }}/eshop-frontend:dev-${{ github.sha }}
