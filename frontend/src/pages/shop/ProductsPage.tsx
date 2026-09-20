@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useSearchParams } from 'react-router-dom';
-import { ShoppingCart, Search, Shield, Heart, FileText, ChevronRight } from 'lucide-react';
+import { ShoppingCart, Search, Shield, Heart, FileText, ChevronRight, Pencil } from 'lucide-react';
 import { api } from '../../lib/api';
 import { useCartStore } from '../../store/cartStore';
+import { useAuthStore } from '../../store/authStore';
 import { Product, ProductsResponse, Category, MilitaryUnit } from '../../types';
 import { formatPrice, getImageUrl } from '../../lib/utils';
 import toast from 'react-hot-toast';
@@ -35,6 +36,8 @@ export default function ProductsPage() {
     queryKey: ['military-units'],
     queryFn: () => api.get<MilitaryUnit[]>('/military-units').then(r => r.data),
   });
+
+  const user = useAuthStore(s => s.user);
 
   const handleAddToCart = (product: Product) => {
     addItem(product);
@@ -154,15 +157,26 @@ export default function ProductsPage() {
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
           {data?.products.map(product => (
             <div key={product.id} className="bg-white rounded-xl border border-slate-200 overflow-hidden hover:shadow-md hover:border-brand-300 transition-all">
-              <Link to={`/products/${product.slug}`}>
-                <div className="aspect-square bg-slate-100 flex items-center justify-center">
-                  {product.images[0] ? (
-                    <img src={getImageUrl(product.images[0])} alt={product.name} className="w-full h-full object-cover" />
-                  ) : (
-                    <span className="text-slate-300 text-4xl">🎁</span>
-                  )}
-                </div>
-              </Link>
+              <div className="relative">
+                <Link to={`/products/${product.slug}`}>
+                  <div className="aspect-square bg-slate-100 flex items-center justify-center">
+                    {product.images[0] ? (
+                      <img src={getImageUrl(product.images[0])} alt={product.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <span className="text-slate-300 text-4xl">🎁</span>
+                    )}
+                  </div>
+                </Link>
+                {user?.role === 'ADMIN' && (
+                  <Link
+                    to={`/admin/products?edit=${product.id}`}
+                    className="absolute top-2 right-2 bg-white/90 hover:bg-white border border-slate-200 rounded-lg p-1.5 shadow-sm transition-colors"
+                    title="Upravit produkt"
+                  >
+                    <Pencil size={13} className="text-slate-500" />
+                  </Link>
+                )}
+              </div>
               <div className="p-3">
                 <Link to={`/products/${product.slug}`} className="font-medium text-sm hover:text-brand-600 line-clamp-2">
                   {product.name}

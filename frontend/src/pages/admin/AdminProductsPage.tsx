@@ -1,6 +1,7 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Plus, Pencil, Trash2, X, Upload, ImageOff } from 'lucide-react';
+import { useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -22,6 +23,7 @@ type FormData = z.infer<typeof schema>;
 
 export default function AdminProductsPage() {
   const qc = useQueryClient();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [editing, setEditing] = useState<Product | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [selectedUnitIds, setSelectedUnitIds] = useState<string[]>([]);
@@ -45,6 +47,16 @@ export default function AdminProductsPage() {
   });
 
   const { register, handleSubmit, reset, formState: { errors } } = useForm<FormData>({ resolver: zodResolver(schema) });
+
+  useEffect(() => {
+    const editId = searchParams.get('edit');
+    if (!editId || !data?.products) return;
+    const product = data.products.find(p => p.id === editId);
+    if (product) {
+      openEdit(product);
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams, data?.products]);
 
   const saveMutation = useMutation({
     mutationFn: (data: FormData & { militaryUnitIds: string[]; images: string[] }) =>
