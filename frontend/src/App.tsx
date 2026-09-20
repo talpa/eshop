@@ -15,6 +15,7 @@ const MyOrdersPage = lazy(() => import('./pages/shop/MyOrdersPage'));
 const AdminProductsPage = lazy(() => import('./pages/admin/AdminProductsPage'));
 const AdminOrdersPage = lazy(() => import('./pages/admin/AdminOrdersPage'));
 const AdminMilitaryUnitsPage = lazy(() => import('./pages/admin/AdminMilitaryUnitsPage'));
+const AdminActivitiesPage = lazy(() => import('./pages/admin/AdminActivitiesPage'));
 
 function Loader() {
   return <div className="p-8 text-sm text-slate-500 text-center">Načítám...</div>;
@@ -63,6 +64,7 @@ export default function App() {
           <Route path="products" element={wrap(<AdminProductsPage />)} />
           <Route path="orders" element={wrap(<AdminOrdersPage />)} />
           <Route path="military-units" element={wrap(<AdminMilitaryUnitsPage />)} />
+          <Route path="activities" element={wrap(<AdminActivitiesPage />)} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -22,6 +22,8 @@ const createOrderSchema = z.object({
   packetaPointName: z.string().optional(),
   note: z.string().optional(),
   militaryUnitId: z.string().optional(),
+  activityId: z.string().optional(),
+  isAnonymous: z.boolean().optional(),
   donationAmount: z.number().positive(),
   subscribeNewsletter: z.boolean().optional(),
   items: z.array(z.object({
@@ -53,9 +55,11 @@ router.post('/', optionalAuth, async (req: AuthRequest, res: Response, next: Nex
       return;
     }
 
+    let unit: { id: string; name: string; activityId: string | null; activity: { code: string; name: string } | null } | null = null;
     if (body.militaryUnitId) {
-      const unit = await prisma.militaryUnit.findFirst({
+      unit = await prisma.militaryUnit.findFirst({
         where: { id: body.militaryUnitId, isActive: true },
+        include: { activity: { select: { code: true, name: true } } },
       });
       if (!unit) {
         res.status(400).json({ message: 'Vybraná vojenská jednotka neexistuje.' });
@@ -63,10 +67,25 @@ router.post('/', optionalAuth, async (req: AuthRequest, res: Response, next: Nex
       }
     }
 
+    let activityCode: string | null = null;
+    let activityName: string | null = null;
+
+    if (body.activityId) {
+      const activity = await prisma.activity.findFirst({ where: { id: body.activityId, isActive: true } });
+      if (activity) { activityCode = activity.code; activityName = activity.name; }
+    } else if (unit?.activity) {
+      activityCode = unit.activity.code;
+      activityName = unit.activity.name;
+    }
+
     const variableSymbol = generateVariableSymbol();
+    const paymentNote = activityCode
+      ? `${activityCode} ${activityName || ''}`.trim().slice(0, 60)
+      : `Dar ${variableSymbol}`;
+
     const iban = process.env.SHOP_IBAN || '';
     const qrPayload = iban
-      ? generateQrPayload(iban, body.donationAmount, variableSymbol, `Dar ${variableSymbol}`)
+      ? generateQrPayload(iban, body.donationAmount, variableSymbol, paymentNote)
       : '';
 
     const order = await prisma.$transaction(async (tx) => {
@@ -89,6 +108,10 @@ router.post('/', optionalAuth, async (req: AuthRequest, res: Response, next: Nex
           packetaPointId: body.packetaPointId,
           packetaPointName: body.packetaPointName,
           note: body.note,
+          isAnonymous: body.isAnonymous || false,
+          activityCode,
+          activityName,
+          paymentNote,
           totalCzk: minTotal,
           donationAmount: body.donationAmount,
           variableSymbol,

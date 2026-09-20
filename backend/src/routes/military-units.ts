@@ -9,6 +9,7 @@ const unitSchema = z.object({
   name: z.string().min(2),
   slug: z.string().min(2).regex(/^[a-z0-9-]+$/, 'Slug může obsahovat jen malá písmena, číslice a pomlčky'),
   description: z.string().optional(),
+  activityId: z.string().optional().nullable(),
   isActive: z.boolean().optional(),
 });
 
@@ -17,7 +18,7 @@ router.get('/', async (_req: Request, res: Response, next: NextFunction): Promis
     const units = await prisma.militaryUnit.findMany({
       where: { isActive: true },
       orderBy: { name: 'asc' },
-      select: { id: true, name: true, slug: true, description: true },
+      include: { activity: { select: { id: true, code: true, name: true } } },
     });
     res.json(units);
   } catch (err) { next(err); }
@@ -27,7 +28,10 @@ router.get('/admin', authenticate, requireAdmin, async (_req: Request, res: Resp
   try {
     const units = await prisma.militaryUnit.findMany({
       orderBy: { name: 'asc' },
-      include: { _count: { select: { orders: true } } },
+      include: {
+        _count: { select: { orders: true } },
+        activity: { select: { id: true, code: true, name: true } },
+      },
     });
     res.json(units);
   } catch (err) { next(err); }

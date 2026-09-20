@@ -9,7 +9,7 @@ import { MapPin, Package } from 'lucide-react';
 import { api } from '../../lib/api';
 import { useCartStore } from '../../store/cartStore';
 import { useAuthStore } from '../../store/authStore';
-import { Order, MilitaryUnit } from '../../types';
+import { Order, MilitaryUnit, Activity } from '../../types';
 import { formatPrice } from '../../lib/utils';
 
 const schema = z.object({
@@ -24,6 +24,8 @@ const schema = z.object({
   packetaPointName: z.string().optional(),
   note: z.string().optional(),
   militaryUnitId: z.string().optional(),
+  activityId: z.string().optional(),
+  isAnonymous: z.boolean().optional(),
   donationAmount: z.number({ invalid_type_error: 'Zadejte částku' }).positive('Částka musí být kladná'),
   subscribeNewsletter: z.boolean().optional(),
 }).refine(d => {
@@ -50,6 +52,11 @@ export default function CheckoutPage() {
     queryFn: () => api.get<MilitaryUnit[]>('/military-units').then(r => r.data),
   });
 
+  const { data: activities } = useQuery<Activity[]>({
+    queryKey: ['activities'],
+    queryFn: () => api.get<Activity[]>('/activities').then(r => r.data),
+  });
+
   const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -59,10 +66,14 @@ export default function CheckoutPage() {
       country: 'CZ',
       donationAmount: minAmount,
       subscribeNewsletter: false,
+      isAnonymous: false,
     },
   });
 
   const deliveryType = watch('deliveryType');
+  const isAnonymous = watch('isAnonymous');
+  const militaryUnitId = watch('militaryUnitId');
+  const selectedUnit = units?.find(u => u.id === militaryUnitId);
 
   useEffect(() => {
     setValue('donationAmount', minAmount);
@@ -186,16 +197,50 @@ export default function CheckoutPage() {
             </div>
           )}
 
-          {/* Jednotka */}
-          {units && units.length > 0 && (
-            <div>
-              <label className="block text-sm font-medium mb-1">Vojenská jednotka</label>
-              <select {...register('militaryUnitId')} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
-                <option value="">— Nevybráno —</option>
-                {units.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
-              </select>
-            </div>
-          )}
+          {/* Anonymní dar / Jednotka / Aktivita */}
+          <div className="border border-slate-200 rounded-xl p-4 space-y-3">
+            <label className="flex items-start gap-3 cursor-pointer group">
+              <input type="checkbox" {...register('isAnonymous')}
+                onChange={e => {
+                  setValue('isAnonymous', e.target.checked);
+                  if (e.target.checked) { setValue('militaryUnitId', ''); }
+                  else { setValue('activityId', ''); }
+                }}
+                className="mt-0.5 w-4 h-4 accent-brand-600" />
+              <span className="text-sm">
+                <span className="font-medium">Anonymní dar přímo Nadačnímu fondu</span>
+                <span className="block text-xs text-slate-500 mt-0.5">Váš dar půjde na vybranou aktivitu fondu — bez přiřazení ke konkrétní jednotce</span>
+              </span>
+            </label>
+
+            {isAnonymous ? (
+              <div>
+                <label className="block text-sm font-medium mb-1">Aktivita / účel daru</label>
+                <select {...register('activityId')} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                  <option value="">— Vyberte účel —</option>
+                  {activities?.map(a => (
+                    <option key={a.id} value={a.id}>{a.code} – {a.name}</option>
+                  ))}
+                </select>
+              </div>
+            ) : (
+              units && units.length > 0 && (
+                <div>
+                  <label className="block text-sm font-medium mb-1">Vojenská jednotka</label>
+                  <select {...register('militaryUnitId')} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                    <option value="">— Nevybráno —</option>
+                    {units.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
+                  </select>
+                  {selectedUnit?.activity && (
+                    <p className="text-xs text-slate-500 mt-1.5">
+                      Platební kód: <span className="font-mono font-medium text-slate-700">{selectedUnit.activity.code}</span>
+                      {' '}— {selectedUnit.activity.name}
+                    </p>
+                  )}
+                </div>
+              )
+            )}
+          </div>
 
           {/* Dar */}
           <div>

@@ -30,12 +30,23 @@ export interface Product {
   createdAt: string;
 }
 
+export interface Activity {
+  id: string;
+  code: string;
+  name: string;
+  isActive: boolean;
+  _count?: { militaryUnits: number };
+  createdAt?: string;
+}
+
 export interface MilitaryUnit {
   id: string;
   name: string;
   slug: string;
   description?: string;
   isActive?: boolean;
+  activityId?: string | null;
+  activity?: { id: string; code: string; name: string } | null;
   _count?: { orders: number };
   createdAt?: string;
 }
@@ -84,6 +95,10 @@ export interface Order {
   note?: string;
   militaryUnitId?: string;
   militaryUnit?: { id: string; name: string } | null;
+  isAnonymous?: boolean;
+  activityCode?: string | null;
+  activityName?: string | null;
+  paymentNote?: string | null;
   fundsUsed: boolean;
   confirmationSentAt?: string | null;
   items: OrderItem[];

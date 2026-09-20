@@ -37,11 +37,23 @@ model MilitaryUnit {
   name        String
   slug        String    @unique
   description String?
+  activityId  String?
+  activity    Activity? @relation(fields: [activityId], references: [id])
   isActive    Boolean   @default(true)
   orders      Order[]
   products    Product[] @relation("ProductMilitaryUnits")
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+}
+
+model Activity {
+  id            String        @id @default(cuid())
+  code          String        @unique
+  name          String
+  isActive      Boolean       @default(true)
+  militaryUnits MilitaryUnit[]
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 }
 
 model NewsletterSubscriber {
@@ -114,6 +126,10 @@ model Order {
   packetaPointId      String?
   packetaPointName    String?
   note                String?
+  isAnonymous         Boolean       @default(false)
+  activityCode        String?
+  activityName        String?
+  paymentNote         String?
   fundsUsed           Boolean       @default(false)
   confirmationSentAt  DateTime?
   items               OrderItem[]
