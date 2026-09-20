@@ -29,26 +29,32 @@ const createOrderSchema = z.object({
   items: z.array(z.object({
     productId: z.string(),
     quantity: z.number().int().positive(),
-  })).min(1),
+  })).optional().default([]),
 });
 
 router.post('/', optionalAuth, async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const body = createOrderSchema.parse(req.body);
 
-    const products = await prisma.product.findMany({
-      where: { id: { in: body.items.map(i => i.productId) }, isActive: true },
-    });
+    const hasItems = body.items.length > 0;
 
-    if (products.length !== body.items.length) {
+    const products = hasItems
+      ? await prisma.product.findMany({
+          where: { id: { in: body.items.map(i => i.productId) }, isActive: true },
+        })
+      : [];
+
+    if (hasItems && products.length !== body.items.length) {
       res.status(400).json({ message: 'Jeden nebo více produktů není dostupných.' });
       return;
     }
 
-    const minTotal = body.items.reduce((sum, item) => {
-      const product = products.find(p => p.id === item.productId)!;
-      return sum + Number(product.priceCzk) * item.quantity;
-    }, 0);
+    const minTotal = products.length > 0
+      ? body.items.reduce((sum, item) => {
+          const product = products.find(p => p.id === item.productId)!;
+          return sum + Number(product.priceCzk) * item.quantity;
+        }, 0)
+      : 0;
 
     if (body.donationAmount < minTotal - 0.01) {
       res.status(400).json({ message: `Minimální dar je ${minTotal.toFixed(2)} Kč.` });
@@ -136,11 +142,13 @@ router.post('/', optionalAuth, async (req: AuthRequest, res: Response, next: Nex
         include: { items: true, payment: true, militaryUnit: true },
       });
 
-      for (const item of body.items) {
-        await tx.product.update({
-          where: { id: item.productId },
-          data: { stock: { decrement: item.quantity } },
-        });
+      if (hasItems) {
+        for (const item of body.items) {
+          await tx.product.update({
+            where: { id: item.productId },
+            data: { stock: { decrement: item.quantity } },
+          });
+        }
       }
 
       return newOrder;

@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { useAuthStore } from './store/authStore';
 import ShopLayout from './components/layout/ShopLayout';
 import AdminLayout from './components/layout/AdminLayout';
+import WidgetLayout from './components/layout/WidgetLayout';
 
 const LoginPage = lazy(() => import('./pages/auth/LoginPage'));
 const RegisterPage = lazy(() => import('./pages/auth/RegisterPage'));
@@ -16,6 +17,8 @@ const AdminProductsPage = lazy(() => import('./pages/admin/AdminProductsPage'));
 const AdminOrdersPage = lazy(() => import('./pages/admin/AdminOrdersPage'));
 const AdminMilitaryUnitsPage = lazy(() => import('./pages/admin/AdminMilitaryUnitsPage'));
 const AdminActivitiesPage = lazy(() => import('./pages/admin/AdminActivitiesPage'));
+const DonatePage = lazy(() => import('./pages/shop/DonatePage'));
+const WidgetPage = lazy(() => import('./pages/widget/WidgetPage'));
 
 function Loader() {
   return <div className="p-8 text-sm text-slate-500 text-center">Načítám...</div>;
@@ -57,6 +60,11 @@ export default function App() {
           <Route path="checkout" element={<RequireAuth>{wrap(<CheckoutPage />)}</RequireAuth>} />
           <Route path="orders/:id" element={<RequireAuth>{wrap(<OrderPage />)}</RequireAuth>} />
           <Route path="my-orders" element={<RequireAuth>{wrap(<MyOrdersPage />)}</RequireAuth>} />
+          <Route path="donate" element={wrap(<DonatePage />)} />
+        </Route>
+
+        <Route path="/widget" element={<WidgetLayout />}>
+          <Route index element={wrap(<WidgetPage />)} />
         </Route>
 
         <Route path="/admin" element={<RequireAdmin><AdminLayout /></RequireAdmin>}>

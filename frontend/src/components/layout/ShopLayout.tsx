@@ -24,7 +24,13 @@ export default function ShopLayout() {
             </div>
           </Link>
           <nav className="flex items-center gap-5">
-            <Link to="/products" className="text-sm text-brand-200 hover:text-white transition-colors">Darovat</Link>
+            <Link to="/products" className="text-sm text-brand-200 hover:text-white transition-colors hidden sm:block">Dárky</Link>
+            <Link
+              to="/donate"
+              className="text-sm font-semibold bg-brand-600 hover:bg-brand-500 text-white px-3 py-1.5 rounded-lg transition-colors"
+            >
+              Darovat
+            </Link>
             <Link to="/cart" className="relative text-brand-200 hover:text-white transition-colors">
               <ShoppingCart size={20} />
               {count > 0 && (
@@ -85,6 +91,7 @@ export default function ShopLayout() {
             <div>
               <p className="font-semibold text-white text-sm mb-3">Informace</p>
               <ul className="text-xs text-brand-400 space-y-1.5">
+                <li><Link to="/donate" className="hover:text-white transition-colors">Darovat přímo</Link></li>
                 <li><Link to="/my-orders" className="hover:text-white transition-colors">Moje darovací smlouvy</Link></li>
                 <li><Link to="/login" className="hover:text-white transition-colors">Přihlášení / Registrace</Link></li>
               </ul>

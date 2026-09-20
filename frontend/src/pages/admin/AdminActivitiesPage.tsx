@@ -1,18 +1,53 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
+import { Copy, Check, ChevronDown, ChevronUp } from 'lucide-react';
 import { api } from '../../lib/api';
-import { Activity } from '../../types';
+import { Activity, MilitaryUnit } from '../../types';
+
+function CopyButton({ code }: { code: string }) {
+  const [copied, setCopied] = useState(false);
+  const copy = () => {
+    navigator.clipboard.writeText(code).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+  return (
+    <button onClick={copy} className="flex items-center gap-1.5 text-xs text-brand-600 hover:text-brand-800 px-2 py-1 rounded border border-brand-200 hover:border-brand-400 transition-colors flex-shrink-0">
+      {copied ? <Check size={12} /> : <Copy size={12} />}
+      {copied ? 'Zkopírováno' : 'Kopírovat'}
+    </button>
+  );
+}
+
+function EmbedBlock({ label, code }: { label: string; code: string }) {
+  return (
+    <div className="space-y-1.5">
+      <p className="text-xs font-medium text-slate-600">{label}</p>
+      <div className="flex items-start gap-2">
+        <pre className="flex-1 bg-slate-900 text-green-300 text-xs p-3 rounded-lg overflow-x-auto whitespace-pre-wrap leading-relaxed">{code}</pre>
+        <CopyButton code={code} />
+      </div>
+    </div>
+  );
+}
 
 export default function AdminActivitiesPage() {
   const qc = useQueryClient();
   const [editing, setEditing] = useState<Activity | null>(null);
   const [creating, setCreating] = useState(false);
   const [form, setForm] = useState({ code: '', name: '' });
+  const [widgetsOpen, setWidgetsOpen] = useState(false);
 
   const { data: activities, isLoading } = useQuery<Activity[]>({
     queryKey: ['activities-admin'],
     queryFn: () => api.get<Activity[]>('/activities/admin').then(r => r.data),
+  });
+
+  const { data: units } = useQuery<MilitaryUnit[]>({
+    queryKey: ['admin-military-units'],
+    queryFn: () => api.get<MilitaryUnit[]>('/military-units/admin').then(r => r.data),
   });
 
   const invalidate = () => qc.invalidateQueries({ queryKey: ['activities-admin'] });
@@ -149,6 +184,68 @@ export default function AdminActivitiesPage() {
             ))}
           </tbody>
         </table>
+      </div>
+
+      <div className="mt-8 bg-white border border-slate-200 rounded-xl overflow-hidden">
+        <button
+          onClick={() => setWidgetsOpen(o => !o)}
+          className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-slate-50 transition-colors"
+        >
+          <div>
+            <p className="font-semibold text-sm">Widgety pro integraci</p>
+            <p className="text-xs text-slate-500 mt-0.5">Embed kódy pro vložení donation widgetu na externí stránky</p>
+          </div>
+          {widgetsOpen ? <ChevronUp size={18} className="text-slate-400" /> : <ChevronDown size={18} className="text-slate-400" />}
+        </button>
+
+        {widgetsOpen && (
+          <div className="border-t border-slate-100 p-5 space-y-8">
+            <div>
+              <p className="text-sm text-slate-600 mb-1">
+                Widget je samostatná stránka vhodná pro vložení do libovolného webu přes <code className="bg-slate-100 px-1 rounded">&lt;iframe&gt;</code>.
+                Podporuje URL parametry <code className="bg-slate-100 px-1 rounded">?unit=slug</code>,{' '}
+                <code className="bg-slate-100 px-1 rounded">?activity=code</code> a{' '}
+                <code className="bg-slate-100 px-1 rounded">?amount=500</code>.
+              </p>
+              <p className="text-xs text-slate-400">Doporučená velikost iframe: 380 × 560 px.</p>
+            </div>
+
+            <EmbedBlock
+              label="Obecný widget (bez předvolby)"
+              code={`<iframe\n  src="${window.location.origin}/widget"\n  width="380"\n  height="560"\n  style="border:none;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,0.10);"\n  title="Darovat — Česká stopa"\n></iframe>`}
+            />
+
+            <EmbedBlock
+              label="Obecný widget — React"
+              code={`<iframe\n  src="${window.location.origin}/widget"\n  width={380}\n  height={560}\n  style={{ border: 'none', borderRadius: 12, boxShadow: '0 4px 24px rgba(0,0,0,0.10)' }}\n  title="Darovat — Česká stopa"\n/>`}
+            />
+
+            {units && units.filter(u => u.isActive).length > 0 && (
+              <div className="space-y-4">
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Widgety per jednotka</p>
+                {units.filter(u => u.isActive).map(unit => (
+                  <EmbedBlock
+                    key={unit.id}
+                    label={unit.name}
+                    code={`<iframe\n  src="${window.location.origin}/widget?unit=${unit.slug}"\n  width="380"\n  height="560"\n  style="border:none;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,0.10);"\n  title="Darovat — ${unit.name}"\n></iframe>`}
+                  />
+                ))}
+              </div>
+            )}
+
+            <div className="bg-slate-50 rounded-xl p-4 space-y-3">
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Instrukce pro podporovatele</p>
+              <p className="text-sm text-slate-600">
+                Vložte iframe kód do HTML vaší stránky. Widget funguje na mobilních i desktopových zařízeních.
+                Po odeslání formuláře dárce obdrží platební instrukce s QR kódem přímo ve widgetu i na email.
+              </p>
+              <EmbedBlock
+                label="Kompletní příklad stránky (HTML)"
+                code={`<!DOCTYPE html>\n<html lang="cs">\n<head>\n  <meta charset="UTF-8">\n  <title>Podpořte Českou stopu</title>\n</head>\n<body>\n  <h2>Podpořte naši jednotku</h2>\n  <iframe\n    src="${window.location.origin}/widget?unit=vas-slug"\n    width="380"\n    height="560"\n    style="border:none;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,0.10);"\n    title="Darovat — Česká stopa"\n  ></iframe>\n</body>\n</html>`}
+              />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
