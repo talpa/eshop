@@ -8,33 +8,48 @@ async function main() {
   const prisma = new PrismaClient({ adapter });
 
   try {
-    // Kategorie
+    // Kategorie – jedna pro každý typ předmětu
     const cats = await Promise.all([
       prisma.category.upsert({
-        where: { slug: 'sevrony-odznaky' },
+        where: { slug: 'odznaky' },
         update: {},
-        create: { name: 'Ševrony a odznaky', slug: 'sevrony-odznaky', description: 'Nášivky, ševrony a bojové odznaky jednotek' },
+        create: { name: 'Odznaky', slug: 'odznaky', description: 'Kovové a smaltované odznaky' },
+      }),
+      prisma.category.upsert({
+        where: { slug: 'sevrony' },
+        update: {},
+        create: { name: 'Ševrony', slug: 'sevrony', description: 'Vyšívané rukávové nášivky a ševrony' },
       }),
       prisma.category.upsert({
         where: { slug: 'vlajky' },
         update: {},
-        create: { name: 'Vlajky', slug: 'vlajky', description: 'Vlajky České republiky, Ukrajiny a vojenských jednotek' },
+        create: { name: 'Vlajky', slug: 'vlajky', description: 'Vlajky ČR, Ukrajiny a vojenských jednotek' },
       }),
       prisma.category.upsert({
-        where: { slug: 'obleceni' },
+        where: { slug: 'tricka' },
         update: {},
-        create: { name: 'Oblečení', slug: 'obleceni', description: 'Trička, mikiny a kšiltovky s motivem České stopy' },
+        create: { name: 'Trička', slug: 'tricka', description: 'Trička s motivem České stopy' },
       }),
       prisma.category.upsert({
-        where: { slug: 'hrnecky-darky' },
+        where: { slug: 'mikiny' },
         update: {},
-        create: { name: 'Hrnečky a dárky', slug: 'hrnecky-darky', description: 'Hrnečky, termohrnky a ručně vyráběné dárky' },
+        create: { name: 'Mikiny', slug: 'mikiny', description: 'Mikiny a kšiltovky s motivem České stopy' },
+      }),
+      prisma.category.upsert({
+        where: { slug: 'hrnecky' },
+        update: {},
+        create: { name: 'Hrnečky', slug: 'hrnecky', description: 'Keramické hrnky a termohrnky' },
+      }),
+      prisma.category.upsert({
+        where: { slug: 'rucne-vyrabene' },
+        update: {},
+        create: { name: 'Ručně vyráběné', slug: 'rucne-vyrabene', description: 'Unikátní ručně vyráběné předměty' },
       }),
     ]);
 
     console.log('✓ Kategorie:', cats.map(c => c.name).join(', '));
 
-    const [sevrony, vlajky, obleceni, hrnecky] = cats;
+    const [odznaky, sevrony, vlajky, tricka, mikiny, hrnecky, rucne] = cats;
 
     // Vojenské jednotky
     const units = await Promise.all([
@@ -74,14 +89,34 @@ async function main() {
 
     // Produkty
     const products = [
-      // Ševrony a odznaky
+      // Odznaky
+      {
+        name: 'Odznak České stopy – kovový',
+        slug: 'odznak-ceske-stopy-kovovy',
+        priceCzk: 290,
+        stock: 80,
+        categoryId: odznaky.id,
+        description: 'Kovový odznak s logem nadačního fondu České stopy. Ručně lakovaný, průměr 3 cm. Zapínání na jehlici.',
+        images: ['https://images.unsplash.com/photo-1608889476561-6242cfdbf622?w=640&h=640&fit=crop'],
+      },
+      {
+        name: 'Smaltovaný odznak vlajka ČR+UA',
+        slug: 'smaltoany-odznak-vlajka-cr-ua',
+        priceCzk: 190,
+        stock: 120,
+        categoryId: odznaky.id,
+        description: 'Smaltovaný kovový odznak s českou a ukrajinskou vlajkou vedle sebe. Průměr 2,5 cm, zapínání na jehlici.',
+        images: ['https://images.unsplash.com/photo-1569025690938-a00729c9e1f9?w=640&h=640&fit=crop'],
+      },
+
+      // Ševrony
       {
         name: 'Ševrón Česká stopa – vyšívaný',
         slug: 'sevron-ceska-stopa-vysivany',
         priceCzk: 290,
         stock: 100,
         categoryId: sevrony.id,
-        description: 'Vyšívaný rukávový ševrón s logem České stopy. Rozměr 9×7 cm, suchý zip na zadní straně. Vhodný na uniformu i batoh.',
+        description: 'Vyšívaný rukávový ševrón s logem České stopy. Rozměr 9×7 cm, suchý zip na zadní straně.',
         images: ['https://images.unsplash.com/photo-1579762715118-a6f1d4b934f1?w=640&h=640&fit=crop'],
       },
       {
@@ -90,20 +125,8 @@ async function main() {
         priceCzk: 190,
         stock: 150,
         categoryId: sevrony.id,
-        description: 'Kombinovaný ševrón s českou a ukrajinskou vlajkou. Symbolizuje spojenectví. Rozměr 8×5 cm, suchý zip.',
+        description: 'Kombinovaný ševrón s českou a ukrajinskou vlajkou. Rozměr 8×5 cm, suchý zip.',
         images: ['https://images.unsplash.com/photo-1575908539614-ff89490f4a78?w=640&h=640&fit=crop'],
-      },
-      {
-        name: 'Sada ševrónů České stopy – 3 ks',
-        slug: 'sada-sevronu-ceske-stopy-3ks',
-        priceCzk: 590,
-        stock: 45,
-        categoryId: sevrony.id,
-        description: 'Sada tří vyšívaných ševrónů: logo České stopy, vlajky ČR+UA a bojový odznak. Vše se suchým zipem.',
-        images: [
-          'https://images.unsplash.com/photo-1579762715118-a6f1d4b934f1?w=640&h=640&fit=crop',
-          'https://images.unsplash.com/photo-1575908539614-ff89490f4a78?w=640&h=640&fit=crop',
-        ],
       },
 
       // Vlajky
@@ -131,26 +154,37 @@ async function main() {
         priceCzk: 290,
         stock: 40,
         categoryId: vlajky.id,
-        description: 'Sada dvou stolních vlajek (ČR a UA) na plastovém stojánku. Rozměr vlajky 14×21 cm. Vhodné na stůl nebo poličku.',
+        description: 'Sada dvou stolních vlajek (ČR a UA) na plastovém stojánku. Rozměr vlajky 14×21 cm.',
         images: ['https://images.unsplash.com/photo-1575908539614-ff89490f4a78?w=640&h=640&fit=crop'],
       },
 
-      // Oblečení
+      // Trička
       {
         name: 'Tričko Česká stopa – navy',
         slug: 'tricko-ceska-stopa-navy',
         priceCzk: 590,
         stock: 80,
-        categoryId: obleceni.id,
-        description: '100% česaná bavlna 180g/m². Vyšívka loga na hrudi, tisk na zádech. Dostupné S–XXL v navy blue.',
+        categoryId: tricka.id,
+        description: '100% česaná bavlna 180g/m². Vyšívka loga na hrudi, tisk na zádech. Dostupné S–XXL.',
         images: ['https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=640&h=640&fit=crop'],
       },
+      {
+        name: 'Tričko Česká stopa – bílé',
+        slug: 'tricko-ceska-stopa-bile',
+        priceCzk: 590,
+        stock: 60,
+        categoryId: tricka.id,
+        description: '100% česaná bavlna 180g/m². Vyšívka loga na hrudi, tisk na zádech. Dostupné S–XXL v bílé.',
+        images: ['https://images.unsplash.com/photo-1503341504253-dff4815485f1?w=640&h=640&fit=crop'],
+      },
+
+      // Mikiny
       {
         name: 'Mikina s kapucí Česká stopa',
         slug: 'mikina-s-kapuci-ceska-stopa',
         priceCzk: 990,
         stock: 35,
-        categoryId: obleceni.id,
+        categoryId: mikiny.id,
         description: 'Těžká bavlna 320g/m², klokaní kapsa, zip, vyšité logo. Unisex střih v navy blue. Dostupné S–XXL.',
         images: ['https://images.unsplash.com/photo-1556821840-3a63f15732ce?w=640&h=640&fit=crop'],
       },
@@ -159,12 +193,12 @@ async function main() {
         slug: 'ksiltovka-ceska-stopa',
         priceCzk: 390,
         stock: 55,
-        categoryId: obleceni.id,
+        categoryId: mikiny.id,
         description: 'Šestipanelová kšiltovka, kovová přezka, vyšité logo. Navy blue. Nastavitelná velikost.',
         images: ['https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=640&h=640&fit=crop'],
       },
 
-      // Hrnečky a dárky
+      // Hrnečky
       {
         name: 'Keramický hrnek Česká stopa 330ml',
         slug: 'keramicky-hrnek-ceska-stopa-330ml',
@@ -183,21 +217,32 @@ async function main() {
         description: 'Dvojitá nerezová stěna, udržuje teplotu 8 h. Laserově gravírované logo. Bezpečnostní víčko, BPA free.',
         images: ['https://images.unsplash.com/photo-1553361371-9b22f78e8b1d?w=640&h=640&fit=crop'],
       },
+
+      // Ručně vyráběné
       {
         name: 'Háčkovaný zajíc – ručně vyrobený',
         slug: 'hackovany-zajic-rucne-vyrobeny',
         priceCzk: 490,
         stock: 20,
-        categoryId: hrnecky.id,
+        categoryId: rucne.id,
         description: 'Ručně háčkovaný zajíček v barvách ČR — bílý s modrými a červenými detaily. Výška cca 18 cm. Hypoalergenní výplň. Každý kus je originál.',
         images: ['https://images.unsplash.com/photo-1585155770447-2f66e2a397b5?w=640&h=640&fit=crop'],
+      },
+      {
+        name: 'Pletený špek – ručně vyrobený',
+        slug: 'pleteny-spek-rucne-vyrobeny',
+        priceCzk: 390,
+        stock: 15,
+        categoryId: rucne.id,
+        description: 'Háčkovaná hračka – realistický špek z vlny. Oblíbený dárek pro vojáky i jejich děti. Každý kus je originál, cca 12 cm.',
+        images: ['https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=640&h=640&fit=crop'],
       },
     ];
 
     for (const p of products) {
       await prisma.product.upsert({
         where: { slug: p.slug },
-        update: { stock: p.stock, priceCzk: p.priceCzk, images: p.images },
+        update: { stock: p.stock, priceCzk: p.priceCzk, images: p.images, categoryId: p.categoryId },
         create: p,
       });
     }
