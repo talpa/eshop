@@ -69,25 +69,53 @@ export default function OrderPage() {
         </div>
       )}
 
-      {!isPaid && order.payment?.qrPayload && (
-        <div className="bg-white border border-slate-200 rounded-xl p-6 mb-6 text-center">
-          <h2 className="font-semibold mb-1">Zašlete dar převodem</h2>
-          <p className="text-sm text-slate-500 mb-4">
-            Naskenujte QR kód nebo použijte variabilní symbol <strong>{order.variableSymbol}</strong>
-          </p>
-          <div className="flex justify-center mb-4">
-            <QRCodeSVG value={order.payment.qrPayload} size={200} />
+      {!isPaid && (
+        <div className="bg-white border border-slate-200 rounded-xl p-6 mb-6">
+          <h2 className="font-semibold text-center mb-1">Zašlete dar převodem</h2>
+          {order.militaryUnit && (
+            <p className="text-center text-sm text-brand-600 font-medium mb-4">pro {order.militaryUnit.name}</p>
+          )}
+
+          {order.payment?.qrPayload ? (
+            <div className="text-center">
+              <p className="text-xs text-slate-400 mb-3">Naskenujte QR kód pro rychlou platbu</p>
+              <div className="flex justify-center mb-4">
+                <QRCodeSVG value={order.payment.qrPayload} size={200} />
+              </div>
+            </div>
+          ) : null}
+
+          <div className="bg-slate-50 rounded-lg px-4 py-3 mb-4 space-y-1.5 text-sm">
+            {order.payment?.qrPayload && (() => {
+              const iban = order.payment!.qrPayload.match(/ACC:([^*]+)/)?.[1];
+              return iban ? (
+                <div className="flex justify-between">
+                  <span className="text-slate-500">Číslo účtu (IBAN)</span>
+                  <span className="font-mono font-medium">{iban}</span>
+                </div>
+              ) : null;
+            })()}
+            <div className="flex justify-between">
+              <span className="text-slate-500">Variabilní symbol</span>
+              <span className="font-mono font-bold text-slate-800">{order.variableSymbol}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-slate-500">Částka</span>
+              <span className="font-bold text-brand-600">{formatPrice(Number(order.donationAmount))}</span>
+            </div>
           </div>
-          <p className="text-2xl font-bold text-brand-600 mb-4">{formatPrice(Number(order.donationAmount))}</p>
-          <p className="text-xs text-slate-400 mb-4">Minimální dar: {formatPrice(Number(order.totalCzk))} — můžete darovat i více</p>
-          <button
-            onClick={() => checkMutation.mutate()}
-            disabled={checkMutation.isPending}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
-          >
-            <RefreshCw size={14} className={checkMutation.isPending ? 'animate-spin' : ''} />
-            Zkontrolovat platbu
-          </button>
+
+          <p className="text-xs text-slate-400 text-center mb-4">Minimální dar: {formatPrice(Number(order.totalCzk))} — můžete darovat i více</p>
+          <div className="flex justify-center">
+            <button
+              onClick={() => checkMutation.mutate()}
+              disabled={checkMutation.isPending}
+              className="inline-flex items-center gap-2 px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+            >
+              <RefreshCw size={14} className={checkMutation.isPending ? 'animate-spin' : ''} />
+              Zkontrolovat platbu
+            </button>
+          </div>
         </div>
       )}
 
