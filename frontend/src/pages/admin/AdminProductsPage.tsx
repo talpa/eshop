@@ -6,7 +6,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import toast from 'react-hot-toast';
 import { api } from '../../lib/api';
-import { useAuthStore } from '../../store/authStore';
 import { Product, Category, MilitaryUnit } from '../../types';
 import { formatPrice, getImageUrl } from '../../lib/utils';
 
@@ -71,17 +70,12 @@ export default function AdminProductsPage() {
     try {
       const fd = new FormData();
       fd.append('file', file);
-      const token = useAuthStore.getState().token;
-      const res = await fetch('/api/upload/image', {
-        method: 'POST',
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-        body: fd,
+      const res = await api.post<{ url: string }>('/upload/image', fd, {
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
-      if (!res.ok) throw new Error((await res.json()).message || 'Chyba');
-      const { url } = await res.json();
-      setProductImages(prev => [...prev, url]);
+      setProductImages(prev => [...prev, res.data.url]);
     } catch (err: any) {
-      toast.error(err.message || 'Chyba při nahrávání obrázku.');
+      toast.error(err.response?.data?.message || 'Chyba při nahrávání obrázku.');
     } finally {
       setUploading(false);
       if (fileInputRef.current) fileInputRef.current.value = '';
