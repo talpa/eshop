@@ -20,12 +20,21 @@ export default function ProductsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState(searchParams.get('search') || '');
   const categorySlug = searchParams.get('category') || '';
+  const unitSlug = searchParams.get('unit') || '';
   const addItem = useCartStore(s => s.addItem);
 
   const { data, isLoading } = useQuery({
-    queryKey: ['products', categorySlug, search],
-    queryFn: () => api.get<ProductsResponse>('/products', { params: { categorySlug, search } }).then(r => r.data),
+    queryKey: ['products', categorySlug, search, unitSlug],
+    queryFn: () => api.get<ProductsResponse>('/products', { params: { categorySlug, search, unitSlug } }).then(r => r.data),
   });
+
+  const selectUnit = (slug: string) => {
+    setSearchParams(p => {
+      if (p.get('unit') === slug) { p.delete('unit'); } else { p.set('unit', slug); }
+      return p;
+    });
+    document.getElementById('produkty')?.scrollIntoView({ behavior: 'smooth' });
+  };
 
   const { data: categories } = useQuery({
     queryKey: ['categories'],
@@ -96,20 +105,32 @@ export default function ProductsPage() {
           <div className="max-w-6xl mx-auto px-4 py-12">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold text-slate-800">Podporované vojenské jednotky</h2>
-              <p className="text-sm text-slate-500">Při dokončení daru si vyberete, které jednotce peníze věnujete</p>
+              <p className="text-sm text-slate-500">Kliknutím zobrazíte dárky pro danou jednotku</p>
             </div>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {units.map(unit => (
-                <div key={unit.id} className="flex items-start gap-4 bg-white border border-slate-200 rounded-xl p-4 hover:border-brand-300 transition-colors">
-                  <div className="w-10 h-10 bg-brand-700 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Shield size={18} className="text-white" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-sm">{unit.name}</h3>
-                    {unit.description && <p className="text-xs text-slate-500 mt-1 leading-relaxed">{unit.description}</p>}
-                  </div>
-                </div>
-              ))}
+              {units.map(unit => {
+                const active = unitSlug === unit.slug;
+                return (
+                  <button
+                    key={unit.id}
+                    onClick={() => selectUnit(unit.slug)}
+                    className={`flex items-start gap-4 rounded-xl p-4 border-2 text-left w-full transition-all ${active ? 'border-brand-500 bg-brand-50 shadow-sm' : 'border-slate-200 bg-white hover:border-brand-300'}`}
+                  >
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors ${active ? 'bg-brand-600' : 'bg-brand-700'}`}>
+                      <Shield size={18} className="text-white" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <h3 className="font-semibold text-sm">{unit.name}</h3>
+                        {active && <span className="text-xs bg-brand-600 text-white px-2 py-0.5 rounded-full flex-shrink-0">Filtrováno</span>}
+                      </div>
+                      {unit.description && <p className="text-xs text-slate-500 mt-1 leading-relaxed">{unit.description}</p>}
+                      {!active && <p className="text-xs text-brand-600 mt-1.5 font-medium">Zobrazit dárky →</p>}
+                      {active && <p className="text-xs text-brand-600 mt-1.5 font-medium">Kliknutím zrušit filtr</p>}
+                    </div>
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
@@ -117,7 +138,16 @@ export default function ProductsPage() {
 
       {/* Produkty */}
       <div id="produkty" className="max-w-6xl mx-auto px-4 py-8">
-        <h2 className="text-xl font-bold mb-6 text-slate-800">Vyberte dárek jako poděkování</h2>
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-bold text-slate-800">
+            {unitSlug && units ? `Dárky pro: ${units.find(u => u.slug === unitSlug)?.name || ''}` : 'Vyberte dárek jako poděkování'}
+          </h2>
+          {unitSlug && (
+            <button onClick={() => setSearchParams(p => { p.delete('unit'); return p; })} className="text-sm text-brand-600 hover:underline flex items-center gap-1">
+              × Zrušit filtr jednotky
+            </button>
+          )}
+        </div>
 
         <div className="flex flex-wrap gap-3 mb-6">
           <div className="relative flex-1 min-w-48">
