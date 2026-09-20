@@ -94,6 +94,7 @@ export default function ShopLayout() {
                 <li><Link to="/donate" className="hover:text-white transition-colors">Darovat přímo</Link></li>
                 <li><Link to="/my-orders" className="hover:text-white transition-colors">Moje darovací smlouvy</Link></li>
                 <li><Link to="/login" className="hover:text-white transition-colors">Přihlášení / Registrace</Link></li>
+                <li><Link to="/widget-guide" className="hover:text-white transition-colors">Widget pro vývojáře</Link></li>
               </ul>
             </div>
           </div>

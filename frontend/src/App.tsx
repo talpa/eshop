@@ -18,6 +18,7 @@ const AdminOrdersPage = lazy(() => import('./pages/admin/AdminOrdersPage'));
 const AdminMilitaryUnitsPage = lazy(() => import('./pages/admin/AdminMilitaryUnitsPage'));
 const AdminActivitiesPage = lazy(() => import('./pages/admin/AdminActivitiesPage'));
 const DonatePage = lazy(() => import('./pages/shop/DonatePage'));
+const WidgetGuidePage = lazy(() => import('./pages/shop/WidgetGuidePage'));
 const WidgetPage = lazy(() => import('./pages/widget/WidgetPage'));
 
 function Loader() {
@@ -61,6 +62,7 @@ export default function App() {
           <Route path="orders/:id" element={<RequireAuth>{wrap(<OrderPage />)}</RequireAuth>} />
           <Route path="my-orders" element={<RequireAuth>{wrap(<MyOrdersPage />)}</RequireAuth>} />
           <Route path="donate" element={wrap(<DonatePage />)} />
+          <Route path="widget-guide" element={wrap(<WidgetGuidePage />)} />
         </Route>
 
         <Route path="/widget" element={<WidgetLayout />}>

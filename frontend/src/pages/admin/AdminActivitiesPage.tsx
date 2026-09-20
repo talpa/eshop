@@ -220,6 +220,11 @@ export default function AdminActivitiesPage() {
               code={`<iframe\n  src="${window.location.origin}/widget"\n  width={380}\n  height={560}\n  style={{ border: 'none', borderRadius: 12, boxShadow: '0 4px 24px rgba(0,0,0,0.10)' }}\n  title="Darovat — Česká stopa"\n/>`}
             />
 
+            <EmbedBlock
+              label="Widget s předvolenou částkou (1000 Kč)"
+              code={`<iframe\n  src="${window.location.origin}/widget?amount=1000"\n  width="380"\n  height="560"\n  style="border:none;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,0.10);"\n  title="Darovat — Česká stopa"\n></iframe>`}
+            />
+
             {units && units.filter(u => u.isActive).length > 0 && (
               <div className="space-y-4">
                 <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Widgety per jednotka</p>
@@ -233,16 +238,48 @@ export default function AdminActivitiesPage() {
               </div>
             )}
 
+            {activities && activities.filter(a => a.isActive).length > 0 && (
+              <div className="space-y-4">
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Widgety per aktivita</p>
+                {activities.filter(a => a.isActive).map(activity => (
+                  <EmbedBlock
+                    key={activity.id}
+                    label={`${activity.code} – ${activity.name}`}
+                    code={`<iframe\n  src="${window.location.origin}/widget?activity=${activity.code}"\n  width="380"\n  height="560"\n  style="border:none;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,0.10);"\n  title="Darovat — ${activity.name}"\n></iframe>`}
+                  />
+                ))}
+              </div>
+            )}
+
             <div className="bg-slate-50 rounded-xl p-4 space-y-3">
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Instrukce pro podporovatele</p>
-              <p className="text-sm text-slate-600">
-                Vložte iframe kód do HTML vaší stránky. Widget funguje na mobilních i desktopových zařízeních.
-                Po odeslání formuláře dárce obdrží platební instrukce s QR kódem přímo ve widgetu i na email.
-              </p>
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Příklady kombinace parametrů</p>
               <EmbedBlock
-                label="Kompletní příklad stránky (HTML)"
-                code={`<!DOCTYPE html>\n<html lang="cs">\n<head>\n  <meta charset="UTF-8">\n  <title>Podpořte Českou stopu</title>\n</head>\n<body>\n  <h2>Podpořte naši jednotku</h2>\n  <iframe\n    src="${window.location.origin}/widget?unit=vas-slug"\n    width="380"\n    height="560"\n    style="border:none;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,0.10);"\n    title="Darovat — Česká stopa"\n  ></iframe>\n</body>\n</html>`}
+                label="Jednotka + předvolená částka 500 Kč"
+                code={`<iframe src="${window.location.origin}/widget?unit=arisovy-poletuchy&amount=500" width="380" height="560" style="border:none;border-radius:12px;" title="Darovat"></iframe>`}
               />
+              <EmbedBlock
+                label="Aktivita + předvolená částka 1000 Kč"
+                code={`<iframe src="${window.location.origin}/widget?activity=2100&amount=1000" width="380" height="560" style="border:none;border-radius:12px;" title="Darovat"></iframe>`}
+              />
+              <EmbedBlock
+                label="Kompletní příklad HTML stránky"
+                code={`<!DOCTYPE html>\n<html lang="cs">\n<head>\n  <meta charset="UTF-8">\n  <title>Podpořte Českou stopu</title>\n</head>\n<body>\n  <h2>Podpořte naši jednotku</h2>\n  <iframe\n    src="${window.location.origin}/widget?unit=vas-slug&amount=500"\n    width="380" height="560"\n    style="border:none;border-radius:12px;box-shadow:0 4px 24px rgba(0,0,0,0.10);"\n    title="Darovat — Česká stopa"\n  ></iframe>\n</body>\n</html>`}
+              />
+            </div>
+
+            <div className="flex items-center justify-between p-4 bg-brand-50 border border-brand-100 rounded-xl">
+              <div>
+                <p className="text-sm font-medium text-brand-800">Veřejná dokumentace widgetu</p>
+                <p className="text-xs text-brand-600 mt-0.5">Sdílejte s podporovateli — obsahuje živý náhled a všechny příklady</p>
+              </div>
+              <a
+                href="/widget-guide"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-xs font-medium text-brand-700 hover:text-brand-900 underline flex-shrink-0 ml-4"
+              >
+                Otevřít stránku →
+              </a>
             </div>
           </div>
         )}
