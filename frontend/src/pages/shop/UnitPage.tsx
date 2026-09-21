@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { Shield, ChevronLeft, ShoppingCart, Bell, ChevronDown, ExternalLink } from 'lucide-react';
+import { Shield, ChevronLeft, ShoppingCart, Bell, ChevronDown, ExternalLink, Heart } from 'lucide-react';
 import { api } from '../../lib/api';
 import { useCartStore } from '../../store/cartStore';
 import { MilitaryUnit, ProductsResponse } from '../../types';
@@ -90,6 +90,27 @@ export default function UnitPage() {
         </div>
       </div>
 
+      {/* CTA panel */}
+      <div className="bg-white border-b border-slate-200 sticky top-16 z-10 shadow-sm">
+        <div className="max-w-5xl mx-auto px-4 py-4 flex flex-wrap items-center gap-3">
+          <Link
+            to={`/donate?unit=${unit.slug}`}
+            className="inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white px-5 py-2.5 rounded-lg font-semibold text-sm transition-colors"
+          >
+            <Heart size={15} /> Darovat přímo
+          </Link>
+          <a
+            href="#produkty"
+            className="inline-flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 px-5 py-2.5 rounded-lg font-medium text-sm transition-colors"
+          >
+            <ShoppingCart size={15} /> Vybrat dárek
+          </a>
+          <span className="text-xs text-slate-400 hidden sm:block">
+            Přímá donace nebo výběr dárku z eshopu
+          </span>
+        </div>
+      </div>
+
       <div className="max-w-5xl mx-auto px-4 py-10 space-y-12">
 
         {/* YouTube videa */}
@@ -145,7 +166,7 @@ export default function UnitPage() {
 
         {/* Produkty */}
         {productsData && productsData.products.length > 0 && (
-          <section>
+          <section id="produkty">
             <h2 className="text-lg font-bold text-slate-800 mb-4">
               Dárky pro {localName(unit, i18n.language)}
             </h2>

@@ -64,6 +64,10 @@ export default function DonatePage() {
     if (preselectedActivity && !activityId) setActivityId(preselectedActivity.id);
   }, [preselectedActivity]);
 
+  useEffect(() => {
+    if (preselectedUnit) setValue('militaryUnitId', preselectedUnit.id);
+  }, [preselectedUnit?.id]);
+
   const selectedActivity = activities?.find(a => a.id === activityId);
   const activityMessage = selectedActivity ? `${selectedActivity.code} ${selectedActivity.name}`.slice(0, 60) : '';
   const activityQr = selectedActivity && shopConfig?.iban ? buildQr(shopConfig.iban, activityAmount, activityMessage) : '';
