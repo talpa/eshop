@@ -1,0 +1,332 @@
+{
+  "common": {
+    "loading": "Laden...",
+    "notFound": "Nicht gefunden.",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "back": "Zurück",
+    "donate": "Spenden",
+    "donateBtn": "Spende bestätigen",
+    "donating": "Sende...",
+    "currency": "Kronen",
+    "fundName": "Česká stopa",
+    "fundSubtitle": "Stiftungsfonds"
+  },
+  "nav": {
+    "products": "Geschenke",
+    "donate": "Spenden",
+    "login": "Anmelden",
+    "logout": "Abmelden",
+    "myOrders": "Meine Spenden",
+    "admin": "Administration"
+  },
+  "footer": {
+    "fundDesc": "Stiftungsfonds zur Unterstützung von Militäreinheiten, die in der Ukraine im Einsatz sind. Jede Spende ist dokumentiert und wird transparent verwendet.",
+    "howToDonate": "Wie spenden",
+    "information": "Informationen",
+    "step1": "Wählen Sie ein Dankeschön-Geschenk",
+    "step2": "Wählen Sie eine Militäreinheit",
+    "step3": "Überweisen Sie Ihre Spende (QR-Code)",
+    "step4": "Erhalten Sie Ihre Spendenquittung (PDF)",
+    "links": {
+      "donate": "Direkt spenden",
+      "myOrders": "Meine Spenden",
+      "login": "Anmelden / Registrieren",
+      "widgetGuide": "Widget für Entwickler"
+    },
+    "copyright": "Česká stopa — Stiftungsfonds zur Unterstützung der Ukraine"
+  },
+  "home": {
+    "hero": {
+      "badge": "Stiftungsfonds Česká stopa",
+      "title1": "Unterstützen Sie unsere Soldaten",
+      "title2": "mit einer Spende in der Ukraine",
+      "subtitle": "Spenden Sie Ressourcen zur Unterstützung von Militäreinheiten im Einsatz. Jede Spende ist dokumentiert und Sie erhalten ein Dankeschön-Geschenk.",
+      "cta": "Geschenk wählen und spenden"
+    },
+    "howItWorks": {
+      "title": "So funktioniert die Spendenplattform",
+      "step1": { "title": "Geschenk wählen", "text": "Wählen Sie ein Geschenk, das Sie als Dankeschön für Ihre Spende erhalten." },
+      "step2": { "title": "Einheit wählen", "text": "Wählen Sie die Militäreinheit, der Sie Ihre Spende widmen möchten." },
+      "step3": { "title": "Beliebigen Betrag spenden", "text": "Der Geschenkpreis ist der Mindestbetrag — Sie können auch mehr spenden." },
+      "step4": { "title": "Bestätigung erhalten", "text": "Nach der Zahlung senden wir Ihnen automatisch eine PDF-Spendenquittung." }
+    },
+    "units": {
+      "title": "Unterstützte Militäreinheiten",
+      "clickFilter": "Klicken, um Geschenke für diese Einheit anzuzeigen",
+      "filtered": "Gefiltert",
+      "showGifts": "Geschenke anzeigen →",
+      "clearFilter": "Klicken, um Filter aufzuheben"
+    },
+    "products": {
+      "title": "Wählen Sie ein Dankeschön-Geschenk",
+      "fromUnit": "Geschenke von: {{name}}",
+      "clearFilter": "× Einheitenfilter aufheben",
+      "empty": "Keine Geschenke entsprechen dem aktuellen Filter."
+    },
+    "search": {
+      "placeholder": "Geschenke suchen...",
+      "all": "Alle"
+    },
+    "addedToCart": "{{name}} wurde zum Warenkorb hinzugefügt."
+  },
+  "product": {
+    "notFound": "Produkt nicht gefunden.",
+    "back": "Zurück zur Geschenkauswahl",
+    "minDonation": "Mindestspendenbetrag — Sie können auch mehr spenden",
+    "linkedUnits": "Dieses Geschenk ist mit folgenden Einheiten verknüpft:",
+    "quantity": "Menge:",
+    "addToCart": "In den Warenkorb",
+    "outOfStock": "Nicht vorrätig",
+    "availability": "Verfügbarkeit: {{count}} Stk.",
+    "addedToCart": "{{name}} wurde zum Warenkorb hinzugefügt."
+  },
+  "cart": {
+    "title": "Warenkorb",
+    "empty": "Ihr Warenkorb ist leer",
+    "continueShopping": "Weiter einkaufen",
+    "total": "Gesamt",
+    "checkout": "Zur Kasse"
+  },
+  "checkout": {
+    "title": "Spendenvertrag",
+    "subtitle": "Ihre Kontaktdaten sind vertraulich und werden ausschließlich für Zwecke des Fonds Česká stopa verwendet.",
+    "loginNotice": "Eine Anmeldung ist nicht erforderlich, aber nach der Anmeldung können Sie die Spendenquittung jederzeit herunterladen.",
+    "login": "Anmelden",
+    "name": "Vor- und Nachname",
+    "email": "E-Mail",
+    "delivery": {
+      "label": "Geschenk-Liefermethode",
+      "home": "Heimlieferung",
+      "packeta": "Zásilkovna-Abholpunkt",
+      "street": "Straße und Hausnummer",
+      "streetPlaceholder": "z.B. Hauptstraße 1",
+      "city": "Stadt",
+      "cityPlaceholder": "Prag",
+      "zip": "Postleitzahl",
+      "zipPlaceholder": "110 00",
+      "packetaSelect": "Zásilkovna-Abholpunkt wählen",
+      "packetaChange": "Ändern",
+      "packetaRequired": "Bitte wählen Sie einen Abholpunkt"
+    },
+    "anonymous": {
+      "label": "Anonyme Spende direkt an den Stiftungsfonds",
+      "desc": "Ihre Spende geht an eine ausgewählte Fondsaktivität — ohne Zuordnung zu einer bestimmten Einheit"
+    },
+    "activity": {
+      "label": "Aktivität / Spendenzweck",
+      "select": "— Zweck wählen —"
+    },
+    "unit": {
+      "label": "Militäreinheit",
+      "select": "— Nicht ausgewählt —",
+      "paymentCode": "Zahlungscode: {{code}} — {{name}}"
+    },
+    "amount": {
+      "label": "Spendenbetrag",
+      "minimum": "Mindestens {{min}}"
+    },
+    "note": "Hinweis (optional)",
+    "newsletter": "Ich möchte Updates über die Verwendung von Spenden erhalten",
+    "submit": "Spende bestätigen und bezahlen",
+    "submitting": "Sende...",
+    "gifts": {
+      "title": "Als Dankeschön erhalten Sie",
+      "confirmationNotice": "Nach der Zahlung erhalten Sie eine Spendenquittung per E-Mail und als PDF-Download."
+    }
+  },
+  "order": {
+    "title": "Spendenvertrag #{{vs}}",
+    "status": {
+      "PENDING": "Unbezahlt",
+      "PAID": "Bezahlt",
+      "PROCESSING": "Bezahlt",
+      "SHIPPED": "Bezahlt",
+      "DELIVERED": "Bezahlt",
+      "CANCELLED": "Storniert"
+    },
+    "dedicatedTo": "Spende gewidmet an: {{name}}",
+    "transfer": {
+      "title": "Spende per Überweisung senden",
+      "fromUnit": "von {{name}}",
+      "qrScan": "QR-Code für schnelle Zahlung scannen",
+      "accountNumber": "Kontonummer",
+      "iban": "IBAN",
+      "variableSymbol": "Variabler Symbol",
+      "amount": "Betrag",
+      "minDonation": "Mindestspende: {{min}} — Sie können auch mehr spenden",
+      "checkPayment": "Zahlung prüfen"
+    },
+    "paid": {
+      "title": "Spende erhalten — vielen Dank!",
+      "confirmation": "Spendenquittung wurde an {{email}} gesendet.",
+      "confirmationPending": "Spendenquittung wird an Ihre E-Mail gesendet.",
+      "download": "Quittung herunterladen (PDF)",
+      "loginForDownload": "Melden Sie sich an, um jederzeit erneut herunterzuladen."
+    },
+    "gifts": {
+      "title": "Als Dankeschön erhalten Sie",
+      "amountLabel": "Spendenbetrag"
+    },
+    "delivery": {
+      "title": "Lieferung",
+      "note": "Hinweis"
+    },
+    "backToAll": "Alle Spendenverträge anzeigen",
+    "paymentConfirmed": "Zahlung bestätigt — Quittung an Ihre E-Mail gesendet.",
+    "paymentNotFound": "Zahlung noch nicht gefunden. Bitte versuchen Sie es in Kürze erneut.",
+    "paymentError": "Fehler bei der Zahlungsprüfung."
+  },
+  "myOrders": {
+    "title": "Meine Spenden",
+    "empty": "Sie haben noch keine Spendenverträge.",
+    "browse": "Geschenke durchsuchen"
+  },
+  "donate": {
+    "title": "Direkt spenden — ohne Geschenke",
+    "subtitle": "Ihre Spende geht direkt an einen ausgewählten Zweck des Fonds Česká stopa",
+    "loginAlert": "Um eine Spendenquittung als PDF zu erhalten, <1>melden Sie sich an</1>. Ohne Anmeldung erhalten Sie Zahlungsanweisungen per E-Mail.",
+    "target": {
+      "title": "Wohin geht Ihre Spende",
+      "unit": "An eine bestimmte Einheit",
+      "activity": "An einen Fondszweck"
+    },
+    "unit": {
+      "label": "Militäreinheit",
+      "select": "— Einheit wählen —",
+      "paymentCode": "Zahlungscode: {{code}} — {{name}}"
+    },
+    "activity": {
+      "label": "Zweck / Aktivität",
+      "select": "— Zweck wählen —"
+    },
+    "amount": {
+      "title": "Spendenbetrag",
+      "other": "Anderer Betrag"
+    },
+    "contact": {
+      "title": "Kontaktdaten",
+      "name": "Vor- und Nachname",
+      "email": "E-Mail"
+    },
+    "newsletter": "Ich möchte Updates über die Verwendung von Spenden erhalten",
+    "submit": "Spende bestätigen",
+    "submitting": "Sende...",
+    "error": "Spende konnte nicht gesendet werden."
+  },
+  "auth": {
+    "login": {
+      "title": "Anmelden",
+      "email": "E-Mail",
+      "password": "Passwort",
+      "submit": "Anmelden",
+      "submitting": "Anmelde...",
+      "noAccount": "Noch kein Konto?",
+      "register": "Registrieren",
+      "error": "Falsche E-Mail oder falsches Passwort."
+    },
+    "register": {
+      "title": "Registrieren",
+      "name": "Name",
+      "email": "E-Mail",
+      "password": "Passwort",
+      "submit": "Konto erstellen",
+      "submitting": "Registriere...",
+      "haveAccount": "Bereits ein Konto?",
+      "login": "Anmelden",
+      "error": "Registrierung fehlgeschlagen."
+    }
+  },
+  "widget": {
+    "langLabel": "Sprache",
+    "donateToFund": "An den Stiftungsfonds Česká stopa spenden",
+    "unitWidget": {
+      "fromUnit": "für {{name}}",
+      "selectUnit": "— Einheit wählen —",
+      "paymentCode": "Code: {{code}}",
+      "name": "Vor- und Nachname",
+      "email": "E-Mail",
+      "submit": "Spende bestätigen",
+      "submitting": "Sende...",
+      "error": "Übermittlung fehlgeschlagen.",
+      "success": {
+        "title": "Spende registriert",
+        "instruction": "Zahlungsanweisungen wurden an Ihre E-Mail gesendet."
+      },
+      "donateAgain": "Erneut spenden"
+    },
+    "activityWidget": {
+      "forActivity": "für {{code}} – {{name}}",
+      "selectActivity": "— Zweck wählen —",
+      "noActivity": "Wählen Sie einen Zweck, um Zahlungsanweisungen anzuzeigen.",
+      "note": "Geben Sie den Code {{code}} in der Zahlungsnachricht an."
+    },
+    "toggle": {
+      "unit": "An eine Einheit",
+      "activity": "Fondszweck"
+    },
+    "payment": {
+      "accountNumber": "Kontonummer",
+      "iban": "IBAN",
+      "vs": "VS",
+      "message": "Nachricht",
+      "amount": "Betrag"
+    },
+    "footer": "Česká stopa — Stiftungsfonds"
+  },
+  "widgetGuide": {
+    "title": "Widget für Entwickler",
+    "subtitle": "Betten Sie das Spendenformular direkt auf Ihrer Website ein — nur eine Zeile HTML.",
+    "variants": {
+      "general": "Allgemeines Widget — zeigt einen Schalter \"An eine Einheit / Fondszweck\". Das Verhalten wird durch URL-Parameter gesteuert.",
+      "unit": "Widget für eine bestimmte Militäreinheit. Erfordert Name und E-Mail, erstellt eine Bestellung.",
+      "activity": "Widget für einen Fondszweck (Aktivitätscodes). QR-Code wird im Browser generiert — es wird keine Bestellung erstellt."
+    },
+    "params": {
+      "title": "URL-Parameter",
+      "colParam": "Parameter",
+      "colFor": "Gilt für",
+      "colDesc": "Beschreibung",
+      "rows": {
+        "unit": "Feste Einheit — zeigt Text, verbirgt Auswahl",
+        "defaultUnit": "Vorausgewählte Einheit, Auswahl bleibt sichtbar",
+        "activity": "Feste Aktivität — zeigt Text, verbirgt Auswahl",
+        "defaultActivity": "Vorausgewählte Aktivität, Auswahl bleibt sichtbar",
+        "amount": "Vorausgefüllter Spendenbetrag in CZK",
+        "title": "Überschreibt den Widget-Titeltext",
+        "lang": "Widget-Sprache: cs / en / de / uk (Standard: cs)"
+      }
+    },
+    "values": {
+      "title": "Verfügbare Werte",
+      "units": "Einheiten",
+      "activities": "Aktivitäten"
+    },
+    "preview": {
+      "title": "Live-Vorschau",
+      "noParams": "keine Parameter"
+    },
+    "embed": {
+      "title": "Grundlegendes Einbetten",
+      "labelGeneral": "/widget — allgemein (mit Schalter)",
+      "labelUnit": "/widget/unit — für eine Einheit",
+      "labelActivity": "/widget/activity — für Fondszweck"
+    },
+    "examples": {
+      "title": "Beispiele mit Parametern",
+      "fixedUnit": "Feste Einheit — {{name}}",
+      "defaultUnit": "Vorausgewählte Einheit (Auswahl bleibt) — {{name}}",
+      "fixedUnitAmount": "Feste Einheit + Betrag — {{name}}",
+      "fixedActivity": "Feste Aktivität — {{code}} {{name}}",
+      "defaultActivity": "Vorausgewählte Aktivität (Auswahl bleibt) — {{code}}",
+      "fixedActivityAmount": "Feste Aktivität + Betrag — {{code}}",
+      "customTitle": "Benutzerdefinierter Titel (title=)"
+    },
+    "fullPage": {
+      "title": "Vollständige HTML-Seite"
+    },
+    "donateDirectly": "Möchten Sie direkt spenden? Nutzen Sie die",
+    "donatePage": "Direkt spenden",
+    "donateWithoutEmbed": "Seite ohne Einbettung."
+  }
+}
