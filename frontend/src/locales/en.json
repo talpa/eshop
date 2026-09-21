@@ -60,7 +60,7 @@
     },
     "products": {
       "title": "Choose a thank-you gift",
-      "forUnit": "Gifts from: {{name}}",
+      "fromUnit": "Gifts from: {{name}}",
       "clearFilter": "× Clear unit filter",
       "empty": "No gifts match the current filter."
     },
@@ -148,7 +148,7 @@
     "dedicatedTo": "Donation is dedicated to: {{name}}",
     "transfer": {
       "title": "Send your donation by transfer",
-      "forUnit": "for {{name}}",
+      "fromUnit": "for {{name}}",
       "qrScan": "Scan the QR code for quick payment",
       "accountNumber": "Account number",
       "iban": "IBAN",
@@ -241,7 +241,7 @@
     "langLabel": "Language",
     "donateToFund": "Donate to Česká stopa Foundation Fund",
     "unitWidget": {
-      "forUnit": "for {{name}}",
+      "fromUnit": "for {{name}}",
       "selectUnit": "— Select unit —",
       "paymentCode": "Code: {{code}}",
       "name": "Full name",

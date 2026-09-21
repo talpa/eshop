@@ -145,7 +145,7 @@ export default function ProductsPage() {
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold text-slate-800">
             {unitSlug && units
-              ? t('home.products.forUnit', { name: localName(units.find(u => u.slug === unitSlug) ?? { name: '' }, i18n.language) })
+              ? t('home.products.fromUnit', { name: localName(units.find(u => u.slug === unitSlug) ?? { name: '' }, i18n.language) })
               : t('home.products.title')}
           </h2>
           {unitSlug && (

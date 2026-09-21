@@ -60,7 +60,7 @@
     },
     "products": {
       "title": "Vyberte dárek jako poděkování",
-      "forUnit": "Dárky od: {{name}}",
+      "fromUnit": "Dárky od: {{name}}",
       "clearFilter": "× Zrušit filtr jednotky",
       "empty": "Žádné dárky odpovídající filtru."
     },
@@ -148,7 +148,7 @@
     "dedicatedTo": "Dar je určen pro: {{name}}",
     "transfer": {
       "title": "Zašlete dar převodem",
-      "forUnit": "pro {{name}}",
+      "fromUnit": "pro {{name}}",
       "qrScan": "Naskenujte QR kód pro rychlou platbu",
       "accountNumber": "Číslo účtu",
       "iban": "IBAN",
@@ -241,7 +241,7 @@
     "langLabel": "Jazyk",
     "donateToFund": "Darovat Nadačnímu fondu České stopy",
     "unitWidget": {
-      "forUnit": "pro {{name}}",
+      "fromUnit": "pro {{name}}",
       "selectUnit": "— Vyberte jednotku —",
       "paymentCode": "Kód: {{code}}",
       "name": "Jméno a příjmení",

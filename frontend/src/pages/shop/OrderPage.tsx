@@ -73,7 +73,7 @@ export default function OrderPage() {
         <div className="bg-white border border-slate-200 rounded-xl p-6 mb-6">
           <h2 className="font-semibold text-center mb-1">{t('order.transfer.title')}</h2>
           {order.militaryUnit && (
-            <p className="text-center text-sm text-brand-600 font-medium mb-4">{t('order.transfer.forUnit', { name: order.militaryUnit.name })}</p>
+            <p className="text-center text-sm text-brand-600 font-medium mb-4">{t('order.transfer.fromUnit', { name: order.militaryUnit.name })}</p>
           )}
 
           {order.payment?.qrPayload ? (

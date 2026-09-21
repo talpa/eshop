@@ -229,7 +229,7 @@ export function UnitWidget({ units, shopConfig, fixedUnit, defaultUnitId, defaul
       <div>
         <p className="text-xs text-slate-500 mb-0.5">{title || t('widget.donateToFund')}</p>
         {fixedUnit ? (
-          <p className="font-semibold text-slate-800">{t('widget.unitWidget.forUnit', { name: localName(fixedUnit, i18n.language) })}</p>
+          <p className="font-semibold text-slate-800">{t('widget.unitWidget.fromUnit', { name: localName(fixedUnit, i18n.language) })}</p>
         ) : (
           <div>
             <select {...register('militaryUnitId')} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">

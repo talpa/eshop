@@ -60,7 +60,7 @@
     },
     "products": {
       "title": "Оберіть подарунок-подяку",
-      "forUnit": "Подарунки від: {{name}}",
+      "fromUnit": "Подарунки від: {{name}}",
       "clearFilter": "× Скасувати фільтр підрозділу",
       "empty": "Жодних подарунків, що відповідають фільтру."
     },
@@ -148,7 +148,7 @@
     "dedicatedTo": "Пожертва призначена для: {{name}}",
     "transfer": {
       "title": "Надішліть пожертву переказом",
-      "forUnit": "для {{name}}",
+      "fromUnit": "для {{name}}",
       "qrScan": "Відскануйте QR-код для швидкої оплати",
       "accountNumber": "Номер рахунку",
       "iban": "IBAN",
@@ -241,7 +241,7 @@
     "langLabel": "Мова",
     "donateToFund": "Пожертвувати до Благодійного фонду Česká stopa",
     "unitWidget": {
-      "forUnit": "для {{name}}",
+      "fromUnit": "для {{name}}",
       "selectUnit": "— Виберіть підрозділ —",
       "paymentCode": "Код: {{code}}",
       "name": "Ім'я та прізвище",
