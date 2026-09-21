@@ -15,6 +15,8 @@ const unitSchema = z.object({
   descriptionEn: z.string().optional().nullable(),
   descriptionUk: z.string().optional().nullable(),
   descriptionDe: z.string().optional().nullable(),
+  logo: z.string().optional().nullable(),
+  youtubeUrls: z.array(z.string()).optional().default([]),
   activityId: z.string().optional().nullable(),
   isActive: z.boolean().optional(),
 });
@@ -75,6 +77,20 @@ router.get('/stats', authenticate, requireAdmin, async (_req: Request, res: Resp
     }));
 
     res.json(stats);
+  } catch (err) { next(err); }
+});
+
+router.get('/by-slug/:slug', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const unit = await prisma.militaryUnit.findUnique({
+      where: { slug: req.params.slug, isActive: true },
+      include: {
+        activity: { select: { id: true, code: true, name: true } },
+        updates: { orderBy: { createdAt: 'desc' }, take: 10 },
+      },
+    });
+    if (!unit) { res.status(404).json({ message: 'Jednotka nenalezena.' }); return; }
+    res.json(unit);
   } catch (err) { next(err); }
 });
 

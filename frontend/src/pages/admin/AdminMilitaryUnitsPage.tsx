@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { TrendingUp, Banknote, CheckCircle, Bell } from 'lucide-react';
+import { TrendingUp, Banknote, CheckCircle, Bell, Upload, ImageOff, Youtube, Plus, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { api } from '../../lib/api';
 import { MilitaryUnit, Activity } from '../../types';
-import { formatPrice } from '../../lib/utils';
+import { formatPrice, getImageUrl } from '../../lib/utils';
 
 interface UnitStats {
   id: string;
@@ -21,7 +21,10 @@ export default function AdminMilitaryUnitsPage() {
   const qc = useQueryClient();
   const [editing, setEditing] = useState<MilitaryUnit | null>(null);
   const [creating, setCreating] = useState(false);
-  const [form, setForm] = useState({ name: '', nameEn: '', nameUk: '', nameDe: '', slug: '', description: '', descriptionEn: '', descriptionUk: '', descriptionDe: '', activityId: '' as string | null });
+  const [form, setForm] = useState({ name: '', nameEn: '', nameUk: '', nameDe: '', slug: '', description: '', descriptionEn: '', descriptionUk: '', descriptionDe: '', logo: '', activityId: '' as string | null });
+  const [youtubeUrls, setYoutubeUrls] = useState<string[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const logoInputRef = useRef<HTMLInputElement>(null);
 
   const { data: units, isLoading } = useQuery<MilitaryUnit[]>({
     queryKey: ['admin-military-units'],
@@ -43,14 +46,19 @@ export default function AdminMilitaryUnitsPage() {
     qc.invalidateQueries({ queryKey: ['military-units-stats'] });
   };
 
+  const resetForm = () => {
+    setForm({ name: '', nameEn: '', nameUk: '', nameDe: '', slug: '', description: '', descriptionEn: '', descriptionUk: '', descriptionDe: '', logo: '', activityId: null });
+    setYoutubeUrls([]);
+  };
+
   const createMutation = useMutation({
-    mutationFn: (data: typeof form) => api.post('/military-units', data),
-    onSuccess: () => { toast.success('Jednotka přidána.'); setCreating(false); setForm({ name: '', nameEn: '', nameUk: '', nameDe: '', slug: '', description: '', descriptionEn: '', descriptionUk: '', descriptionDe: '', activityId: null }); invalidate(); },
+    mutationFn: (data: typeof form & { youtubeUrls: string[] }) => api.post('/military-units', data),
+    onSuccess: () => { toast.success('Jednotka přidána.'); setCreating(false); resetForm(); invalidate(); },
     onError: (e: any) => toast.error(e.response?.data?.message || 'Chyba'),
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<typeof form> }) => api.patch(`/military-units/${id}`, data),
+    mutationFn: ({ id, data }: { id: string; data: Partial<typeof form> & { youtubeUrls: string[] } }) => api.patch(`/military-units/${id}`, data),
     onSuccess: () => { toast.success('Uloženo.'); setEditing(null); invalidate(); },
     onError: (e: any) => toast.error(e.response?.data?.message || 'Chyba'),
   });
@@ -60,6 +68,20 @@ export default function AdminMilitaryUnitsPage() {
     onSuccess: () => { toast.success('Jednotka deaktivována.'); invalidate(); },
     onError: () => toast.error('Chyba'),
   });
+
+  const handleLogoUpload = async (file: File) => {
+    setUploading(true);
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      const { data } = await api.post<{ url: string }>('/upload/image', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+      setForm(f => ({ ...f, logo: data.url }));
+    } catch {
+      toast.error('Nahrávání selhalo');
+    } finally {
+      setUploading(false);
+    }
+  };
 
   const slugify = (name: string) =>
     name.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -73,7 +95,7 @@ export default function AdminMilitaryUnitsPage() {
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">Vojenské jednotky</h1>
         <button
-          onClick={() => { setCreating(true); setForm({ name: '', nameEn: '', nameUk: '', nameDe: '', slug: '', description: '', descriptionEn: '', descriptionUk: '', descriptionDe: '', activityId: null }); }}
+          onClick={() => { setCreating(true); resetForm(); }}
           className="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg text-sm font-medium"
         >
           + Přidat jednotku
@@ -241,6 +263,69 @@ export default function AdminMilitaryUnitsPage() {
               />
             </div>
             <div className="sm:col-span-2">
+              <label className="block text-sm font-medium mb-2">Logo jednotky</label>
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 rounded-xl border-2 border-dashed border-slate-300 flex items-center justify-center bg-slate-50 flex-shrink-0 overflow-hidden">
+                  {form.logo ? (
+                    <img src={getImageUrl(form.logo)} alt="logo" className="w-full h-full object-contain p-1" />
+                  ) : (
+                    <ImageOff size={20} className="text-slate-400" />
+                  )}
+                </div>
+                <div className="flex flex-col gap-2">
+                  <button
+                    type="button"
+                    onClick={() => logoInputRef.current?.click()}
+                    disabled={uploading}
+                    className="flex items-center gap-2 px-3 py-1.5 text-sm border border-slate-300 rounded-lg hover:bg-slate-50 disabled:opacity-50"
+                  >
+                    <Upload size={14} />
+                    {uploading ? 'Nahrávám…' : 'Nahrát logo'}
+                  </button>
+                  {form.logo && (
+                    <button type="button" onClick={() => setForm(f => ({ ...f, logo: '' }))} className="text-xs text-red-500 hover:underline">
+                      Odebrat
+                    </button>
+                  )}
+                </div>
+                <input
+                  ref={logoInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={e => { const f = e.target.files?.[0]; if (f) handleLogoUpload(f); e.target.value = ''; }}
+                />
+              </div>
+            </div>
+            <div className="sm:col-span-2">
+              <label className="block text-sm font-medium mb-2 flex items-center gap-2">
+                <Youtube size={14} className="text-red-500" />
+                YouTube videa
+              </label>
+              <div className="space-y-2">
+                {youtubeUrls.map((url, i) => (
+                  <div key={i} className="flex gap-2">
+                    <input
+                      value={url}
+                      onChange={e => setYoutubeUrls(urls => urls.map((u, j) => j === i ? e.target.value : u))}
+                      placeholder="https://www.youtube.com/watch?v=..."
+                      className="flex-1 border border-slate-300 rounded-lg px-3 py-2 text-sm"
+                    />
+                    <button type="button" onClick={() => setYoutubeUrls(urls => urls.filter((_, j) => j !== i))} className="p-2 text-red-400 hover:text-red-600">
+                      <X size={14} />
+                    </button>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => setYoutubeUrls(u => [...u, ''])}
+                  className="flex items-center gap-1.5 text-sm text-brand-600 hover:underline"
+                >
+                  <Plus size={13} /> Přidat odkaz
+                </button>
+              </div>
+            </div>
+            <div className="sm:col-span-2">
               <label className="block text-sm font-medium mb-1">Platební kód (aktivita)</label>
               <select
                 value={form.activityId || ''}
@@ -258,8 +343,9 @@ export default function AdminMilitaryUnitsPage() {
           <div className="flex gap-3 mt-4">
             <button
               onClick={() => {
-                if (creating) createMutation.mutate(form);
-                else if (editing) updateMutation.mutate({ id: editing.id, data: form });
+                const urls = youtubeUrls.filter(u => u.trim());
+                if (creating) createMutation.mutate({ ...form, youtubeUrls: urls });
+                else if (editing) updateMutation.mutate({ id: editing.id, data: { ...form, youtubeUrls: urls } });
               }}
               disabled={createMutation.isPending || updateMutation.isPending}
               className="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-50"
@@ -267,7 +353,7 @@ export default function AdminMilitaryUnitsPage() {
               {creating ? 'Přidat' : 'Uložit'}
             </button>
             <button
-              onClick={() => { setCreating(false); setEditing(null); }}
+              onClick={() => { setCreating(false); setEditing(null); resetForm(); }}
               className="px-4 py-2 rounded-lg text-sm border border-slate-300 hover:bg-slate-50"
             >
               Zrušit
@@ -317,7 +403,7 @@ export default function AdminMilitaryUnitsPage() {
                       Aktuality
                     </Link>
                     <button
-                      onClick={() => { setEditing(unit); setCreating(false); setForm({ name: unit.name, nameEn: unit.nameEn || '', nameUk: unit.nameUk || '', nameDe: unit.nameDe || '', slug: unit.slug, description: unit.description || '', descriptionEn: unit.descriptionEn || '', descriptionUk: unit.descriptionUk || '', descriptionDe: unit.descriptionDe || '', activityId: unit.activityId || null }); }}
+                      onClick={() => { setEditing(unit); setCreating(false); setForm({ name: unit.name, nameEn: unit.nameEn || '', nameUk: unit.nameUk || '', nameDe: unit.nameDe || '', slug: unit.slug, description: unit.description || '', descriptionEn: unit.descriptionEn || '', descriptionUk: unit.descriptionUk || '', descriptionDe: unit.descriptionDe || '', logo: unit.logo || '', activityId: unit.activityId || null }); setYoutubeUrls(unit.youtubeUrls ?? []); }}
                       className="text-xs text-brand-600 hover:underline"
                     >
                       Upravit

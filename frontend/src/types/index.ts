@@ -65,9 +65,12 @@ export interface MilitaryUnit {
   descriptionEn?: string | null;
   descriptionUk?: string | null;
   descriptionDe?: string | null;
+  logo?: string | null;
+  youtubeUrls?: string[];
   isActive?: boolean;
   activityId?: string | null;
   activity?: { id: string; code: string; name: string; nameEn?: string | null; nameUk?: string | null; nameDe?: string | null } | null;
+  updates?: UnitUpdate[];
   _count?: { orders: number };
   createdAt?: string;
 }

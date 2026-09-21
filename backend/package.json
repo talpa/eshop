@@ -13,6 +13,8 @@
     "db:seed:prod": "node dist/scripts/seed-dev.js",
     "create-admin": "ts-node src/scripts/create-admin.ts",
     "create-admin:prod": "node dist/scripts/create-admin.js",
+    "db:cleanup": "ts-node src/scripts/cleanup-prod-db.ts",
+    "db:cleanup:prod": "node dist/scripts/cleanup-prod-db.js",
     "db:studio": "prisma studio"
   },
   "dependencies": {

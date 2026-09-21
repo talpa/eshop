@@ -12,7 +12,7 @@ const updateSchema = z.object({
   content: z.string().min(1),
 });
 
-router.get('/', authenticate, requireAdmin, async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+router.get('/', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const updates = await prisma.unitUpdate.findMany({
       where: { militaryUnitId: req.params.unitId },

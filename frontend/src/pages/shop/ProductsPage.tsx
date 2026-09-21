@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useSearchParams } from 'react-router-dom';
-import { ShoppingCart, Search, Shield, Heart, FileText, ChevronRight, Pencil } from 'lucide-react';
+import { ShoppingCart, Search, Shield, Heart, FileText, ChevronRight, Pencil, Bell, ChevronDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { localName, localDesc } from '../../lib/localise';
 import { api } from '../../lib/api';
@@ -13,9 +13,15 @@ import toast from 'react-hot-toast';
 
 const HOW_IT_WORKS_ICONS = [ShoppingCart, Shield, Heart, FileText];
 
+function getYouTubeId(url: string): string | null {
+  const m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/);
+  return m ? m[1] : null;
+}
+
 export default function ProductsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState(searchParams.get('search') || '');
+  const [showAllUpdates, setShowAllUpdates] = useState(false);
   const categorySlug = searchParams.get('category') || '';
   const unitSlug = searchParams.get('unit') || '';
   const addItem = useCartStore(s => s.addItem);
@@ -50,6 +56,15 @@ export default function ProductsPage() {
     queryKey: ['military-units'],
     queryFn: () => api.get<MilitaryUnit[]>('/military-units').then(r => r.data),
   });
+
+  const { data: selectedUnit } = useQuery({
+    queryKey: ['unit-detail', unitSlug],
+    queryFn: () => api.get<MilitaryUnit>(`/military-units/by-slug/${unitSlug}`).then(r => r.data),
+    enabled: !!unitSlug,
+    staleTime: 60_000,
+  });
+
+  useEffect(() => { setShowAllUpdates(false); }, [unitSlug]);
 
   const user = useAuthStore(s => s.user);
 
@@ -158,8 +173,12 @@ export default function ProductsPage() {
                     onClick={() => selectUnit(unit.slug)}
                     className={`flex items-start gap-4 rounded-xl p-4 border-2 text-left w-full transition-all ${active ? 'border-brand-500 bg-brand-50 shadow-sm' : 'border-slate-200 bg-white hover:border-brand-300'}`}
                   >
-                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors ${active ? 'bg-brand-600' : 'bg-brand-700'}`}>
-                      <Shield size={18} className="text-white" />
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors overflow-hidden ${active ? 'bg-brand-600' : 'bg-brand-700'}`}>
+                      {unit.logo ? (
+                        <img src={getImageUrl(unit.logo)} alt={unit.name} className="w-full h-full object-contain p-1" />
+                      ) : (
+                        <Shield size={18} className="text-white" />
+                      )}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2">
@@ -173,6 +192,91 @@ export default function ProductsPage() {
                   </button>
                 );
               })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Detail vybrané jednotky */}
+      {unitSlug && selectedUnit && (
+        <div className="border-b border-slate-200 bg-slate-50">
+          <div className="max-w-6xl mx-auto px-4 py-6">
+            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+              {/* Header */}
+              <div className="flex items-start gap-5 p-5 border-b border-slate-100">
+                <div className="w-20 h-20 rounded-xl flex-shrink-0 bg-brand-50 flex items-center justify-center overflow-hidden border border-brand-100">
+                  {selectedUnit.logo ? (
+                    <img src={getImageUrl(selectedUnit.logo)} alt={selectedUnit.name} className="w-full h-full object-contain p-1" />
+                  ) : (
+                    <Shield size={32} className="text-brand-500" />
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h2 className="font-bold text-xl text-slate-800">{localName(selectedUnit, i18n.language)}</h2>
+                  {localDesc(selectedUnit, i18n.language) && (
+                    <p className="text-sm text-slate-600 mt-1.5 leading-relaxed">{localDesc(selectedUnit, i18n.language)}</p>
+                  )}
+                </div>
+              </div>
+
+              {/* YouTube videa */}
+              {selectedUnit.youtubeUrls && selectedUnit.youtubeUrls.length > 0 && (() => {
+                const videos = selectedUnit.youtubeUrls!.map(url => ({ url, id: getYouTubeId(url) })).filter(v => v.id);
+                if (!videos.length) return null;
+                return (
+                  <div className={`p-5 ${selectedUnit.updates && selectedUnit.updates.length > 0 ? 'border-b border-slate-100' : ''}`}>
+                    <div className={`grid gap-4 ${videos.length === 1 ? 'grid-cols-1 max-w-xl' : 'sm:grid-cols-2'}`}>
+                      {videos.map(({ id }) => (
+                        <div key={id} className="relative w-full rounded-xl overflow-hidden bg-black" style={{ paddingBottom: '56.25%' }}>
+                          <iframe
+                            src={`https://www.youtube.com/embed/${id}`}
+                            title="YouTube video"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                            className="absolute inset-0 w-full h-full"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Aktuality */}
+              {selectedUnit.updates && selectedUnit.updates.length > 0 && (
+                <div className="p-5">
+                  <h3 className="font-semibold text-sm text-slate-700 mb-4 flex items-center gap-2">
+                    <Bell size={14} className="text-brand-500" />
+                    Aktuality
+                  </h3>
+                  <div className="space-y-5">
+                    {(showAllUpdates ? selectedUnit.updates : selectedUnit.updates.slice(0, 1)).map((update, idx) => (
+                      <div key={update.id} className={`border-l-2 pl-4 ${idx === 0 ? 'border-brand-400' : 'border-slate-200'}`}>
+                        <div className="flex items-start justify-between gap-3 mb-1.5">
+                          <h4 className="font-semibold text-sm text-slate-800">{update.title}</h4>
+                          <span className="text-xs text-slate-400 flex-shrink-0 mt-0.5">
+                            {new Date(update.createdAt).toLocaleDateString('cs-CZ', { day: 'numeric', month: 'long', year: 'numeric' })}
+                          </span>
+                        </div>
+                        <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">
+                          {!showAllUpdates && update.content.length > 350
+                            ? update.content.slice(0, 350) + '…'
+                            : update.content}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                  {selectedUnit.updates.length > 1 && (
+                    <button
+                      onClick={() => setShowAllUpdates(v => !v)}
+                      className="mt-4 text-sm text-brand-600 hover:underline flex items-center gap-1 font-medium"
+                    >
+                      {showAllUpdates ? 'Skrýt starší aktuality' : `Zobrazit další aktuality (${selectedUnit.updates.length - 1})`}
+                      <ChevronDown size={14} className={`transition-transform ${showAllUpdates ? 'rotate-180' : ''}`} />
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -43,6 +43,8 @@ model MilitaryUnit {
   descriptionEn String?
   descriptionUk String?
   descriptionDe String?
+  logo          String?
+  youtubeUrls   String[]
   activityId    String?
   activity    Activity?    @relation(fields: [activityId], references: [id])
   isActive    Boolean      @default(true)
