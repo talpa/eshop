@@ -21,8 +21,8 @@ router.get('/', async (req: Request, res: Response, next: NextFunction): Promise
       prisma.product.findMany({
         where,
         include: {
-          category: { select: { id: true, name: true, nameEn: true, nameUk: true, slug: true } },
-          militaryUnits: { where: { isActive: true }, select: { id: true, name: true, nameEn: true, nameUk: true, slug: true } },
+          category: { select: { id: true, name: true, nameEn: true, nameUk: true, nameDe: true, slug: true } },
+          militaryUnits: { where: { isActive: true }, select: { id: true, name: true, nameEn: true, nameUk: true, nameDe: true, slug: true } },
         },
         orderBy: { createdAt: 'desc' },
         skip,
@@ -40,8 +40,8 @@ router.get('/:slug', async (req: Request, res: Response, next: NextFunction): Pr
     const product = await prisma.product.findUnique({
       where: { slug: req.params.slug },
       include: {
-        category: { select: { id: true, name: true, nameEn: true, nameUk: true, slug: true } },
-        militaryUnits: { where: { isActive: true }, select: { id: true, name: true, nameEn: true, nameUk: true, slug: true, description: true, descriptionEn: true, descriptionUk: true } },
+        category: { select: { id: true, name: true, nameEn: true, nameUk: true, nameDe: true, slug: true } },
+        militaryUnits: { where: { isActive: true }, select: { id: true, name: true, nameEn: true, nameUk: true, nameDe: true, slug: true, description: true, descriptionEn: true, descriptionUk: true, descriptionDe: true } },
       },
     });
     if (!product || !product.isActive) { res.status(404).json({ message: 'Produkt nenalezen.' }); return; }
@@ -53,10 +53,12 @@ const productSchema = z.object({
   name: z.string().min(1),
   nameEn: z.string().nullable().optional(),
   nameUk: z.string().nullable().optional(),
+  nameDe: z.string().nullable().optional(),
   slug: z.string().min(1).regex(/^[a-z0-9-]+$/),
   description: z.string().optional(),
   descriptionEn: z.string().nullable().optional(),
   descriptionUk: z.string().nullable().optional(),
+  descriptionDe: z.string().nullable().optional(),
   priceCzk: z.number().positive(),
   stock: z.number().int().min(0).default(0),
   images: z.array(z.string()).default([]),

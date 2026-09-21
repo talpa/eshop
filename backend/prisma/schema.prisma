@@ -37,10 +37,12 @@ model MilitaryUnit {
   name          String
   nameEn        String?
   nameUk        String?
+  nameDe        String?
   slug          String    @unique
   description   String?
   descriptionEn String?
   descriptionUk String?
+  descriptionDe String?
   activityId    String?
   activity    Activity? @relation(fields: [activityId], references: [id])
   isActive    Boolean   @default(true)
@@ -56,6 +58,7 @@ model Activity {
   name          String
   nameEn        String?
   nameUk        String?
+  nameDe        String?
   isActive      Boolean       @default(true)
   militaryUnits MilitaryUnit[]
   createdAt     DateTime      @default(now())
@@ -87,10 +90,12 @@ model Category {
   name          String
   nameEn        String?
   nameUk        String?
+  nameDe        String?
   slug          String     @unique
   description   String?
   descriptionEn String?
   descriptionUk String?
+  descriptionDe String?
   parentId    String?
   parent      Category?  @relation("CategoryChildren", fields: [parentId], references: [id])
   children    Category[] @relation("CategoryChildren")
@@ -103,10 +108,12 @@ model Product {
   name          String
   nameEn        String?
   nameUk        String?
+  nameDe        String?
   slug          String         @unique
   description   String?
   descriptionEn String?
   descriptionUk String?
+  descriptionDe String?
   priceCzk      Decimal        @db.Decimal(10, 2)
   stock         Int            @default(0)
   images        String[]

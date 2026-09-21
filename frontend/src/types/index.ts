@@ -10,10 +10,12 @@ export interface Category {
   name: string;
   nameEn?: string | null;
   nameUk?: string | null;
+  nameDe?: string | null;
   slug: string;
   description?: string | null;
   descriptionEn?: string | null;
   descriptionUk?: string | null;
+  descriptionDe?: string | null;
   parentId?: string;
   children?: Category[];
   _count?: { products: number };
@@ -24,17 +26,19 @@ export interface Product {
   name: string;
   nameEn?: string | null;
   nameUk?: string | null;
+  nameDe?: string | null;
   slug: string;
   description?: string;
   descriptionEn?: string | null;
   descriptionUk?: string | null;
+  descriptionDe?: string | null;
   priceCzk: number | string;
   stock: number;
   images: string[];
   isActive: boolean;
   categoryId?: string;
-  category?: { id: string; name: string; nameEn?: string | null; nameUk?: string | null; slug: string };
-  militaryUnits?: { id: string; name: string; nameEn?: string | null; nameUk?: string | null; slug: string }[];
+  category?: { id: string; name: string; nameEn?: string | null; nameUk?: string | null; nameDe?: string | null; slug: string };
+  militaryUnits?: { id: string; name: string; nameEn?: string | null; nameUk?: string | null; nameDe?: string | null; slug: string }[];
   createdAt: string;
 }
 
@@ -44,6 +48,7 @@ export interface Activity {
   name: string;
   nameEn?: string | null;
   nameUk?: string | null;
+  nameDe?: string | null;
   isActive: boolean;
   _count?: { militaryUnits: number };
   createdAt?: string;
@@ -54,13 +59,15 @@ export interface MilitaryUnit {
   name: string;
   nameEn?: string | null;
   nameUk?: string | null;
+  nameDe?: string | null;
   slug: string;
   description?: string | null;
   descriptionEn?: string | null;
   descriptionUk?: string | null;
+  descriptionDe?: string | null;
   isActive?: boolean;
   activityId?: string | null;
-  activity?: { id: string; code: string; name: string; nameEn?: string | null; nameUk?: string | null } | null;
+  activity?: { id: string; code: string; name: string; nameEn?: string | null; nameUk?: string | null; nameDe?: string | null } | null;
   _count?: { orders: number };
   createdAt?: string;
 }

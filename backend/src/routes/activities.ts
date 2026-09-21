@@ -10,6 +10,7 @@ const activitySchema = z.object({
   name: z.string().min(2),
   nameEn: z.string().optional().nullable(),
   nameUk: z.string().optional().nullable(),
+  nameDe: z.string().optional().nullable(),
   isActive: z.boolean().optional(),
 });
 

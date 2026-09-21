@@ -14,10 +14,12 @@ const schema = z.object({
   name: z.string().min(1, 'Název je povinný'),
   nameEn: z.string().optional(),
   nameUk: z.string().optional(),
+  nameDe: z.string().optional(),
   slug: z.string().min(1).regex(/^[a-z0-9-]+$/, 'Pouze malá písmena, čísla a pomlčky'),
   description: z.string().optional(),
   descriptionEn: z.string().optional(),
   descriptionUk: z.string().optional(),
+  descriptionDe: z.string().optional(),
   priceCzk: z.coerce.number().positive('Cena musí být kladná'),
   stock: z.coerce.number().int().min(0),
   categoryId: z.string().optional(),
@@ -111,10 +113,12 @@ export default function AdminProductsPage() {
       name: product.name,
       nameEn: product.nameEn || '',
       nameUk: product.nameUk || '',
+      nameDe: product.nameDe || '',
       slug: product.slug,
       description: product.description || '',
       descriptionEn: product.descriptionEn || '',
       descriptionUk: product.descriptionUk || '',
+      descriptionDe: product.descriptionDe || '',
       priceCzk: Number(product.priceCzk),
       stock: product.stock,
       categoryId: product.categoryId || '',
@@ -167,7 +171,7 @@ export default function AdminProductsPage() {
               </div>
 
               <div className="border-t border-slate-200 pt-3 mt-1">
-                <p className="text-xs font-semibold text-slate-500 uppercase mb-2">Překlady (EN / UK)</p>
+                <p className="text-xs font-semibold text-slate-500 uppercase mb-2">Překlady (EN / UK / DE)</p>
                 <div className="space-y-2">
                   <div>
                     <label className="block text-xs font-medium mb-1">Název EN</label>
@@ -178,12 +182,20 @@ export default function AdminProductsPage() {
                     <input {...register('nameUk')} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
                   </div>
                   <div>
+                    <label className="block text-xs font-medium mb-1">Name DE</label>
+                    <input {...register('nameDe')} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
+                  </div>
+                  <div>
                     <label className="block text-xs font-medium mb-1">Popis EN</label>
                     <textarea {...register('descriptionEn')} rows={2} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
                   </div>
                   <div>
                     <label className="block text-xs font-medium mb-1">Popis UK</label>
                     <textarea {...register('descriptionUk')} rows={2} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-medium mb-1">Beschreibung DE</label>
+                    <textarea {...register('descriptionDe')} rows={2} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
                   </div>
                 </div>
               </div>

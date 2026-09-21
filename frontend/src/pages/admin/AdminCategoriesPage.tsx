@@ -8,7 +8,7 @@ export default function AdminCategoriesPage() {
   const qc = useQueryClient();
   const [editing, setEditing] = useState<Category | null>(null);
   const [creating, setCreating] = useState(false);
-  const [form, setForm] = useState({ name: '', nameEn: '', nameUk: '', slug: '', description: '', descriptionEn: '', descriptionUk: '' });
+  const [form, setForm] = useState({ name: '', nameEn: '', nameUk: '', nameDe: '', slug: '', description: '', descriptionEn: '', descriptionUk: '', descriptionDe: '' });
 
   const { data: categories, isLoading } = useQuery<Category[]>({
     queryKey: ['categories'],
@@ -20,7 +20,7 @@ export default function AdminCategoriesPage() {
   const slugify = (name: string) =>
     name.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
-  const emptyForm = () => setForm({ name: '', nameEn: '', nameUk: '', slug: '', description: '', descriptionEn: '', descriptionUk: '' });
+  const emptyForm = () => setForm({ name: '', nameEn: '', nameUk: '', nameDe: '', slug: '', description: '', descriptionEn: '', descriptionUk: '', descriptionDe: '' });
 
   const createMutation = useMutation({
     mutationFn: (data: typeof form) => api.post('/categories', data),
@@ -93,6 +93,15 @@ export default function AdminCategoriesPage() {
                 className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
               />
             </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Name DE</label>
+              <input
+                value={form.nameDe}
+                onChange={e => setForm(f => ({ ...f, nameDe: e.target.value }))}
+                placeholder="Name auf Deutsch"
+                className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
+              />
+            </div>
             <div className="sm:col-span-2">
               <label className="block text-sm font-medium mb-1">Popis (CS, volitelně)</label>
               <textarea
@@ -119,6 +128,16 @@ export default function AdminCategoriesPage() {
                 onChange={e => setForm(f => ({ ...f, descriptionUk: e.target.value }))}
                 rows={2}
                 placeholder="Опис українською"
+                className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Beschreibung DE</label>
+              <textarea
+                value={form.descriptionDe}
+                onChange={e => setForm(f => ({ ...f, descriptionDe: e.target.value }))}
+                rows={2}
+                placeholder="Beschreibung auf Deutsch"
                 className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
               />
             </div>
@@ -176,10 +195,12 @@ export default function AdminCategoriesPage() {
                           name: cat.name,
                           nameEn: cat.nameEn || '',
                           nameUk: cat.nameUk || '',
+                          nameDe: cat.nameDe || '',
                           slug: cat.slug,
                           description: cat.description || '',
                           descriptionEn: cat.descriptionEn || '',
                           descriptionUk: cat.descriptionUk || '',
+                          descriptionDe: cat.descriptionDe || '',
                         });
                       }}
                       className="text-xs text-brand-600 hover:underline"

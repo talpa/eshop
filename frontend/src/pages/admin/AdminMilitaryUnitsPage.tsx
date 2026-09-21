@@ -20,7 +20,7 @@ export default function AdminMilitaryUnitsPage() {
   const qc = useQueryClient();
   const [editing, setEditing] = useState<MilitaryUnit | null>(null);
   const [creating, setCreating] = useState(false);
-  const [form, setForm] = useState({ name: '', nameEn: '', nameUk: '', slug: '', description: '', descriptionEn: '', descriptionUk: '', activityId: '' as string | null });
+  const [form, setForm] = useState({ name: '', nameEn: '', nameUk: '', nameDe: '', slug: '', description: '', descriptionEn: '', descriptionUk: '', descriptionDe: '', activityId: '' as string | null });
 
   const { data: units, isLoading } = useQuery<MilitaryUnit[]>({
     queryKey: ['admin-military-units'],
@@ -44,7 +44,7 @@ export default function AdminMilitaryUnitsPage() {
 
   const createMutation = useMutation({
     mutationFn: (data: typeof form) => api.post('/military-units', data),
-    onSuccess: () => { toast.success('Jednotka přidána.'); setCreating(false); setForm({ name: '', nameEn: '', nameUk: '', slug: '', description: '', descriptionEn: '', descriptionUk: '', activityId: null }); invalidate(); },
+    onSuccess: () => { toast.success('Jednotka přidána.'); setCreating(false); setForm({ name: '', nameEn: '', nameUk: '', nameDe: '', slug: '', description: '', descriptionEn: '', descriptionUk: '', descriptionDe: '', activityId: null }); invalidate(); },
     onError: (e: any) => toast.error(e.response?.data?.message || 'Chyba'),
   });
 
@@ -72,7 +72,7 @@ export default function AdminMilitaryUnitsPage() {
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">Vojenské jednotky</h1>
         <button
-          onClick={() => { setCreating(true); setForm({ name: '', nameEn: '', nameUk: '', slug: '', description: '', descriptionEn: '', descriptionUk: '', activityId: null }); }}
+          onClick={() => { setCreating(true); setForm({ name: '', nameEn: '', nameUk: '', nameDe: '', slug: '', description: '', descriptionEn: '', descriptionUk: '', descriptionDe: '', activityId: null }); }}
           className="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg text-sm font-medium"
         >
           + Přidat jednotku
@@ -191,6 +191,15 @@ export default function AdminMilitaryUnitsPage() {
                 className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
               />
             </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Name DE</label>
+              <input
+                value={form.nameDe}
+                onChange={e => setForm(f => ({ ...f, nameDe: e.target.value }))}
+                placeholder="Name auf Deutsch"
+                className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
+              />
+            </div>
             <div className="sm:col-span-2">
               <label className="block text-sm font-medium mb-1">Popis (volitelně)</label>
               <textarea
@@ -217,6 +226,16 @@ export default function AdminMilitaryUnitsPage() {
                 onChange={e => setForm(f => ({ ...f, descriptionUk: e.target.value }))}
                 rows={2}
                 placeholder="Опис українською"
+                className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Beschreibung DE</label>
+              <textarea
+                value={form.descriptionDe}
+                onChange={e => setForm(f => ({ ...f, descriptionDe: e.target.value }))}
+                rows={2}
+                placeholder="Beschreibung auf Deutsch"
                 className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
               />
             </div>
@@ -290,7 +309,7 @@ export default function AdminMilitaryUnitsPage() {
                 <td className="px-4 py-3">
                   <div className="flex gap-2 justify-end">
                     <button
-                      onClick={() => { setEditing(unit); setCreating(false); setForm({ name: unit.name, nameEn: unit.nameEn || '', nameUk: unit.nameUk || '', slug: unit.slug, description: unit.description || '', descriptionEn: unit.descriptionEn || '', descriptionUk: unit.descriptionUk || '', activityId: unit.activityId || null }); }}
+                      onClick={() => { setEditing(unit); setCreating(false); setForm({ name: unit.name, nameEn: unit.nameEn || '', nameUk: unit.nameUk || '', nameDe: unit.nameDe || '', slug: unit.slug, description: unit.description || '', descriptionEn: unit.descriptionEn || '', descriptionUk: unit.descriptionUk || '', descriptionDe: unit.descriptionDe || '', activityId: unit.activityId || null }); }}
                       className="text-xs text-brand-600 hover:underline"
                     >
                       Upravit
