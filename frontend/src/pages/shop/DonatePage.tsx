@@ -7,6 +7,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { Heart, AlertCircle } from 'lucide-react';
 import { useTranslation, Trans } from 'react-i18next';
+import { localName } from '../../lib/localise';
 import { api } from '../../lib/api';
 import { useAuthStore } from '../../store/authStore';
 import { Activity, MilitaryUnit, Order } from '../../types';
@@ -30,7 +31,7 @@ export default function DonatePage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const user = useAuthStore(s => s.user);
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const unitSlugParam = searchParams.get('unit') || '';
   const activityCodeParam = searchParams.get('activity') || '';
@@ -131,11 +132,11 @@ export default function DonatePage() {
               <label className="block text-sm font-medium mb-1">{t('donate.unit.label')}</label>
               <select {...register('militaryUnitId')} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
                 <option value="">{t('donate.unit.select')}</option>
-                {units?.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
+                {units?.map(u => <option key={u.id} value={u.id}>{localName(u, i18n.language)}</option>)}
               </select>
               {selectedUnit?.activity && (
                 <p className="text-xs text-slate-500 mt-1.5">
-                  {t('donate.unit.paymentCode', { code: selectedUnit.activity.code, name: selectedUnit.activity.name })}
+                  {t('donate.unit.paymentCode', { code: selectedUnit.activity.code, name: localName(selectedUnit.activity, i18n.language) })}
                 </p>
               )}
             </div>
@@ -147,7 +148,7 @@ export default function DonatePage() {
               <select {...register('activityId')} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
                 <option value="">{t('donate.activity.select')}</option>
                 {activities?.map(a => (
-                  <option key={a.id} value={a.id}>{a.code} – {a.name}</option>
+                  <option key={a.id} value={a.id}>{a.code} – {localName(a, i18n.language)}</option>
                 ))}
               </select>
             </div>

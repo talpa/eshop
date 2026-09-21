@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
-import { Package, ShoppingBag, LogOut, ArrowLeft, Shield, ListOrdered } from 'lucide-react';
+import { Package, ShoppingBag, LogOut, ArrowLeft, Shield, ListOrdered, Tag } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 
 const navItems = [
@@ -7,6 +7,7 @@ const navItems = [
   { to: '/admin/orders', label: 'Darovací smlouvy', icon: ShoppingBag },
   { to: '/admin/military-units', label: 'Jednotky', icon: Shield },
   { to: '/admin/activities', label: 'Číselník aktivit', icon: ListOrdered },
+  { to: '/admin/categories', label: 'Skupiny výrobků', icon: Tag },
 ];
 
 export default function AdminLayout() {

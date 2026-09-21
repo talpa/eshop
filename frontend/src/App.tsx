@@ -17,6 +17,7 @@ const AdminProductsPage = lazy(() => import('./pages/admin/AdminProductsPage'));
 const AdminOrdersPage = lazy(() => import('./pages/admin/AdminOrdersPage'));
 const AdminMilitaryUnitsPage = lazy(() => import('./pages/admin/AdminMilitaryUnitsPage'));
 const AdminActivitiesPage = lazy(() => import('./pages/admin/AdminActivitiesPage'));
+const AdminCategoriesPage = lazy(() => import('./pages/admin/AdminCategoriesPage'));
 const DonatePage = lazy(() => import('./pages/shop/DonatePage'));
 const WidgetGuidePage = lazy(() => import('./pages/shop/WidgetGuidePage'));
 const WidgetPage = lazy(() => import('./pages/widget/WidgetPage'));
@@ -79,6 +80,7 @@ export default function App() {
           <Route path="orders" element={wrap(<AdminOrdersPage />)} />
           <Route path="military-units" element={wrap(<AdminMilitaryUnitsPage />)} />
           <Route path="activities" element={wrap(<AdminActivitiesPage />)} />
+          <Route path="categories" element={wrap(<AdminCategoriesPage />)} />
         </Route>
       </Routes>
     </BrowserRouter>

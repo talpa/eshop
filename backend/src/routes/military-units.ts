@@ -7,8 +7,12 @@ const router = Router();
 
 const unitSchema = z.object({
   name: z.string().min(2),
+  nameEn: z.string().optional().nullable(),
+  nameUk: z.string().optional().nullable(),
   slug: z.string().min(2).regex(/^[a-z0-9-]+$/, 'Slug může obsahovat jen malá písmena, číslice a pomlčky'),
-  description: z.string().optional(),
+  description: z.string().optional().nullable(),
+  descriptionEn: z.string().optional().nullable(),
+  descriptionUk: z.string().optional().nullable(),
   activityId: z.string().optional().nullable(),
   isActive: z.boolean().optional(),
 });

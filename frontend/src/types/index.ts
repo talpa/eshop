@@ -8,8 +8,12 @@ export interface AuthUser {
 export interface Category {
   id: string;
   name: string;
+  nameEn?: string | null;
+  nameUk?: string | null;
   slug: string;
-  description?: string;
+  description?: string | null;
+  descriptionEn?: string | null;
+  descriptionUk?: string | null;
   parentId?: string;
   children?: Category[];
   _count?: { products: number };
@@ -34,6 +38,8 @@ export interface Activity {
   id: string;
   code: string;
   name: string;
+  nameEn?: string | null;
+  nameUk?: string | null;
   isActive: boolean;
   _count?: { militaryUnits: number };
   createdAt?: string;
@@ -42,11 +48,15 @@ export interface Activity {
 export interface MilitaryUnit {
   id: string;
   name: string;
+  nameEn?: string | null;
+  nameUk?: string | null;
   slug: string;
-  description?: string;
+  description?: string | null;
+  descriptionEn?: string | null;
+  descriptionUk?: string | null;
   isActive?: boolean;
   activityId?: string | null;
-  activity?: { id: string; code: string; name: string } | null;
+  activity?: { id: string; code: string; name: string; nameEn?: string | null; nameUk?: string | null } | null;
   _count?: { orders: number };
   createdAt?: string;
 }

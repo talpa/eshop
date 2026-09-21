@@ -37,7 +37,7 @@ export default function AdminActivitiesPage() {
   const qc = useQueryClient();
   const [editing, setEditing] = useState<Activity | null>(null);
   const [creating, setCreating] = useState(false);
-  const [form, setForm] = useState({ code: '', name: '' });
+  const [form, setForm] = useState({ code: '', name: '', nameEn: '', nameUk: '' });
   const [widgetsOpen, setWidgetsOpen] = useState(false);
 
   const { data: activities, isLoading } = useQuery<Activity[]>({
@@ -54,7 +54,7 @@ export default function AdminActivitiesPage() {
 
   const createMutation = useMutation({
     mutationFn: (data: typeof form) => api.post('/activities', data),
-    onSuccess: () => { toast.success('Aktivita přidána.'); setCreating(false); setForm({ code: '', name: '' }); invalidate(); },
+    onSuccess: () => { toast.success('Aktivita přidána.'); setCreating(false); setForm({ code: '', name: '', nameEn: '', nameUk: '' }); invalidate(); },
     onError: (e: any) => toast.error(e.response?.data?.message || 'Chyba'),
   });
 
@@ -79,7 +79,7 @@ export default function AdminActivitiesPage() {
           <p className="text-sm text-slate-500 mt-1">Platební kódy uváděné v poznámce k platbě a ve zprávě QR kódu.</p>
         </div>
         <button
-          onClick={() => { setCreating(true); setEditing(null); setForm({ code: '', name: '' }); }}
+          onClick={() => { setCreating(true); setEditing(null); setForm({ code: '', name: '', nameEn: '', nameUk: '' }); }}
           className="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg text-sm font-medium"
         >
           + Přidat aktivitu
@@ -105,6 +105,24 @@ export default function AdminActivitiesPage() {
                 value={form.name}
                 onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
                 placeholder="Podpora vojáků – Arisovy Poletuchy"
+                className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="block text-sm font-medium mb-1">Název EN</label>
+              <input
+                value={form.nameEn}
+                onChange={e => setForm(f => ({ ...f, nameEn: e.target.value }))}
+                placeholder="Support for soldiers – Arisa's Poletuchy"
+                className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Назва UK</label>
+              <input
+                value={form.nameUk}
+                onChange={e => setForm(f => ({ ...f, nameUk: e.target.value }))}
+                placeholder="Підтримка військових"
                 className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
               />
             </div>
@@ -157,7 +175,7 @@ export default function AdminActivitiesPage() {
                 <td className="px-4 py-3">
                   <div className="flex gap-2 justify-end">
                     <button
-                      onClick={() => { setEditing(activity); setCreating(false); setForm({ code: activity.code, name: activity.name }); }}
+                      onClick={() => { setEditing(activity); setCreating(false); setForm({ code: activity.code, name: activity.name, nameEn: activity.nameEn || '', nameUk: activity.nameUk || '' }); }}
                       className="text-xs text-brand-600 hover:underline"
                     >
                       Upravit

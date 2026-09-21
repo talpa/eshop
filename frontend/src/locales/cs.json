@@ -273,5 +273,60 @@
       "amount": "Částka"
     },
     "footer": "Česká stopa — Nadační fond"
+  },
+  "widgetGuide": {
+    "title": "Widget pro vývojáře",
+    "subtitle": "Vložte formulář pro přijímání darů přímo na váš web — stačí jeden řádek HTML.",
+    "variants": {
+      "general": "Obecný widget — zobrazí přepínač \"Jednotce / Účelu fondu\". Chování řídí URL parametry.",
+      "unit": "Widget pro konkrétní vojenskou jednotku. Vyžaduje zadání jména a e-mailu, vytvoří objednávku.",
+      "activity": "Widget pro účel fondu (čísla aktivit). QR kód generuje přímo v prohlížeči — nevzniká žádná objednávka."
+    },
+    "params": {
+      "title": "URL parametry",
+      "colParam": "Parametr",
+      "colFor": "Platí pro",
+      "colDesc": "Popis",
+      "rows": {
+        "unit": "Fixní jednotka — zobrazí text, skryje select",
+        "defaultUnit": "Předvolená jednotka, select zůstane viditelný",
+        "activity": "Fixní aktivita — zobrazí text, skryje select",
+        "defaultActivity": "Předvolená aktivita, select zůstane viditelný",
+        "amount": "Předvyplněná výše daru v Kč",
+        "title": "Přepíše nadpisový text widgetu",
+        "lang": "Jazyk widgetu: cs / en / uk (výchozí: cs)"
+      }
+    },
+    "values": {
+      "title": "Dostupné hodnoty",
+      "units": "Jednotky",
+      "activities": "Aktivity"
+    },
+    "preview": {
+      "title": "Živý náhled",
+      "noParams": "bez params"
+    },
+    "embed": {
+      "title": "Základní vložení",
+      "labelGeneral": "/widget — obecný (s přepínačem)",
+      "labelUnit": "/widget/unit — pro jednotku",
+      "labelActivity": "/widget/activity — pro účel fondu"
+    },
+    "examples": {
+      "title": "Příklady s parametry",
+      "fixedUnit": "Fixní jednotka — {{name}}",
+      "defaultUnit": "Předvolená jednotka (select zůstane) — {{name}}",
+      "fixedUnitAmount": "Fixní jednotka + částka — {{name}}",
+      "fixedActivity": "Fixní aktivita — {{code}} {{name}}",
+      "defaultActivity": "Předvolená aktivita (select zůstane) — {{code}}",
+      "fixedActivityAmount": "Fixní aktivita + částka — {{code}}",
+      "customTitle": "Vlastní nadpis (title=)"
+    },
+    "fullPage": {
+      "title": "Kompletní HTML stránka"
+    },
+    "donateDirectly": "Chcete darovat přímo? Použijte stránku",
+    "donatePage": "Darovat přímo",
+    "donateWithoutEmbed": "bez potřeby embeddingu."
   }
 }

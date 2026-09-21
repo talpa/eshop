@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Copy, Check, Code2, ExternalLink } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { api } from '../../lib/api';
 import { MilitaryUnit, Activity } from '../../types';
 
@@ -12,18 +13,25 @@ function CopyButton({ code }: { code: string }) {
       className="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-lg border border-slate-300 hover:border-brand-400 text-slate-600 hover:text-brand-700 transition-colors flex-shrink-0"
     >
       {copied ? <Check size={12} /> : <Copy size={12} />}
-      {copied ? 'Zkopírováno' : 'Kopírovat'}
+      {copied ? '✓' : <Copy size={12} />}
     </button>
   );
 }
 
 function CodeBlock({ label, code, lang = 'html' }: { label?: string; code: string; lang?: string }) {
+  const [copied, setCopied] = useState(false);
   return (
     <div className="space-y-1.5">
       {label && <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">{label}</p>}
       <div className="flex items-start gap-2">
         <pre className={`flex-1 bg-slate-900 text-sm p-4 rounded-xl overflow-x-auto whitespace-pre leading-relaxed ${lang === 'html' ? 'text-green-300' : 'text-sky-300'}`}>{code}</pre>
-        <CopyButton code={code} />
+        <button
+          onClick={() => navigator.clipboard.writeText(code).then(() => { setCopied(true); setTimeout(() => setCopied(false), 2000); })}
+          className="flex items-center gap-1.5 text-xs px-2.5 py-1 rounded-lg border border-slate-300 hover:border-brand-400 text-slate-600 hover:text-brand-700 transition-colors flex-shrink-0"
+        >
+          {copied ? <Check size={12} /> : <Copy size={12} />}
+          {copied ? '✓' : 'Copy'}
+        </button>
       </div>
     </div>
   );
@@ -49,6 +57,7 @@ export default function WidgetGuidePage() {
   const [previewRoute, setPreviewRoute] = useState<WidgetRoute>('/widget');
   const [previewParams, setPreviewParams] = useState('');
   const [activeTab, setActiveTab] = useState<'html' | 'react'>('html');
+  const { t } = useTranslation();
 
   const { data: units } = useQuery<MilitaryUnit[]>({
     queryKey: ['military-units'],
@@ -63,6 +72,16 @@ export default function WidgetGuidePage() {
   const origin = window.location.origin;
   const previewSrc = `${origin}${previewRoute}${previewParams ? `?${previewParams}` : ''}`;
 
+  const paramRows = [
+    { param: 'unit', for: '/unit', descKey: 'widgetGuide.params.rows.unit' },
+    { param: 'default-unit', for: '/unit', descKey: 'widgetGuide.params.rows.defaultUnit' },
+    { param: 'activity', for: '/activity', descKey: 'widgetGuide.params.rows.activity' },
+    { param: 'default-activity', for: '/activity', descKey: 'widgetGuide.params.rows.defaultActivity' },
+    { param: 'amount', for: t('common.loading') === 'Loading...' ? 'all' : 'vše', descKey: 'widgetGuide.params.rows.amount' },
+    { param: 'title', for: t('common.loading') === 'Loading...' ? 'all' : 'vše', descKey: 'widgetGuide.params.rows.title' },
+    { param: 'lang', for: t('common.loading') === 'Loading...' ? 'all' : 'vše', descKey: 'widgetGuide.params.rows.lang' },
+  ] as const;
+
   return (
     <div className="max-w-screen-xl mx-auto px-6 py-10">
       <div className="flex items-start gap-4 mb-8">
@@ -70,67 +89,49 @@ export default function WidgetGuidePage() {
           <Code2 size={22} className="text-brand-600" />
         </div>
         <div>
-          <h1 className="text-3xl font-bold">Widget pro vývojáře</h1>
-          <p className="text-slate-500 mt-1">
-            Vložte formulář pro přijímání darů přímo na váš web — stačí jeden řádek HTML.
-          </p>
+          <h1 className="text-3xl font-bold">{t('widgetGuide.title')}</h1>
+          <p className="text-slate-500 mt-1">{t('widgetGuide.subtitle')}</p>
         </div>
       </div>
 
-      {/* Varianty widgetu */}
+      {/* Widget variants */}
       <div className="grid sm:grid-cols-3 gap-4 mb-10">
         {[
-          {
-            route: '/widget' as WidgetRoute,
-            title: '/widget',
-            desc: 'Obecný widget — zobrazí přepínač "Jednotce / Účelu fondu". Chování řídí URL parametry.',
-            color: 'border-slate-300',
-          },
-          {
-            route: '/widget/unit' as WidgetRoute,
-            title: '/widget/unit',
-            desc: 'Widget pro konkrétní vojenskou jednotku. Vyžaduje zadání jména a e-mailu, vytvoří objednávku.',
-            color: 'border-brand-400',
-          },
-          {
-            route: '/widget/activity' as WidgetRoute,
-            title: '/widget/activity',
-            desc: 'Widget pro účel fondu (čísla aktivit). QR kód generuje přímo v prohlížeči — nevzniká žádná objednávka.',
-            color: 'border-brand-400',
-          },
+          { route: '/widget' as WidgetRoute, title: '/widget', descKey: 'widgetGuide.variants.general', color: 'border-slate-300' },
+          { route: '/widget/unit' as WidgetRoute, title: '/widget/unit', descKey: 'widgetGuide.variants.unit', color: 'border-brand-400' },
+          { route: '/widget/activity' as WidgetRoute, title: '/widget/activity', descKey: 'widgetGuide.variants.activity', color: 'border-brand-400' },
         ].map(v => (
           <div key={v.route} className={`bg-white border-2 ${v.color} rounded-xl p-5`}>
             <code className="text-sm font-bold text-brand-700 bg-brand-50 px-2 py-1 rounded">{v.route}</code>
-            <p className="text-sm text-slate-600 mt-2 leading-relaxed">{v.desc}</p>
+            <p className="text-sm text-slate-600 mt-2 leading-relaxed">{t(v.descKey)}</p>
           </div>
         ))}
       </div>
 
       <div className="grid xl:grid-cols-[320px_400px_1fr] lg:grid-cols-[380px_1fr] gap-10 items-start">
 
-        {/* Levý sloupec: parametry + dostupné hodnoty */}
+        {/* Left: params + values */}
         <div className="space-y-8">
-
           <section>
-            <h2 className="text-lg font-semibold mb-3">URL parametry</h2>
+            <h2 className="text-lg font-semibold mb-3">{t('widgetGuide.params.title')}</h2>
             <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
               <table className="w-full text-sm">
                 <thead className="bg-slate-50 border-b border-slate-100">
                   <tr>
-                    {['Parametr', 'Platí pro', 'Popis'].map(h => (
+                    {[t('widgetGuide.params.colParam'), t('widgetGuide.params.colFor'), t('widgetGuide.params.colDesc')].map(h => (
                       <th key={h} className="text-left px-3 py-2.5 text-xs font-semibold text-slate-500 uppercase tracking-wider">{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-50 text-xs">
                   {[
-                    { param: 'unit', for: '/unit', desc: 'Fixní jednotka — zobrazí text, skryje select' },
-                    { param: 'default-unit', for: '/unit', desc: 'Předvolená jednotka, select zůstane viditelný' },
-                    { param: 'activity', for: '/activity', desc: 'Fixní aktivita — zobrazí text, skryje select' },
-                    { param: 'default-activity', for: '/activity', desc: 'Předvolená aktivita, select zůstane viditelný' },
-                    { param: 'amount', for: 'vše', desc: 'Předvyplněná výše daru v Kč' },
-                    { param: 'title', for: 'vše', desc: 'Přepíše nadpisový text widgetu' },
-                    { param: 'lang', for: 'vše', desc: 'Jazyk widgetu: cs / en / uk (výchozí: cs)' },
+                    { param: 'unit', for: '/unit', desc: t('widgetGuide.params.rows.unit') },
+                    { param: 'default-unit', for: '/unit', desc: t('widgetGuide.params.rows.defaultUnit') },
+                    { param: 'activity', for: '/activity', desc: t('widgetGuide.params.rows.activity') },
+                    { param: 'default-activity', for: '/activity', desc: t('widgetGuide.params.rows.defaultActivity') },
+                    { param: 'amount', for: 'vše', desc: t('widgetGuide.params.rows.amount') },
+                    { param: 'title', for: 'vše', desc: t('widgetGuide.params.rows.title') },
+                    { param: 'lang', for: 'vše', desc: t('widgetGuide.params.rows.lang') },
                   ].map(r => (
                     <tr key={r.param} className="hover:bg-slate-50">
                       <td className="px-3 py-2.5 font-mono text-brand-700 font-medium">{r.param}</td>
@@ -145,11 +146,11 @@ export default function WidgetGuidePage() {
 
           {(units || activities) && (
             <section>
-              <h2 className="text-lg font-semibold mb-3">Dostupné hodnoty</h2>
+              <h2 className="text-lg font-semibold mb-3">{t('widgetGuide.values.title')}</h2>
               <div className="space-y-4">
                 {units && units.length > 0 && (
                   <div>
-                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Jednotky <code className="font-mono normal-case text-slate-400">unit=</code></p>
+                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">{t('widgetGuide.values.units')} <code className="font-mono normal-case text-slate-400">unit=</code></p>
                     <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
                       <table className="w-full text-xs">
                         <tbody className="divide-y divide-slate-50">
@@ -166,7 +167,7 @@ export default function WidgetGuidePage() {
                 )}
                 {activities && activities.length > 0 && (
                   <div>
-                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Aktivity <code className="font-mono normal-case text-slate-400">activity=</code></p>
+                    <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">{t('widgetGuide.values.activities')} <code className="font-mono normal-case text-slate-400">activity=</code></p>
                     <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
                       <table className="w-full text-xs">
                         <tbody className="divide-y divide-slate-50">
@@ -186,12 +187,11 @@ export default function WidgetGuidePage() {
           )}
         </div>
 
-        {/* Střední sloupec: živý náhled */}
+        {/* Middle: live preview */}
         <div className="space-y-4">
           <section>
-            <h2 className="text-lg font-semibold mb-3">Živý náhled</h2>
+            <h2 className="text-lg font-semibold mb-3">{t('widgetGuide.preview.title')}</h2>
 
-            {/* Přepínač routy */}
             <div className="flex gap-1.5 mb-3 flex-wrap">
               {(['/widget', '/widget/unit', '/widget/activity'] as WidgetRoute[]).map(r => (
                 <button key={r}
@@ -203,13 +203,12 @@ export default function WidgetGuidePage() {
               ))}
             </div>
 
-            {/* Parametry podle routy */}
             <div className="flex flex-wrap gap-1.5 mb-3">
               <button
                 onClick={() => setPreviewParams('')}
                 className={`px-2.5 py-1 rounded-lg text-xs font-medium border transition-colors ${previewParams === '' ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-300 text-slate-600 hover:border-slate-400'}`}
               >
-                bez params
+                {t('widgetGuide.preview.noParams')}
               </button>
               {previewRoute !== '/widget/activity' && units?.slice(0, 2).map(u => (
                 <button key={u.id}
@@ -244,81 +243,80 @@ export default function WidgetGuidePage() {
               width={380}
               height={560}
               style={{ border: 'none', borderRadius: 12, boxShadow: '0 4px 24px rgba(0,0,0,0.10)' }}
-              title="Náhled widgetu"
+              title={t('widgetGuide.preview.title')}
             />
           </section>
         </div>
 
-        {/* Pravý sloupec: kódy */}
+        {/* Right: code examples */}
         <div className="space-y-8">
-
           <section>
-            <h2 className="text-lg font-semibold mb-3">Základní vložení</h2>
+            <h2 className="text-lg font-semibold mb-3">{t('widgetGuide.embed.title')}</h2>
             <div className="flex gap-2 mb-3">
-              {(['html', 'react'] as const).map(t => (
-                <button key={t}
-                  onClick={() => setActiveTab(t)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${activeTab === t ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-300 text-slate-600 hover:border-slate-400'}`}
+              {(['html', 'react'] as const).map(tab => (
+                <button key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${activeTab === tab ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-300 text-slate-600 hover:border-slate-400'}`}
                 >
-                  {t === 'html' ? 'HTML' : 'React / Next.js'}
+                  {tab === 'html' ? 'HTML' : 'React / Next.js'}
                 </button>
               ))}
             </div>
             <div className="space-y-4">
-              <CodeBlock label="/widget — obecný (s přepínačem)" code={activeTab === 'html' ? iframeHtml('/widget', '') : iframeReact('/widget', '')} lang={activeTab === 'html' ? 'html' : 'jsx'} />
-              <CodeBlock label="/widget/unit — pro jednotku" code={activeTab === 'html' ? iframeHtml('/widget/unit', '') : iframeReact('/widget/unit', '')} lang={activeTab === 'html' ? 'html' : 'jsx'} />
-              <CodeBlock label="/widget/activity — pro účel fondu" code={activeTab === 'html' ? iframeHtml('/widget/activity', '') : iframeReact('/widget/activity', '')} lang={activeTab === 'html' ? 'html' : 'jsx'} />
+              <CodeBlock label={t('widgetGuide.embed.labelGeneral')} code={activeTab === 'html' ? iframeHtml('/widget', '') : iframeReact('/widget', '')} lang={activeTab === 'html' ? 'html' : 'jsx'} />
+              <CodeBlock label={t('widgetGuide.embed.labelUnit')} code={activeTab === 'html' ? iframeHtml('/widget/unit', '') : iframeReact('/widget/unit', '')} lang={activeTab === 'html' ? 'html' : 'jsx'} />
+              <CodeBlock label={t('widgetGuide.embed.labelActivity')} code={activeTab === 'html' ? iframeHtml('/widget/activity', '') : iframeReact('/widget/activity', '')} lang={activeTab === 'html' ? 'html' : 'jsx'} />
             </div>
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold mb-3">Příklady s parametry</h2>
+            <h2 className="text-lg font-semibold mb-3">{t('widgetGuide.examples.title')}</h2>
             <div className="space-y-5">
               {units && units.length > 0 && (
                 <CodeBlock
-                  label={`Fixní jednotka — ${units[0].name}`}
+                  label={t('widgetGuide.examples.fixedUnit', { name: units[0].name })}
                   code={iframeHtml('/widget/unit', `unit=${units[0].slug}`, `Darovat — ${units[0].name}`)}
                 />
               )}
               {units && units.length > 0 && (
                 <CodeBlock
-                  label={`Předvolená jednotka (select zůstane) — ${units[0].name}`}
+                  label={t('widgetGuide.examples.defaultUnit', { name: units[0].name })}
                   code={iframeHtml('/widget/unit', `default-unit=${units[0].slug}`, `Darovat — ${units[0].name}`)}
                 />
               )}
               {units && units.length > 0 && (
                 <CodeBlock
-                  label={`Fixní jednotka + částka — ${units[0].name}`}
+                  label={t('widgetGuide.examples.fixedUnitAmount', { name: units[0].name })}
                   code={iframeHtml('/widget/unit', `unit=${units[0].slug}&amount=1000`, `Darovat — ${units[0].name}`)}
                 />
               )}
               {activities && activities.length > 0 && (
                 <CodeBlock
-                  label={`Fixní aktivita — ${activities[0].code} ${activities[0].name}`}
+                  label={t('widgetGuide.examples.fixedActivity', { code: activities[0].code, name: activities[0].name })}
                   code={iframeHtml('/widget/activity', `activity=${activities[0].code}`, activities[0].name)}
                 />
               )}
               {activities && activities.length > 0 && (
                 <CodeBlock
-                  label={`Předvolená aktivita (select zůstane) — ${activities[0].code}`}
+                  label={t('widgetGuide.examples.defaultActivity', { code: activities[0].code })}
                   code={iframeHtml('/widget/activity', `default-activity=${activities[0].code}`)}
                 />
               )}
               {activities && activities.length > 0 && (
                 <CodeBlock
-                  label={`Fixní aktivita + částka — ${activities[0].code}`}
+                  label={t('widgetGuide.examples.fixedActivityAmount', { code: activities[0].code })}
                   code={iframeHtml('/widget/activity', `activity=${activities[0].code}&amount=500`, activities[0].name)}
                 />
               )}
               <CodeBlock
-                label="Vlastní nadpis (title=)"
+                label={t('widgetGuide.examples.customTitle')}
                 code={iframeHtml('/widget/unit', `title=Podpořte+naši+jednotku`)}
               />
             </div>
           </section>
 
           <section>
-            <h2 className="text-lg font-semibold mb-3">Kompletní HTML stránka</h2>
+            <h2 className="text-lg font-semibold mb-3">{t('widgetGuide.fullPage.title')}</h2>
             <CodeBlock
               code={`<!DOCTYPE html>
 <html lang="cs">
@@ -351,9 +349,9 @@ export default function WidgetGuidePage() {
           <div className="flex items-center gap-3 p-4 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-600">
             <ExternalLink size={16} className="text-slate-400 flex-shrink-0" />
             <span>
-              Chcete darovat přímo? Použijte stránku{' '}
-              <a href="/donate" className="text-brand-600 hover:underline font-medium">Darovat přímo</a>
-              {' '}bez potřeby embeddingu.
+              {t('widgetGuide.donateDirectly')}{' '}
+              <a href="/donate" className="text-brand-600 hover:underline font-medium">{t('widgetGuide.donatePage')}</a>
+              {' '}{t('widgetGuide.donateWithoutEmbed')}
             </span>
           </div>
         </div>

@@ -273,5 +273,60 @@
       "amount": "Amount"
     },
     "footer": "Česká stopa — Foundation Fund"
+  },
+  "widgetGuide": {
+    "title": "Widget for developers",
+    "subtitle": "Embed the donation form directly on your website — just one line of HTML.",
+    "variants": {
+      "general": "General widget — shows a \"To a unit / Fund purpose\" toggle. Behaviour is controlled by URL parameters.",
+      "unit": "Widget for a specific military unit. Requires name and email, creates an order.",
+      "activity": "Widget for a fund purpose (activity codes). QR code is generated in the browser — no order is created."
+    },
+    "params": {
+      "title": "URL parameters",
+      "colParam": "Parameter",
+      "colFor": "Applies to",
+      "colDesc": "Description",
+      "rows": {
+        "unit": "Fixed unit — shows text, hides select",
+        "defaultUnit": "Pre-selected unit, select stays visible",
+        "activity": "Fixed activity — shows text, hides select",
+        "defaultActivity": "Pre-selected activity, select stays visible",
+        "amount": "Pre-filled donation amount in CZK",
+        "title": "Overrides the widget heading text",
+        "lang": "Widget language: cs / en / uk (default: cs)"
+      }
+    },
+    "values": {
+      "title": "Available values",
+      "units": "Units",
+      "activities": "Activities"
+    },
+    "preview": {
+      "title": "Live preview",
+      "noParams": "no params"
+    },
+    "embed": {
+      "title": "Basic embedding",
+      "labelGeneral": "/widget — general (with toggle)",
+      "labelUnit": "/widget/unit — for a unit",
+      "labelActivity": "/widget/activity — for fund purpose"
+    },
+    "examples": {
+      "title": "Examples with parameters",
+      "fixedUnit": "Fixed unit — {{name}}",
+      "defaultUnit": "Pre-selected unit (select stays) — {{name}}",
+      "fixedUnitAmount": "Fixed unit + amount — {{name}}",
+      "fixedActivity": "Fixed activity — {{code}} {{name}}",
+      "defaultActivity": "Pre-selected activity (select stays) — {{code}}",
+      "fixedActivityAmount": "Fixed activity + amount — {{code}}",
+      "customTitle": "Custom title (title=)"
+    },
+    "fullPage": {
+      "title": "Complete HTML page"
+    },
+    "donateDirectly": "Want to donate directly? Use the",
+    "donatePage": "Donate directly",
+    "donateWithoutEmbed": "page without embedding."
   }
 }

@@ -7,6 +7,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { MapPin, Package } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { localName } from '../../lib/localise';
 import { api } from '../../lib/api';
 import { useCartStore } from '../../store/cartStore';
 import { useAuthStore } from '../../store/authStore';
@@ -47,7 +48,7 @@ export default function CheckoutPage() {
   const [donationInput, setDonationInput] = useState(minAmount.toFixed(0));
   const [packetaPoint, setPacketaPoint] = useState<{ id: string; name: string; address: string } | null>(null);
   const [packetaScriptLoaded, setPacketaScriptLoaded] = useState(false);
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const { data: units } = useQuery<MilitaryUnit[]>({
     queryKey: ['military-units'],
@@ -218,7 +219,7 @@ export default function CheckoutPage() {
                 <select {...register('activityId')} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
                   <option value="">{t('checkout.activity.select')}</option>
                   {activities?.map(a => (
-                    <option key={a.id} value={a.id}>{a.code} – {a.name}</option>
+                    <option key={a.id} value={a.id}>{a.code} – {localName(a, i18n.language)}</option>
                   ))}
                 </select>
               </div>
@@ -228,11 +229,11 @@ export default function CheckoutPage() {
                   <label className="block text-sm font-medium mb-1">{t('checkout.unit.label')}</label>
                   <select {...register('militaryUnitId')} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
                     <option value="">{t('checkout.unit.select')}</option>
-                    {units.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
+                    {units.map(u => <option key={u.id} value={u.id}>{localName(u, i18n.language)}</option>)}
                   </select>
                   {selectedUnit?.activity && (
                     <p className="text-xs text-slate-500 mt-1.5">
-                      {t('checkout.unit.paymentCode', { code: selectedUnit.activity.code, name: selectedUnit.activity.name })}
+                      {t('checkout.unit.paymentCode', { code: selectedUnit.activity.code, name: localName(selectedUnit.activity, i18n.language) })}
                     </p>
                   )}
                 </div>

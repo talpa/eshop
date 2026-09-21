@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Link, useSearchParams } from 'react-router-dom';
 import { ShoppingCart, Search, Shield, Heart, FileText, ChevronRight, Pencil } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { localName, localDesc } from '../../lib/localise';
 import { api } from '../../lib/api';
 import { useCartStore } from '../../store/cartStore';
 import { useAuthStore } from '../../store/authStore';
@@ -18,7 +19,7 @@ export default function ProductsPage() {
   const categorySlug = searchParams.get('category') || '';
   const unitSlug = searchParams.get('unit') || '';
   const addItem = useCartStore(s => s.addItem);
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const HOW_IT_WORKS = [
     { icon: HOW_IT_WORKS_ICONS[0], title: t('home.howItWorks.step1.title'), text: t('home.howItWorks.step1.text') },
@@ -124,10 +125,10 @@ export default function ProductsPage() {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2">
-                        <h3 className="font-semibold text-sm">{unit.name}</h3>
+                        <h3 className="font-semibold text-sm">{localName(unit, i18n.language)}</h3>
                         {active && <span className="text-xs bg-brand-600 text-white px-2 py-0.5 rounded-full flex-shrink-0">{t('home.units.filtered')}</span>}
                       </div>
-                      {unit.description && <p className="text-xs text-slate-500 mt-1 leading-relaxed">{unit.description}</p>}
+                      {localDesc(unit, i18n.language) && <p className="text-xs text-slate-500 mt-1 leading-relaxed">{localDesc(unit, i18n.language)}</p>}
                       {!active && <p className="text-xs text-brand-600 mt-1.5 font-medium">{t('home.units.showGifts')}</p>}
                       {active && <p className="text-xs text-brand-600 mt-1.5 font-medium">{t('home.units.clearFilter')}</p>}
                     </div>
@@ -144,7 +145,7 @@ export default function ProductsPage() {
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold text-slate-800">
             {unitSlug && units
-              ? t('home.products.forUnit', { name: units.find(u => u.slug === unitSlug)?.name || '' })
+              ? t('home.products.forUnit', { name: localName(units.find(u => u.slug === unitSlug) ?? { name: '' }, i18n.language) })
               : t('home.products.title')}
           </h2>
           {unitSlug && (
@@ -178,7 +179,7 @@ export default function ProductsPage() {
                 onClick={() => setSearchParams(p => { p.set('category', cat.slug); return p; })}
                 className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${categorySlug === cat.slug ? 'bg-brand-600 text-white border-brand-600' : 'border-slate-300 text-slate-600 hover:border-brand-400'}`}
               >
-                {cat.name}
+                {localName(cat, i18n.language)}
               </button>
             ))}
           </div>

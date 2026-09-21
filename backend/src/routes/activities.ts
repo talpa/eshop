@@ -8,6 +8,8 @@ const router = Router();
 const activitySchema = z.object({
   code: z.string().min(1).regex(/^\d+$/, 'Kód musí být číslo'),
   name: z.string().min(2),
+  nameEn: z.string().optional().nullable(),
+  nameUk: z.string().optional().nullable(),
   isActive: z.boolean().optional(),
 });
 

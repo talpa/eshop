@@ -33,11 +33,15 @@ enum DeliveryType {
 }
 
 model MilitaryUnit {
-  id          String    @id @default(cuid())
-  name        String
-  slug        String    @unique
-  description String?
-  activityId  String?
+  id            String    @id @default(cuid())
+  name          String
+  nameEn        String?
+  nameUk        String?
+  slug          String    @unique
+  description   String?
+  descriptionEn String?
+  descriptionUk String?
+  activityId    String?
   activity    Activity? @relation(fields: [activityId], references: [id])
   isActive    Boolean   @default(true)
   orders      Order[]
@@ -50,6 +54,8 @@ model Activity {
   id            String        @id @default(cuid())
   code          String        @unique
   name          String
+  nameEn        String?
+  nameUk        String?
   isActive      Boolean       @default(true)
   militaryUnits MilitaryUnit[]
   createdAt     DateTime      @default(now())
@@ -77,10 +83,14 @@ model User {
 }
 
 model Category {
-  id          String     @id @default(cuid())
-  name        String
-  slug        String     @unique
-  description String?
+  id            String     @id @default(cuid())
+  name          String
+  nameEn        String?
+  nameUk        String?
+  slug          String     @unique
+  description   String?
+  descriptionEn String?
+  descriptionUk String?
   parentId    String?
   parent      Category?  @relation("CategoryChildren", fields: [parentId], references: [id])
   children    Category[] @relation("CategoryChildren")

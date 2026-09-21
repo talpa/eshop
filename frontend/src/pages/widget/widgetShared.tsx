@@ -10,6 +10,7 @@ import { api } from '../../lib/api';
 import { Activity, MilitaryUnit, Order } from '../../types';
 import { formatPrice } from '../../lib/utils';
 import { LANGUAGES, setLanguage } from '../../i18n';
+import { localName } from '../../lib/localise';
 
 export const PRESETS = [200, 500, 1000, 2000];
 
@@ -120,7 +121,7 @@ export function ActivityWidget({ activities, shopConfig, fixedActivity, defaultA
 }) {
   const [activityId, setActivityId] = useState(fixedActivity?.id || defaultActivityId);
   const [amount, setAmount] = useState(defaultAmount);
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const activity = fixedActivity || activities.find(a => a.id === activityId);
   const message = activity ? `${activity.code} ${activity.name}`.slice(0, 60) : '';
@@ -132,7 +133,7 @@ export function ActivityWidget({ activities, shopConfig, fixedActivity, defaultA
         <p className="text-xs text-slate-500 mb-0.5">{title || t('widget.donateToFund')}</p>
         {fixedActivity ? (
           <p className="font-semibold text-slate-800">
-            {t('widget.activityWidget.forActivity', { code: fixedActivity.code, name: fixedActivity.name })}
+            {t('widget.activityWidget.forActivity', { code: fixedActivity.code, name: localName(fixedActivity, i18n.language) })}
           </p>
         ) : (
           <select
@@ -142,7 +143,7 @@ export function ActivityWidget({ activities, shopConfig, fixedActivity, defaultA
           >
             <option value="">{t('widget.activityWidget.selectActivity')}</option>
             {activities.map(a => (
-              <option key={a.id} value={a.id}>{a.code} – {a.name}</option>
+              <option key={a.id} value={a.id}>{a.code} – {localName(a, i18n.language)}</option>
             ))}
           </select>
         )}
@@ -175,8 +176,7 @@ export function UnitWidget({ units, shopConfig, fixedUnit, defaultUnitId, defaul
 }) {
   const [order, setOrder] = useState<Order | null>(null);
   const [amount, setAmount] = useState(defaultAmount);
-  const { t } = useTranslation();
-
+  const { t, i18n } = useTranslation();
   const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<UnitFormData>({
     resolver: zodResolver(unitSchema),
     defaultValues: { donationAmount: defaultAmount, militaryUnitId: fixedUnit?.id || defaultUnitId },
@@ -229,12 +229,12 @@ export function UnitWidget({ units, shopConfig, fixedUnit, defaultUnitId, defaul
       <div>
         <p className="text-xs text-slate-500 mb-0.5">{title || t('widget.donateToFund')}</p>
         {fixedUnit ? (
-          <p className="font-semibold text-slate-800">{t('widget.unitWidget.forUnit', { name: fixedUnit.name })}</p>
+          <p className="font-semibold text-slate-800">{t('widget.unitWidget.forUnit', { name: localName(fixedUnit, i18n.language) })}</p>
         ) : (
           <div>
             <select {...register('militaryUnitId')} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
               <option value="">{t('widget.unitWidget.selectUnit')}</option>
-              {units.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
+              {units.map(u => <option key={u.id} value={u.id}>{localName(u, i18n.language)}</option>)}
             </select>
             {selectedUnit?.activity && (
               <p className="text-xs text-slate-500 mt-1">{t('widget.unitWidget.paymentCode', { code: selectedUnit.activity.code })}</p>

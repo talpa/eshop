@@ -32,8 +32,12 @@ router.get('/:slug', async (req: Request, res: Response, next: NextFunction): Pr
 
 const categorySchema = z.object({
   name: z.string().min(1),
+  nameEn: z.string().optional().nullable(),
+  nameUk: z.string().optional().nullable(),
   slug: z.string().min(1).regex(/^[a-z0-9-]+$/),
-  description: z.string().optional(),
+  description: z.string().optional().nullable(),
+  descriptionEn: z.string().optional().nullable(),
+  descriptionUk: z.string().optional().nullable(),
   parentId: z.string().optional(),
 });
 
