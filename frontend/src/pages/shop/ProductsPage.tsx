@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useSearchParams } from 'react-router-dom';
-import { ShoppingCart, Search, Shield, Heart, FileText, ChevronRight, Pencil, Bell, ChevronDown } from 'lucide-react';
+import { ShoppingCart, Search, Shield, Heart, FileText, ChevronRight, Pencil } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { localName, localDesc } from '../../lib/localise';
 import { api } from '../../lib/api';
@@ -21,7 +21,6 @@ function getYouTubeId(url: string): string | null {
 export default function ProductsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState(searchParams.get('search') || '');
-  const [showAllUpdates, setShowAllUpdates] = useState(false);
   const categorySlug = searchParams.get('category') || '';
   const unitSlug = searchParams.get('unit') || '';
   const addItem = useCartStore(s => s.addItem);
@@ -56,15 +55,6 @@ export default function ProductsPage() {
     queryKey: ['military-units'],
     queryFn: () => api.get<MilitaryUnit[]>('/military-units').then(r => r.data),
   });
-
-  const { data: selectedUnit } = useQuery({
-    queryKey: ['unit-detail', unitSlug],
-    queryFn: () => api.get<MilitaryUnit>(`/military-units/by-slug/${unitSlug}`).then(r => r.data),
-    enabled: !!unitSlug,
-    staleTime: 60_000,
-  });
-
-  useEffect(() => { setShowAllUpdates(false); }, [unitSlug]);
 
   const user = useAuthStore(s => s.user);
 
@@ -156,134 +146,41 @@ export default function ProductsPage() {
         </div>
       </div>
 
-      {/* Vojenské jednotky */}
+      {/* Vojenské jednotky — navigace na profily */}
       {units && units.length > 0 && (
         <div className="border-b border-slate-200">
           <div className="max-w-6xl mx-auto px-4 py-12">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold text-slate-800">{t('home.units.title')}</h2>
-              <p className="text-sm text-slate-500">{t('home.units.clickFilter')}</p>
+              <p className="text-sm text-slate-500">Kliknutím zobrazíte profil jednotky</p>
             </div>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {units.map(unit => {
-                const active = unitSlug === unit.slug;
-                return (
-                  <button
-                    key={unit.id}
-                    onClick={() => selectUnit(unit.slug)}
-                    className={`flex items-start gap-4 rounded-xl p-4 border-2 text-left w-full transition-all ${active ? 'border-brand-500 bg-brand-50 shadow-sm' : 'border-slate-200 bg-white hover:border-brand-300'}`}
-                  >
-                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors overflow-hidden ${active ? 'bg-brand-600' : 'bg-brand-700'}`}>
-                      {unit.logo ? (
-                        <img src={getImageUrl(unit.logo)} alt={unit.name} className="w-full h-full object-contain p-1" />
-                      ) : (
-                        <Shield size={18} className="text-white" />
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between gap-2">
-                        <h3 className="font-semibold text-sm">{localName(unit, i18n.language)}</h3>
-                        {active && <span className="text-xs bg-brand-600 text-white px-2 py-0.5 rounded-full flex-shrink-0">{t('home.units.filtered')}</span>}
-                      </div>
-                      {localDesc(unit, i18n.language) && <p className="text-xs text-slate-500 mt-1 leading-relaxed">{localDesc(unit, i18n.language)}</p>}
-                      {!active && <p className="text-xs text-brand-600 mt-1.5 font-medium">{t('home.units.showGifts')}</p>}
-                      {active && <p className="text-xs text-brand-600 mt-1.5 font-medium">{t('home.units.clearFilter')}</p>}
-                      <Link
-                        to={`/jednotky/${unit.slug}`}
-                        onClick={e => e.stopPropagation()}
-                        className="inline-flex items-center gap-1 text-xs text-slate-400 hover:text-brand-600 mt-2 transition-colors"
-                      >
-                        Profil jednotky <ChevronRight size={11} />
-                      </Link>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Detail vybrané jednotky */}
-      {unitSlug && selectedUnit && (
-        <div className="border-b border-slate-200 bg-slate-50">
-          <div className="max-w-6xl mx-auto px-4 py-6">
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-              {/* Header */}
-              <div className="flex items-start gap-5 p-5 border-b border-slate-100">
-                <div className="w-20 h-20 rounded-xl flex-shrink-0 bg-brand-50 flex items-center justify-center overflow-hidden border border-brand-100">
-                  {selectedUnit.logo ? (
-                    <img src={getImageUrl(selectedUnit.logo)} alt={selectedUnit.name} className="w-full h-full object-contain p-1" />
-                  ) : (
-                    <Shield size={32} className="text-brand-500" />
-                  )}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h2 className="font-bold text-xl text-slate-800">{localName(selectedUnit, i18n.language)}</h2>
-                  {localDesc(selectedUnit, i18n.language) && (
-                    <p className="text-sm text-slate-600 mt-1.5 leading-relaxed">{localDesc(selectedUnit, i18n.language)}</p>
-                  )}
-                </div>
-              </div>
-
-              {/* YouTube videa */}
-              {selectedUnit.youtubeUrls && selectedUnit.youtubeUrls.length > 0 && (() => {
-                const videos = selectedUnit.youtubeUrls!.map(url => ({ url, id: getYouTubeId(url) })).filter(v => v.id);
-                if (!videos.length) return null;
-                return (
-                  <div className={`p-5 ${selectedUnit.updates && selectedUnit.updates.length > 0 ? 'border-b border-slate-100' : ''}`}>
-                    <div className={`grid gap-4 ${videos.length === 1 ? 'grid-cols-1 max-w-xl' : 'sm:grid-cols-2'}`}>
-                      {videos.map(({ id }) => (
-                        <div key={id} className="relative w-full rounded-xl overflow-hidden bg-black" style={{ paddingBottom: '56.25%' }}>
-                          <iframe
-                            src={`https://www.youtube.com/embed/${id}`}
-                            title="YouTube video"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                            allowFullScreen
-                            className="absolute inset-0 w-full h-full"
-                          />
-                        </div>
-                      ))}
-                    </div>
+              {units.map(unit => (
+                <Link
+                  key={unit.id}
+                  to={`/jednotky/${unit.slug}`}
+                  className="flex items-start gap-4 rounded-xl p-4 border-2 border-slate-200 bg-white hover:border-brand-400 hover:shadow-sm transition-all group"
+                >
+                  <div className="w-12 h-12 rounded-xl bg-brand-700 flex items-center justify-center flex-shrink-0 overflow-hidden group-hover:bg-brand-600 transition-colors">
+                    {unit.logo ? (
+                      <img src={getImageUrl(unit.logo)} alt={unit.name} className="w-full h-full object-contain p-1.5" />
+                    ) : (
+                      <Shield size={20} className="text-white" />
+                    )}
                   </div>
-                );
-              })()}
-
-              {/* Aktuality */}
-              {selectedUnit.updates && selectedUnit.updates.length > 0 && (
-                <div className="p-5">
-                  <h3 className="font-semibold text-sm text-slate-700 mb-4 flex items-center gap-2">
-                    <Bell size={14} className="text-brand-500" />
-                    Aktuality
-                  </h3>
-                  <div className="space-y-5">
-                    {(showAllUpdates ? selectedUnit.updates : selectedUnit.updates.slice(0, 1)).map((update, idx) => (
-                      <div key={update.id} className={`border-l-2 pl-4 ${idx === 0 ? 'border-brand-400' : 'border-slate-200'}`}>
-                        <div className="flex items-start justify-between gap-3 mb-1.5">
-                          <h4 className="font-semibold text-sm text-slate-800">{update.title}</h4>
-                          <span className="text-xs text-slate-400 flex-shrink-0 mt-0.5">
-                            {new Date(update.createdAt).toLocaleDateString('cs-CZ', { day: 'numeric', month: 'long', year: 'numeric' })}
-                          </span>
-                        </div>
-                        <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">
-                          {!showAllUpdates && update.content.length > 350
-                            ? update.content.slice(0, 350) + '…'
-                            : update.content}
-                        </p>
-                      </div>
-                    ))}
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-sm text-slate-800 group-hover:text-brand-700 transition-colors">
+                      {localName(unit, i18n.language)}
+                    </h3>
+                    {localDesc(unit, i18n.language) && (
+                      <p className="text-xs text-slate-500 mt-1 leading-relaxed line-clamp-2">{localDesc(unit, i18n.language)}</p>
+                    )}
+                    <span className="inline-flex items-center gap-1 text-xs text-brand-600 mt-2 font-medium">
+                      Zobrazit profil <ChevronRight size={11} />
+                    </span>
                   </div>
-                  {selectedUnit.updates.length > 1 && (
-                    <button
-                      onClick={() => setShowAllUpdates(v => !v)}
-                      className="mt-4 text-sm text-brand-600 hover:underline flex items-center gap-1 font-medium"
-                    >
-                      {showAllUpdates ? 'Skrýt starší aktuality' : `Zobrazit další aktuality (${selectedUnit.updates.length - 1})`}
-                      <ChevronDown size={14} className={`transition-transform ${showAllUpdates ? 'rotate-180' : ''}`} />
-                    </button>
-                  )}
-                </div>
-              )}
+                </Link>
+              ))}
             </div>
           </div>
         </div>
@@ -304,8 +201,9 @@ export default function ProductsPage() {
           )}
         </div>
 
-        <div className="flex flex-wrap gap-3 mb-6">
-          <div className="relative flex-1 min-w-48">
+        <div className="space-y-3 mb-6">
+          {/* Hledání */}
+          <div className="relative">
             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
             <input
               value={search}
@@ -315,6 +213,7 @@ export default function ProductsPage() {
               className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
             />
           </div>
+          {/* Kategorie */}
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => setSearchParams(p => { p.delete('category'); return p; })}
@@ -332,6 +231,26 @@ export default function ProductsPage() {
               </button>
             ))}
           </div>
+          {/* Filtr jednotky */}
+          {units && units.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => setSearchParams(p => { p.delete('unit'); return p; })}
+                className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${!unitSlug ? 'bg-slate-700 text-white border-slate-700' : 'border-slate-300 text-slate-600 hover:border-slate-500'}`}
+              >
+                Všechny jednotky
+              </button>
+              {units.map(unit => (
+                <button
+                  key={unit.id}
+                  onClick={() => selectUnit(unit.slug)}
+                  className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${unitSlug === unit.slug ? 'bg-slate-700 text-white border-slate-700' : 'border-slate-300 text-slate-600 hover:border-slate-500'}`}
+                >
+                  {localName(unit, i18n.language)}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {isLoading && <div className="text-center py-12 text-slate-400">{t('common.loading')}</div>}
