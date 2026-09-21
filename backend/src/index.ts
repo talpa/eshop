@@ -54,6 +54,7 @@ app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
 app.get('/api/config', (_req, res) => res.json({
   accountNumber: process.env.SHOP_BANK_ACCOUNT || '',
   iban: process.env.SHOP_IBAN || '',
+  packetaApiKey: process.env.PACKETA_API_KEY || '',
 }));
 
 app.use('/api/auth', authRoutes);

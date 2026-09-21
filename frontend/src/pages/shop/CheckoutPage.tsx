@@ -60,6 +60,12 @@ export default function CheckoutPage() {
     queryFn: () => api.get<Activity[]>('/activities').then(r => r.data),
   });
 
+  const { data: shopConfig } = useQuery<{ packetaApiKey: string }>({
+    queryKey: ['shop-config'],
+    queryFn: () => api.get('/config').then(r => r.data),
+    staleTime: Infinity,
+  });
+
   const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
@@ -92,7 +98,7 @@ export default function CheckoutPage() {
   }, []);
 
   const openPacketaWidget = () => {
-    const apiKey = import.meta.env.VITE_PACKETA_API_KEY;
+    const apiKey = shopConfig?.packetaApiKey;
     if (!apiKey) { toast.error('Zásilkovna API klíč není nastaven.'); return; }
     if (!packetaScriptLoaded || !window.Packeta) { toast.error('Widget se načítá, zkuste za chvíli.'); return; }
     window.Packeta.Widget.pick(apiKey, (point) => {
