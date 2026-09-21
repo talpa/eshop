@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from './store/authStore';
 import ShopLayout from './components/layout/ShopLayout';
 import AdminLayout from './components/layout/AdminLayout';
@@ -36,7 +36,8 @@ function wrap(el: React.ReactNode) {
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const token = useAuthStore(s => s.token);
-  return token ? <>{children}</> : <Navigate to="/login" replace />;
+  const location = useLocation();
+  return token ? <>{children}</> : <Navigate to="/login" state={{ from: location.pathname }} replace />;
 }
 
 function RequireAdmin({ children }: { children: React.ReactNode }) {
@@ -64,7 +65,7 @@ export default function App() {
           <Route path="products/:slug" element={wrap(<ProductPage />)} />
           <Route path="cart" element={wrap(<CartPage />)} />
           <Route path="checkout" element={<RequireAuth>{wrap(<CheckoutPage />)}</RequireAuth>} />
-          <Route path="orders/:id" element={<RequireAuth>{wrap(<OrderPage />)}</RequireAuth>} />
+          <Route path="orders/:id" element={wrap(<OrderPage />)} />
           <Route path="my-orders" element={<RequireAuth>{wrap(<MyOrdersPage />)}</RequireAuth>} />
           <Route path="donate" element={wrap(<DonatePage />)} />
           <Route path="jednotky/:slug" element={wrap(<UnitPage />)} />

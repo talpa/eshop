@@ -1,7 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
@@ -17,13 +17,16 @@ type FormData = z.infer<typeof schema>;
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const setAuth = useAuthStore(s => s.setAuth);
   const { t } = useTranslation();
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>({ resolver: zodResolver(schema) });
 
+  const from = (location.state as { from?: string })?.from || '/';
+
   const mutation = useMutation({
     mutationFn: (data: FormData) => api.post<{ token: string; user: AuthUser }>('/auth/login', data),
-    onSuccess: ({ data }) => { setAuth(data.token, data.user); navigate('/'); },
+    onSuccess: ({ data }) => { setAuth(data.token, data.user); navigate(from, { replace: true }); },
     onError: () => toast.error(t('auth.login.error')),
   });
 
