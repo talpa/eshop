@@ -1,5 +1,6 @@
 import { Router, Response, NextFunction } from 'express';
 import { z } from 'zod';
+import rateLimit from 'express-rate-limit';
 import { prisma } from '../lib/prisma';
 import { optionalAuth, authenticate, requireAdmin, AuthRequest } from '../middleware/auth';
 import { generateVariableSymbol, generateQrPayload } from '../lib/fio';
@@ -9,6 +10,15 @@ import { buildOrderCreatedEmail } from '../lib/orderCreatedEmail';
 import { generateDonationPdf } from '../lib/donationPdf';
 
 const router = Router();
+
+const orderRateLimit = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: parseInt(process.env.ORDER_RATE_LIMIT || '10', 10),
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: 'Příliš mnoho pokusů. Zkuste to znovu za hodinu.' },
+  skip: (req) => !!(req as AuthRequest).user,
+});
 
 const createOrderSchema = z.object({
   customerName: z.string().min(2),
@@ -26,15 +36,21 @@ const createOrderSchema = z.object({
   isAnonymous: z.boolean().optional(),
   donationAmount: z.number().positive(),
   subscribeNewsletter: z.boolean().optional(),
+  _hp: z.string().default(''),
   items: z.array(z.object({
     productId: z.string(),
     quantity: z.number().int().positive(),
   })).optional().default([]),
 });
 
-router.post('/', optionalAuth, async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+router.post('/', optionalAuth, orderRateLimit, async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const body = createOrderSchema.parse(req.body);
+
+    if (body._hp) {
+      res.status(201).json({ id: 'ok' });
+      return;
+    }
 
     const hasItems = body.items.length > 0;
 

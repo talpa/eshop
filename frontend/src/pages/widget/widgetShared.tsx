@@ -21,6 +21,7 @@ export const unitSchema = z.object({
   customerEmail: z.string().email('Neplatný email'),
   donationAmount: z.number({ invalid_type_error: 'Zadejte částku' }).positive(),
   militaryUnitId: z.string().optional(),
+  _hp: z.string().default(''),
 });
 export type UnitFormData = z.infer<typeof unitSchema>;
 
@@ -201,6 +202,10 @@ export function UnitWidget({ units, shopConfig, fixedUnit, defaultUnitId, defaul
 
   return (
     <form onSubmit={handleSubmit(d => { setValue('donationAmount', amount); mutation.mutate({ ...d, donationAmount: amount }); })} className="space-y-4">
+      {/* honeypot — humans won't see this, bots will fill it */}
+      <input {...register('_hp')} aria-hidden="true" tabIndex={-1} autoComplete="off"
+        style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px', overflow: 'hidden' }}
+      />
       <div>
         <p className="text-xs text-slate-500 mb-0.5">{title || 'Darovat Nadačnímu fondu České stopy'}</p>
         {fixedUnit ? (
