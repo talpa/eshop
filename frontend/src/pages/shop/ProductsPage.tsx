@@ -61,23 +61,61 @@ export default function ProductsPage() {
   return (
     <div>
       {/* Hero */}
-      <div className="bg-gradient-to-br from-slate-900 via-brand-900 to-slate-800 text-white">
+      <div className="bg-gradient-to-br from-slate-900 via-brand-900 to-slate-800 text-white overflow-hidden">
         <div className="max-w-6xl mx-auto px-4 py-16 md:py-24">
-          <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-2 bg-brand-600/30 border border-brand-500/40 rounded-full px-4 py-1.5 text-sm text-brand-300 mb-6">
-              <Shield size={14} />
-              {t('home.hero.badge')}
+          <div className="flex items-center gap-8 md:gap-16">
+            <div className="flex-1 min-w-0">
+              <div className="inline-flex items-center gap-2 bg-brand-600/30 border border-brand-500/40 rounded-full px-4 py-1.5 text-sm text-brand-300 mb-6">
+                <Shield size={14} />
+                {t('home.hero.badge')}
+              </div>
+              <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">
+                {t('home.hero.title1')}<br />
+                <span className="text-brand-400">{t('home.hero.title2')}</span>
+              </h1>
+              <p className="text-slate-300 text-lg mb-8 leading-relaxed">
+                {t('home.hero.subtitle')}
+              </p>
+              <a href="#produkty" className="inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-500 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+                {t('home.hero.cta')} <ChevronRight size={16} />
+              </a>
             </div>
-            <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">
-              {t('home.hero.title1')}<br />
-              <span className="text-brand-400">{t('home.hero.title2')}</span>
-            </h1>
-            <p className="text-slate-300 text-lg mb-8 leading-relaxed">
-              {t('home.hero.subtitle')}
-            </p>
-            <a href="#produkty" className="inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-500 text-white px-6 py-3 rounded-lg font-medium transition-colors">
-              {t('home.hero.cta')} <ChevronRight size={16} />
-            </a>
+            {/* Drone illustration */}
+            <div className="hidden md:flex flex-shrink-0 items-center justify-center w-56 lg:w-72"
+              style={{ animation: 'drone-hover 5s ease-in-out infinite', opacity: 0.18 }}>
+              <svg viewBox="0 0 220 220" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full text-white">
+                {/* Arms */}
+                <line x1="110" y1="110" x2="42" y2="42" stroke="white" strokeWidth="7" strokeLinecap="round"/>
+                <line x1="110" y1="110" x2="178" y2="42" stroke="white" strokeWidth="7" strokeLinecap="round"/>
+                <line x1="110" y1="110" x2="42" y2="178" stroke="white" strokeWidth="7" strokeLinecap="round"/>
+                <line x1="110" y1="110" x2="178" y2="178" stroke="white" strokeWidth="7" strokeLinecap="round"/>
+                {/* Motor housings */}
+                <circle cx="42" cy="42" r="26" stroke="white" strokeWidth="4" fill="white" fillOpacity="0.08"/>
+                <circle cx="178" cy="42" r="26" stroke="white" strokeWidth="4" fill="white" fillOpacity="0.08"/>
+                <circle cx="42" cy="178" r="26" stroke="white" strokeWidth="4" fill="white" fillOpacity="0.08"/>
+                <circle cx="178" cy="178" r="26" stroke="white" strokeWidth="4" fill="white" fillOpacity="0.08"/>
+                {/* Rotor blades — spinning suggestion as dashed rings */}
+                <circle cx="42" cy="42" r="20" stroke="white" strokeWidth="2.5" strokeDasharray="5 4"
+                  style={{ transformOrigin: '42px 42px', animation: 'rotor-spin 0.6s linear infinite' }}/>
+                <circle cx="178" cy="42" r="20" stroke="white" strokeWidth="2.5" strokeDasharray="5 4"
+                  style={{ transformOrigin: '178px 42px', animation: 'rotor-spin 0.6s linear infinite reverse' }}/>
+                <circle cx="42" cy="178" r="20" stroke="white" strokeWidth="2.5" strokeDasharray="5 4"
+                  style={{ transformOrigin: '42px 178px', animation: 'rotor-spin 0.6s linear infinite reverse' }}/>
+                <circle cx="178" cy="178" r="20" stroke="white" strokeWidth="2.5" strokeDasharray="5 4"
+                  style={{ transformOrigin: '178px 178px', animation: 'rotor-spin 0.6s linear infinite' }}/>
+                {/* Body */}
+                <rect x="82" y="82" width="56" height="56" rx="10" fill="white" fillOpacity="0.9"/>
+                {/* Camera lens */}
+                <circle cx="110" cy="110" r="16" stroke="#0f172a" strokeWidth="3" fill="none"/>
+                <circle cx="110" cy="110" r="8" fill="#0f172a"/>
+                <circle cx="104" cy="104" r="3" fill="white" fillOpacity="0.5"/>
+                {/* Landing legs */}
+                <line x1="90" y1="138" x2="80" y2="152" stroke="white" strokeWidth="3" strokeLinecap="round"/>
+                <line x1="130" y1="138" x2="140" y2="152" stroke="white" strokeWidth="3" strokeLinecap="round"/>
+                <line x1="73" y1="152" x2="87" y2="152" stroke="white" strokeWidth="3" strokeLinecap="round"/>
+                <line x1="133" y1="152" x2="147" y2="152" stroke="white" strokeWidth="3" strokeLinecap="round"/>
+              </svg>
+            </div>
           </div>
         </div>
       </div>
