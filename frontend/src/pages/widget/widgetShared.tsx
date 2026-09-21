@@ -5,9 +5,11 @@ import { z } from 'zod';
 import { useMutation } from '@tanstack/react-query';
 import { QRCodeSVG } from 'qrcode.react';
 import { Heart, CheckCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { api } from '../../lib/api';
 import { Activity, MilitaryUnit, Order } from '../../types';
 import { formatPrice } from '../../lib/utils';
+import { LANGUAGES, setLanguage } from '../../i18n';
 
 export const PRESETS = [200, 500, 1000, 2000];
 
@@ -24,6 +26,21 @@ export const unitSchema = z.object({
   _hp: z.string().default(''),
 });
 export type UnitFormData = z.infer<typeof unitSchema>;
+
+function WidgetLanguageSwitcher() {
+  const { i18n } = useTranslation();
+  return (
+    <div className="flex justify-center gap-1 mt-3">
+      {LANGUAGES.map(({ code, label }) => (
+        <button key={code} onClick={() => setLanguage(code)}
+          className={`text-xs px-1.5 py-0.5 rounded font-semibold transition-colors ${i18n.language === code ? 'bg-ua-yellow text-brand-900' : 'text-slate-400 hover:text-slate-600'}`}
+        >
+          {label}
+        </button>
+      ))}
+    </div>
+  );
+}
 
 export function AmountPicker({ value, onChange }: { value: number; onChange: (n: number) => void }) {
   const [input, setInput] = useState(value.toFixed(0));
@@ -55,36 +72,37 @@ export function AmountPicker({ value, onChange }: { value: number; onChange: (n:
 export function PaymentBlock({ qr, accountNumber, iban, variableSymbol, amount, message }: {
   qr: string; accountNumber?: string; iban?: string; variableSymbol?: string; amount: number; message?: string;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="bg-slate-50 rounded-xl p-4 space-y-3">
       {qr && <div className="flex justify-center pb-1"><QRCodeSVG value={qr} size={150} /></div>}
       <div className="space-y-1.5 text-sm">
         {accountNumber && (
           <div className="flex justify-between">
-            <span className="text-slate-500">Číslo účtu</span>
+            <span className="text-slate-500">{t('widget.payment.accountNumber')}</span>
             <span className="font-mono font-medium text-xs">{accountNumber}</span>
           </div>
         )}
         {iban && (
           <div className="flex justify-between">
-            <span className="text-slate-500">IBAN</span>
+            <span className="text-slate-500">{t('widget.payment.iban')}</span>
             <span className="font-mono text-xs">{iban}</span>
           </div>
         )}
         {variableSymbol && (
           <div className="flex justify-between border-t border-slate-200 pt-1.5">
-            <span className="text-slate-500">VS</span>
+            <span className="text-slate-500">{t('widget.payment.vs')}</span>
             <span className="font-mono font-bold text-slate-800">{variableSymbol}</span>
           </div>
         )}
         {message && (
           <div className="flex justify-between">
-            <span className="text-slate-500">Zpráva</span>
+            <span className="text-slate-500">{t('widget.payment.message')}</span>
             <span className="font-mono text-xs text-slate-700">{message}</span>
           </div>
         )}
         <div className="flex justify-between border-t border-slate-200 pt-1.5">
-          <span className="text-slate-500">Částka</span>
+          <span className="text-slate-500">{t('widget.payment.amount')}</span>
           <span className="font-bold text-brand-600">{formatPrice(amount)}</span>
         </div>
       </div>
@@ -102,6 +120,7 @@ export function ActivityWidget({ activities, shopConfig, fixedActivity, defaultA
 }) {
   const [activityId, setActivityId] = useState(fixedActivity?.id || defaultActivityId);
   const [amount, setAmount] = useState(defaultAmount);
+  const { t } = useTranslation();
 
   const activity = fixedActivity || activities.find(a => a.id === activityId);
   const message = activity ? `${activity.code} ${activity.name}`.slice(0, 60) : '';
@@ -110,10 +129,10 @@ export function ActivityWidget({ activities, shopConfig, fixedActivity, defaultA
   return (
     <div className="space-y-4">
       <div>
-        <p className="text-xs text-slate-500 mb-0.5">{title || 'Darovat Nadačnímu fondu České stopy'}</p>
+        <p className="text-xs text-slate-500 mb-0.5">{title || t('widget.donateToFund')}</p>
         {fixedActivity ? (
           <p className="font-semibold text-slate-800">
-            na <span className="text-brand-700">{fixedActivity.code} – {fixedActivity.name}</span>
+            {t('widget.activityWidget.forActivity', { code: fixedActivity.code, name: fixedActivity.name })}
           </p>
         ) : (
           <select
@@ -121,7 +140,7 @@ export function ActivityWidget({ activities, shopConfig, fixedActivity, defaultA
             onChange={e => setActivityId(e.target.value)}
             className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
           >
-            <option value="">— Vyberte účel —</option>
+            <option value="">{t('widget.activityWidget.selectActivity')}</option>
             {activities.map(a => (
               <option key={a.id} value={a.id}>{a.code} – {a.name}</option>
             ))}
@@ -134,12 +153,12 @@ export function ActivityWidget({ activities, shopConfig, fixedActivity, defaultA
       {activity && shopConfig ? (
         <PaymentBlock qr={qr} accountNumber={shopConfig.accountNumber} iban={shopConfig.iban} amount={amount} message={activity.code} />
       ) : (
-        <p className="text-xs text-slate-400 text-center py-2">Vyberte účel pro zobrazení platebních instrukcí.</p>
+        <p className="text-xs text-slate-400 text-center py-2">{t('widget.activityWidget.noActivity')}</p>
       )}
 
       {activity && (
         <p className="text-xs text-slate-400 text-center leading-relaxed">
-          Do zprávy uveďte kód <strong>{activity.code}</strong>.
+          {t('widget.activityWidget.note', { code: activity.code })}
         </p>
       )}
     </div>
@@ -156,6 +175,7 @@ export function UnitWidget({ units, shopConfig, fixedUnit, defaultUnitId, defaul
 }) {
   const [order, setOrder] = useState<Order | null>(null);
   const [amount, setAmount] = useState(defaultAmount);
+  const { t } = useTranslation();
 
   const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<UnitFormData>({
     resolver: zodResolver(unitSchema),
@@ -182,9 +202,9 @@ export function UnitWidget({ units, shopConfig, fixedUnit, defaultUnitId, defaul
       <div className="space-y-4">
         <div className="flex items-center gap-2 text-green-700">
           <CheckCircle size={18} />
-          <span className="font-semibold text-sm">Dar zaregistrován</span>
+          <span className="font-semibold text-sm">{t('widget.unitWidget.success.title')}</span>
         </div>
-        <p className="text-xs text-slate-600">Platební instrukce jsme odeslali na Váš email.</p>
+        <p className="text-xs text-slate-600">{t('widget.unitWidget.success.instruction')}</p>
         <PaymentBlock
           qr={order.payment?.qrPayload || ''}
           accountNumber={shopConfig?.accountNumber}
@@ -194,7 +214,7 @@ export function UnitWidget({ units, shopConfig, fixedUnit, defaultUnitId, defaul
           message={order.paymentNote || undefined}
         />
         <button onClick={() => setOrder(null)} className="w-full text-xs text-brand-600 hover:underline text-center">
-          Darovat znovu
+          {t('widget.unitWidget.donateAgain')}
         </button>
       </div>
     );
@@ -207,17 +227,17 @@ export function UnitWidget({ units, shopConfig, fixedUnit, defaultUnitId, defaul
         style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px', overflow: 'hidden' }}
       />
       <div>
-        <p className="text-xs text-slate-500 mb-0.5">{title || 'Darovat Nadačnímu fondu České stopy'}</p>
+        <p className="text-xs text-slate-500 mb-0.5">{title || t('widget.donateToFund')}</p>
         {fixedUnit ? (
-          <p className="font-semibold text-slate-800">pro <span className="text-brand-700">{fixedUnit.name}</span></p>
+          <p className="font-semibold text-slate-800">{t('widget.unitWidget.forUnit', { name: fixedUnit.name })}</p>
         ) : (
           <div>
             <select {...register('militaryUnitId')} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
-              <option value="">— Vyberte jednotku —</option>
+              <option value="">{t('widget.unitWidget.selectUnit')}</option>
               {units.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
             </select>
             {selectedUnit?.activity && (
-              <p className="text-xs text-slate-500 mt-1">Kód: <span className="font-mono font-medium">{selectedUnit.activity.code}</span></p>
+              <p className="text-xs text-slate-500 mt-1">{t('widget.unitWidget.paymentCode', { code: selectedUnit.activity.code })}</p>
             )}
           </div>
         )}
@@ -225,26 +245,27 @@ export function UnitWidget({ units, shopConfig, fixedUnit, defaultUnitId, defaul
 
       <AmountPicker value={amount} onChange={n => { setAmount(n); setValue('donationAmount', n); }} />
 
-      <input {...register('customerName')} placeholder="Jméno a příjmení" className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
+      <input {...register('customerName')} placeholder={t('widget.unitWidget.name')} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
       {errors.customerName && <p className="text-red-500 text-xs">{errors.customerName.message}</p>}
-      <input {...register('customerEmail')} type="email" placeholder="Email" className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
+      <input {...register('customerEmail')} type="email" placeholder={t('widget.unitWidget.email')} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
       {errors.customerEmail && <p className="text-red-500 text-xs">{errors.customerEmail.message}</p>}
 
       {mutation.isError && (
-        <p className="text-xs text-red-600 text-center">{(mutation.error as any)?.response?.data?.message || 'Nepodařilo se odeslat.'}</p>
+        <p className="text-xs text-red-600 text-center">{(mutation.error as any)?.response?.data?.message || t('widget.unitWidget.error')}</p>
       )}
 
       <button type="submit" disabled={mutation.isPending}
         className="w-full bg-brand-600 hover:bg-brand-700 text-white rounded-xl py-2.5 font-semibold text-sm transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
       >
         <Heart size={15} />
-        {mutation.isPending ? 'Odesílám...' : 'Potvrdit dar'}
+        {mutation.isPending ? t('widget.unitWidget.submitting') : t('widget.unitWidget.submit')}
       </button>
     </form>
   );
 }
 
 export function WidgetShell({ children }: { children: React.ReactNode }) {
+  const { t } = useTranslation();
   return (
     <div className="w-full max-w-sm bg-white rounded-2xl shadow-xl border border-slate-100 p-6">
       <div className="flex items-center gap-2 mb-5">
@@ -252,16 +273,17 @@ export function WidgetShell({ children }: { children: React.ReactNode }) {
           <Heart size={16} className="text-brand-600" />
         </div>
         <div>
-          <p className="font-bold text-slate-800 text-sm leading-tight">Česká stopa</p>
-          <p className="text-xs text-slate-500">Nadační fond</p>
+          <p className="font-bold text-slate-800 text-sm leading-tight">{t('common.fundName')}</p>
+          <p className="text-xs text-slate-500">{t('common.fundSubtitle')}</p>
         </div>
       </div>
       {children}
       <p className="text-xs text-slate-400 text-center mt-4">
         <a href="/" target="_blank" rel="noopener noreferrer" className="underline hover:text-slate-600">
-          Česká stopa — Nadační fond
+          {t('widget.footer')}
         </a>
       </p>
+      <WidgetLanguageSwitcher />
     </div>
   );
 }

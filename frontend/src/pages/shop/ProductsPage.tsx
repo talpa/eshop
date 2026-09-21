@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useSearchParams } from 'react-router-dom';
 import { ShoppingCart, Search, Shield, Heart, FileText, ChevronRight, Pencil } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { api } from '../../lib/api';
 import { useCartStore } from '../../store/cartStore';
 import { useAuthStore } from '../../store/authStore';
@@ -9,12 +10,7 @@ import { Product, ProductsResponse, Category, MilitaryUnit } from '../../types';
 import { formatPrice, getImageUrl } from '../../lib/utils';
 import toast from 'react-hot-toast';
 
-const HOW_IT_WORKS = [
-  { icon: ShoppingCart, title: 'Vyberte dárek', text: 'Zvolte dárek, který obdržíte jako poděkování za Váš dar.' },
-  { icon: Shield, title: 'Zvolte jednotku', text: 'Vyberte vojenskou jednotku, které chcete Váš dar věnovat.' },
-  { icon: Heart, title: 'Darujte libovolnou částku', text: 'Cena dárku je minimální výše daru — darovat můžete i více.' },
-  { icon: FileText, title: 'Obdržíte potvrzení', text: 'Po zaplacení Vám automaticky zašleme potvrzení o daru ve formátu PDF.' },
-];
+const HOW_IT_WORKS_ICONS = [ShoppingCart, Shield, Heart, FileText];
 
 export default function ProductsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -22,6 +18,14 @@ export default function ProductsPage() {
   const categorySlug = searchParams.get('category') || '';
   const unitSlug = searchParams.get('unit') || '';
   const addItem = useCartStore(s => s.addItem);
+  const { t } = useTranslation();
+
+  const HOW_IT_WORKS = [
+    { icon: HOW_IT_WORKS_ICONS[0], title: t('home.howItWorks.step1.title'), text: t('home.howItWorks.step1.text') },
+    { icon: HOW_IT_WORKS_ICONS[1], title: t('home.howItWorks.step2.title'), text: t('home.howItWorks.step2.text') },
+    { icon: HOW_IT_WORKS_ICONS[2], title: t('home.howItWorks.step3.title'), text: t('home.howItWorks.step3.text') },
+    { icon: HOW_IT_WORKS_ICONS[3], title: t('home.howItWorks.step4.title'), text: t('home.howItWorks.step4.text') },
+  ];
 
   const { data, isLoading } = useQuery({
     queryKey: ['products', categorySlug, search, unitSlug],
@@ -50,7 +54,7 @@ export default function ProductsPage() {
 
   const handleAddToCart = (product: Product) => {
     addItem(product);
-    toast.success(`${product.name} přidán do košíku.`);
+    toast.success(t('home.addedToCart', { name: product.name }));
   };
 
   return (
@@ -61,18 +65,17 @@ export default function ProductsPage() {
           <div className="max-w-2xl">
             <div className="inline-flex items-center gap-2 bg-brand-600/30 border border-brand-500/40 rounded-full px-4 py-1.5 text-sm text-brand-300 mb-6">
               <Shield size={14} />
-              Nadační fond Česká stopa
+              {t('home.hero.badge')}
             </div>
             <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">
-              Podpořte naše vojáky<br />
-              <span className="text-brand-400">darem na Ukrajině</span>
+              {t('home.hero.title1')}<br />
+              <span className="text-brand-400">{t('home.hero.title2')}</span>
             </h1>
             <p className="text-slate-300 text-lg mb-8 leading-relaxed">
-              Darujte prostředky na pomoc vojenským jednotkám v misi. Každý dar je doložen
-              potvrzením a Vy obdržíte dárek jako poděkování.
+              {t('home.hero.subtitle')}
             </p>
             <a href="#produkty" className="inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-500 text-white px-6 py-3 rounded-lg font-medium transition-colors">
-              Vybrat dárek a darovat <ChevronRight size={16} />
+              {t('home.hero.cta')} <ChevronRight size={16} />
             </a>
           </div>
         </div>
@@ -81,7 +84,7 @@ export default function ProductsPage() {
       {/* Jak to funguje */}
       <div className="bg-slate-50 border-b border-slate-200">
         <div className="max-w-6xl mx-auto px-4 py-12">
-          <h2 className="text-xl font-bold text-center mb-8 text-slate-800">Jak darcovská platforma funguje</h2>
+          <h2 className="text-xl font-bold text-center mb-8 text-slate-800">{t('home.howItWorks.title')}</h2>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {HOW_IT_WORKS.map(({ icon: Icon, title, text }, i) => (
               <div key={i} className="flex flex-col items-center text-center">
@@ -104,8 +107,8 @@ export default function ProductsPage() {
         <div className="border-b border-slate-200">
           <div className="max-w-6xl mx-auto px-4 py-12">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-slate-800">Podporované vojenské jednotky</h2>
-              <p className="text-sm text-slate-500">Kliknutím zobrazíte dárky pro danou jednotku</p>
+              <h2 className="text-xl font-bold text-slate-800">{t('home.units.title')}</h2>
+              <p className="text-sm text-slate-500">{t('home.units.clickFilter')}</p>
             </div>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {units.map(unit => {
@@ -122,11 +125,11 @@ export default function ProductsPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2">
                         <h3 className="font-semibold text-sm">{unit.name}</h3>
-                        {active && <span className="text-xs bg-brand-600 text-white px-2 py-0.5 rounded-full flex-shrink-0">Filtrováno</span>}
+                        {active && <span className="text-xs bg-brand-600 text-white px-2 py-0.5 rounded-full flex-shrink-0">{t('home.units.filtered')}</span>}
                       </div>
                       {unit.description && <p className="text-xs text-slate-500 mt-1 leading-relaxed">{unit.description}</p>}
-                      {!active && <p className="text-xs text-brand-600 mt-1.5 font-medium">Zobrazit dárky →</p>}
-                      {active && <p className="text-xs text-brand-600 mt-1.5 font-medium">Kliknutím zrušit filtr</p>}
+                      {!active && <p className="text-xs text-brand-600 mt-1.5 font-medium">{t('home.units.showGifts')}</p>}
+                      {active && <p className="text-xs text-brand-600 mt-1.5 font-medium">{t('home.units.clearFilter')}</p>}
                     </div>
                   </button>
                 );
@@ -140,11 +143,13 @@ export default function ProductsPage() {
       <div id="produkty" className="max-w-6xl mx-auto px-4 py-8">
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold text-slate-800">
-            {unitSlug && units ? `Dárky pro: ${units.find(u => u.slug === unitSlug)?.name || ''}` : 'Vyberte dárek jako poděkování'}
+            {unitSlug && units
+              ? t('home.products.forUnit', { name: units.find(u => u.slug === unitSlug)?.name || '' })
+              : t('home.products.title')}
           </h2>
           {unitSlug && (
             <button onClick={() => setSearchParams(p => { p.delete('unit'); return p; })} className="text-sm text-brand-600 hover:underline flex items-center gap-1">
-              × Zrušit filtr jednotky
+              {t('home.products.clearFilter')}
             </button>
           )}
         </div>
@@ -156,7 +161,7 @@ export default function ProductsPage() {
               value={search}
               onChange={e => setSearch(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && setSearchParams(p => { p.set('search', search); return p; })}
-              placeholder="Hledat..."
+              placeholder={t('home.search.placeholder')}
               className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
             />
           </div>
@@ -165,7 +170,7 @@ export default function ProductsPage() {
               onClick={() => setSearchParams(p => { p.delete('category'); return p; })}
               className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${!categorySlug ? 'bg-brand-600 text-white border-brand-600' : 'border-slate-300 text-slate-600 hover:border-brand-400'}`}
             >
-              Vše
+              {t('home.search.all')}
             </button>
             {categories?.map(cat => (
               <button
@@ -179,9 +184,9 @@ export default function ProductsPage() {
           </div>
         </div>
 
-        {isLoading && <div className="text-center py-12 text-slate-400">Načítám...</div>}
+        {isLoading && <div className="text-center py-12 text-slate-400">{t('common.loading')}</div>}
         {!isLoading && data?.products.length === 0 && (
-          <div className="text-center py-12 text-slate-400">Žádné produkty nenalezeny.</div>
+          <div className="text-center py-12 text-slate-400">{t('home.products.empty')}</div>
         )}
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -227,12 +232,12 @@ export default function ProductsPage() {
                     onClick={() => handleAddToCart(product)}
                     disabled={product.stock === 0}
                     className="p-1.5 bg-brand-600 hover:bg-brand-700 text-white rounded-lg disabled:opacity-40 transition-colors"
-                    title="Přidat do košíku"
+                    title={t('product.addToCart')}
                   >
                     <ShoppingCart size={14} />
                   </button>
                 </div>
-                {product.stock === 0 && <p className="text-xs text-red-500 mt-1">Není skladem</p>}
+                {product.stock === 0 && <p className="text-xs text-red-500 mt-1">{t('product.outOfStock')}</p>}
               </div>
             </div>
           ))}

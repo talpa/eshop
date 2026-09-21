@@ -6,6 +6,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import { MapPin, Package } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { api } from '../../lib/api';
 import { useCartStore } from '../../store/cartStore';
 import { useAuthStore } from '../../store/authStore';
@@ -46,6 +47,7 @@ export default function CheckoutPage() {
   const [donationInput, setDonationInput] = useState(minAmount.toFixed(0));
   const [packetaPoint, setPacketaPoint] = useState<{ id: string; name: string; address: string } | null>(null);
   const [packetaScriptLoaded, setPacketaScriptLoaded] = useState(false);
+  const { t } = useTranslation();
 
   const { data: units } = useQuery<MilitaryUnit[]>({
     queryKey: ['military-units'],
@@ -114,38 +116,36 @@ export default function CheckoutPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold mb-2">Darovací smlouva</h1>
-      <p className="text-slate-500 text-sm mb-6">Vaše kontaktní údaje jsou důvěrné a slouží výhradně pro účely fondu Česká stopa.</p>
+      <h1 className="text-2xl font-bold mb-2">{t('checkout.title')}</h1>
+      <p className="text-slate-500 text-sm mb-6">{t('checkout.subtitle')}</p>
 
       {!user && (
         <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg text-sm text-amber-800">
-          Přihlášení není nutné, ale po přihlášení budete mít potvrzení o daru kdykoliv ke stažení.
-          {' '}<Link to="/login" className="underline font-medium">Přihlásit se</Link>
+          {t('checkout.loginNotice')}
+          {' '}<Link to="/login" className="underline font-medium">{t('checkout.login')}</Link>
         </div>
       )}
 
       <div className="grid md:grid-cols-2 gap-6">
         <form onSubmit={handleSubmit(d => mutation.mutate(d))} className="space-y-4">
 
-          {/* Kontakt */}
           <div>
-            <label className="block text-sm font-medium mb-1">Jméno a příjmení</label>
+            <label className="block text-sm font-medium mb-1">{t('checkout.name')}</label>
             <input {...register('customerName')} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
             {errors.customerName && <p className="text-red-500 text-xs mt-1">{errors.customerName.message}</p>}
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Email</label>
+            <label className="block text-sm font-medium mb-1">{t('checkout.email')}</label>
             <input {...register('customerEmail')} type="email" className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
             {errors.customerEmail && <p className="text-red-500 text-xs mt-1">{errors.customerEmail.message}</p>}
           </div>
 
-          {/* Doručení */}
           <div>
-            <label className="block text-sm font-medium mb-2">Způsob doručení dárku</label>
+            <label className="block text-sm font-medium mb-2">{t('checkout.delivery.label')}</label>
             <div className="grid grid-cols-2 gap-2">
               {([
-                { value: 'HOME', label: 'Na adresu', icon: MapPin },
-                { value: 'PACKETA', label: 'Zásilkovna', icon: Package },
+                { value: 'HOME', label: t('checkout.delivery.home'), icon: MapPin },
+                { value: 'PACKETA', label: t('checkout.delivery.packeta'), icon: Package },
               ] as const).map(({ value, label, icon: Icon }) => (
                 <label key={value} className={`flex items-center gap-2 p-3 border-2 rounded-lg cursor-pointer transition-colors ${deliveryType === value ? 'border-brand-500 bg-brand-50' : 'border-slate-200 hover:border-slate-300'}`}>
                   <input type="radio" {...register('deliveryType')} value={value} className="sr-only" />
@@ -159,18 +159,18 @@ export default function CheckoutPage() {
           {deliveryType === 'HOME' && (
             <div className="space-y-3">
               <div>
-                <label className="block text-sm font-medium mb-1">Ulice a číslo popisné</label>
-                <input {...register('street')} placeholder="Např. Václavské náměstí 1" className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
+                <label className="block text-sm font-medium mb-1">{t('checkout.delivery.street')}</label>
+                <input {...register('street')} placeholder={t('checkout.delivery.streetPlaceholder')} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
                 {errors.street && <p className="text-red-500 text-xs mt-1">{errors.street.message}</p>}
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium mb-1">Město</label>
-                  <input {...register('city')} placeholder="Praha" className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
+                  <label className="block text-sm font-medium mb-1">{t('checkout.delivery.city')}</label>
+                  <input {...register('city')} placeholder={t('checkout.delivery.cityPlaceholder')} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium mb-1">PSČ</label>
-                  <input {...register('zip')} placeholder="110 00" className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
+                  <label className="block text-sm font-medium mb-1">{t('checkout.delivery.zip')}</label>
+                  <input {...register('zip')} placeholder={t('checkout.delivery.zipPlaceholder')} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
                 </div>
               </div>
             </div>
@@ -185,19 +185,18 @@ export default function CheckoutPage() {
                     <p className="font-medium text-green-800">{packetaPoint.name}</p>
                     <p className="text-green-600 text-xs">{packetaPoint.address}</p>
                   </div>
-                  <button type="button" onClick={openPacketaWidget} className="text-xs text-brand-600 hover:underline">Změnit</button>
+                  <button type="button" onClick={openPacketaWidget} className="text-xs text-brand-600 hover:underline">{t('checkout.delivery.packetaChange')}</button>
                 </div>
               ) : (
                 <button type="button" onClick={openPacketaWidget} className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-slate-300 hover:border-brand-400 rounded-lg py-4 text-sm text-slate-500 hover:text-brand-600 transition-colors">
                   <Package size={16} />
-                  Vybrat výdejní místo Zásilkovny
+                  {t('checkout.delivery.packetaSelect')}
                 </button>
               )}
-              {errors.packetaPointId && <p className="text-red-500 text-xs mt-1">Vyberte výdejní místo</p>}
+              {errors.packetaPointId && <p className="text-red-500 text-xs mt-1">{t('checkout.delivery.packetaRequired')}</p>}
             </div>
           )}
 
-          {/* Anonymní dar / Jednotka / Aktivita */}
           <div className="border border-slate-200 rounded-xl p-4 space-y-3">
             <label className="flex items-start gap-3 cursor-pointer group">
               <input type="checkbox" {...register('isAnonymous')}
@@ -208,16 +207,16 @@ export default function CheckoutPage() {
                 }}
                 className="mt-0.5 w-4 h-4 accent-brand-600" />
               <span className="text-sm">
-                <span className="font-medium">Anonymní dar přímo Nadačnímu fondu</span>
-                <span className="block text-xs text-slate-500 mt-0.5">Váš dar půjde na vybranou aktivitu fondu — bez přiřazení ke konkrétní jednotce</span>
+                <span className="font-medium">{t('checkout.anonymous.label')}</span>
+                <span className="block text-xs text-slate-500 mt-0.5">{t('checkout.anonymous.desc')}</span>
               </span>
             </label>
 
             {isAnonymous ? (
               <div>
-                <label className="block text-sm font-medium mb-1">Aktivita / účel daru</label>
+                <label className="block text-sm font-medium mb-1">{t('checkout.activity.label')}</label>
                 <select {...register('activityId')} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
-                  <option value="">— Vyberte účel —</option>
+                  <option value="">{t('checkout.activity.select')}</option>
                   {activities?.map(a => (
                     <option key={a.id} value={a.id}>{a.code} – {a.name}</option>
                   ))}
@@ -226,15 +225,14 @@ export default function CheckoutPage() {
             ) : (
               units && units.length > 0 && (
                 <div>
-                  <label className="block text-sm font-medium mb-1">Vojenská jednotka</label>
+                  <label className="block text-sm font-medium mb-1">{t('checkout.unit.label')}</label>
                   <select {...register('militaryUnitId')} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
-                    <option value="">— Nevybráno —</option>
+                    <option value="">{t('checkout.unit.select')}</option>
                     {units.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
                   </select>
                   {selectedUnit?.activity && (
                     <p className="text-xs text-slate-500 mt-1.5">
-                      Platební kód: <span className="font-mono font-medium text-slate-700">{selectedUnit.activity.code}</span>
-                      {' '}— {selectedUnit.activity.name}
+                      {t('checkout.unit.paymentCode', { code: selectedUnit.activity.code, name: selectedUnit.activity.name })}
                     </p>
                   )}
                 </div>
@@ -242,11 +240,10 @@ export default function CheckoutPage() {
             )}
           </div>
 
-          {/* Dar */}
           <div>
             <label className="block text-sm font-medium mb-1">
-              Výše daru
-              <span className="ml-2 text-xs text-slate-400 font-normal">minimum {formatPrice(minAmount)}</span>
+              {t('checkout.amount.label')}
+              <span className="ml-2 text-xs text-slate-400 font-normal">{t('checkout.amount.minimum', { min: formatPrice(minAmount) })}</span>
             </label>
             <div className="relative">
               <input
@@ -262,8 +259,7 @@ export default function CheckoutPage() {
               {[minAmount, minAmount * 2, minAmount * 3].map(amount => (
                 <button key={amount} type="button"
                   onClick={() => { setValue('donationAmount', amount); setDonationInput(amount.toFixed(0)); }}
-                  className="text-xs px-2 py-1 rounded border border-slate-300 hover:border-brand-500 hover:text-brand-600 transition-colors"
-                >
+                  className="text-xs px-2 py-1 rounded border border-slate-300 hover:border-brand-500 hover:text-brand-600 transition-colors">
                   {formatPrice(amount)}
                 </button>
               ))}
@@ -271,23 +267,23 @@ export default function CheckoutPage() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Poznámka (volitelně)</label>
+            <label className="block text-sm font-medium mb-1">{t('checkout.note')}</label>
             <textarea {...register('note')} rows={2} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
           </div>
 
           <label className="flex items-start gap-2 text-sm cursor-pointer">
             <input type="checkbox" {...register('subscribeNewsletter')} className="mt-0.5" />
-            <span className="text-slate-600">Chci dostávat aktuality o využití darů a novinkách z misí</span>
+            <span className="text-slate-600">{t('checkout.newsletter')}</span>
           </label>
 
           <button type="submit" disabled={mutation.isPending} className="w-full bg-brand-600 hover:bg-brand-700 text-white rounded-lg py-3 font-medium transition-colors disabled:opacity-50">
-            {mutation.isPending ? 'Odesílám...' : 'Potvrdit dar a zaplatit'}
+            {mutation.isPending ? t('checkout.submitting') : t('checkout.submit')}
           </button>
         </form>
 
         <div className="bg-slate-50 rounded-xl p-4 h-fit space-y-4">
           <div>
-            <h2 className="font-semibold mb-3 text-sm">Jako poděkování obdržíte</h2>
+            <h2 className="font-semibold mb-3 text-sm">{t('checkout.gifts.title')}</h2>
             <div className="space-y-2 text-sm">
               {items.map(({ product, quantity }) => (
                 <div key={product.id} className="flex justify-between">
@@ -298,7 +294,7 @@ export default function CheckoutPage() {
             </div>
           </div>
           <div className="border-t pt-3 text-xs text-slate-500">
-            <p>Po přijetí platby Vám bude odesláno potvrzení o daru emailem i ke stažení ve formátu PDF.</p>
+            <p>{t('checkout.gifts.confirmationNotice')}</p>
           </div>
         </div>
       </div>

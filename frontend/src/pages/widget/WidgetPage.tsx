@@ -1,12 +1,18 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
+import { useTranslation } from 'react-i18next';
 import { api } from '../../lib/api';
 import { Activity, MilitaryUnit } from '../../types';
+import { setLanguage, LangCode } from '../../i18n';
 import { ActivityWidget, UnitWidget, WidgetShell } from './widgetShared';
 
 export default function WidgetPage() {
   const [searchParams] = useSearchParams();
+  const { t } = useTranslation();
+
+  const langParam = searchParams.get('lang') as LangCode | null;
+  useEffect(() => { if (langParam) setLanguage(langParam); }, [langParam]);
 
   const unitParam = searchParams.get('unit') || '';
   const defaultUnitParam = searchParams.get('default-unit') || '';
@@ -50,9 +56,9 @@ export default function WidgetPage() {
       {showToggle && (
         <div className="grid grid-cols-2 gap-1.5 mb-4">
           {([
-            { value: 'unit', label: 'Jednotce' },
-            { value: 'activity', label: 'Účelu fondu' },
-          ] as const).map(({ value, label }) => (
+            { value: 'unit' as const, label: t('widget.toggle.unit') },
+            { value: 'activity' as const, label: t('widget.toggle.activity') },
+          ]).map(({ value, label }) => (
             <button key={value} type="button" onClick={() => setMode(value)}
               className={`flex items-center gap-1.5 p-2.5 border-2 rounded-lg transition-colors text-xs font-medium ${mode === value ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-slate-200 text-slate-600 hover:border-slate-300'}`}
             >

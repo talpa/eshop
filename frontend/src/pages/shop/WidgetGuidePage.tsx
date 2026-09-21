@@ -130,6 +130,7 @@ export default function WidgetGuidePage() {
                     { param: 'default-activity', for: '/activity', desc: 'Předvolená aktivita, select zůstane viditelný' },
                     { param: 'amount', for: 'vše', desc: 'Předvyplněná výše daru v Kč' },
                     { param: 'title', for: 'vše', desc: 'Přepíše nadpisový text widgetu' },
+                    { param: 'lang', for: 'vše', desc: 'Jazyk widgetu: cs / en / uk (výchozí: cs)' },
                   ].map(r => (
                     <tr key={r.param} className="hover:bg-slate-50">
                       <td className="px-3 py-2.5 font-mono text-brand-700 font-medium">{r.param}</td>

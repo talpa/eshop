@@ -1,0 +1,277 @@
+{
+  "common": {
+    "loading": "Načítám...",
+    "notFound": "Nenalezeno.",
+    "save": "Uložit",
+    "cancel": "Zrušit",
+    "back": "Zpět",
+    "donate": "Darovat",
+    "donateBtn": "Potvrdit dar",
+    "donating": "Odesílám...",
+    "currency": "Kč",
+    "fundName": "Česká stopa",
+    "fundSubtitle": "Nadační fond"
+  },
+  "nav": {
+    "products": "Dárky",
+    "donate": "Darovat",
+    "login": "Přihlásit",
+    "logout": "Odhlásit",
+    "myOrders": "Moje darovací smlouvy",
+    "admin": "Administrace"
+  },
+  "footer": {
+    "fundDesc": "Nadační fond pro podporu vojenských jednotek působících na Ukrajině. Každý dar je doložen potvrzením a transparentně využit.",
+    "howToDonate": "Jak darovat",
+    "information": "Informace",
+    "step1": "Vyberte dárek jako poděkování",
+    "step2": "Zvolte vojenskou jednotku",
+    "step3": "Zašlete dar převodem (QR kód)",
+    "step4": "Obdržíte potvrzení o daru (PDF)",
+    "links": {
+      "donate": "Darovat přímo",
+      "myOrders": "Moje darovací smlouvy",
+      "login": "Přihlášení / Registrace",
+      "widgetGuide": "Widget pro vývojáře"
+    },
+    "copyright": "Česká stopa — Nadační fond na pomoc Ukrajině"
+  },
+  "home": {
+    "hero": {
+      "badge": "Nadační fond Česká stopa",
+      "title1": "Podpořte naše vojáky",
+      "title2": "darem na Ukrajině",
+      "subtitle": "Darujte prostředky na pomoc vojenským jednotkám v misi. Každý dar je doložen potvrzením a Vy obdržíte dárek jako poděkování.",
+      "cta": "Vybrat dárek a darovat"
+    },
+    "howItWorks": {
+      "title": "Jak darcovská platforma funguje",
+      "step1": { "title": "Vyberte dárek", "text": "Zvolte dárek, který obdržíte jako poděkování za Váš dar." },
+      "step2": { "title": "Zvolte jednotku", "text": "Vyberte vojenskou jednotku, které chcete Váš dar věnovat." },
+      "step3": { "title": "Darujte libovolnou částku", "text": "Cena dárku je minimální výše daru — darovat můžete i více." },
+      "step4": { "title": "Obdržíte potvrzení", "text": "Po zaplacení Vám automaticky zašleme potvrzení o daru ve formátu PDF." }
+    },
+    "units": {
+      "title": "Podporované vojenské jednotky",
+      "clickFilter": "Kliknutím zobrazíte dárky pro danou jednotku",
+      "filtered": "Filtrováno",
+      "showGifts": "Zobrazit dárky →",
+      "clearFilter": "Kliknutím zrušit filtr"
+    },
+    "products": {
+      "title": "Vyberte dárek jako poděkování",
+      "forUnit": "Dárky pro: {{name}}",
+      "clearFilter": "× Zrušit filtr jednotky",
+      "empty": "Žádné dárky odpovídající filtru."
+    },
+    "search": {
+      "placeholder": "Hledat dárky...",
+      "all": "Vše"
+    },
+    "addedToCart": "{{name}} přidán do košíku."
+  },
+  "product": {
+    "notFound": "Produkt nenalezen.",
+    "back": "Zpět na výběr dárků",
+    "minDonation": "minimální výše daru — darovat můžete i více",
+    "linkedUnits": "Tento dárek je spojen s jednotkami:",
+    "quantity": "Množství:",
+    "addToCart": "Přidat do košíku",
+    "outOfStock": "Není skladem",
+    "availability": "Dostupnost: {{count}} ks",
+    "addedToCart": "{{name}} přidán do košíku."
+  },
+  "cart": {
+    "title": "Košík",
+    "empty": "Košík je prázdný",
+    "continueShopping": "Pokračovat v nákupu",
+    "total": "Celkem",
+    "checkout": "Pokračovat k objednávce"
+  },
+  "checkout": {
+    "title": "Darovací smlouva",
+    "subtitle": "Vaše kontaktní údaje jsou důvěrné a slouží výhradně pro účely fondu Česká stopa.",
+    "loginNotice": "Přihlášení není nutné, ale po přihlášení budete mít potvrzení o daru kdykoliv ke stažení.",
+    "login": "Přihlásit se",
+    "name": "Jméno a příjmení",
+    "email": "Email",
+    "delivery": {
+      "label": "Způsob doručení dárku",
+      "home": "Na adresu",
+      "packeta": "Zásilkovna",
+      "street": "Ulice a číslo popisné",
+      "streetPlaceholder": "Např. Václavské náměstí 1",
+      "city": "Město",
+      "cityPlaceholder": "Praha",
+      "zip": "PSČ",
+      "zipPlaceholder": "110 00",
+      "packetaSelect": "Vybrat výdejní místo Zásilkovny",
+      "packetaChange": "Změnit",
+      "packetaRequired": "Vyberte výdejní místo"
+    },
+    "anonymous": {
+      "label": "Anonymní dar přímo Nadačnímu fondu",
+      "desc": "Váš dar půjde na vybranou aktivitu fondu — bez přiřazení ke konkrétní jednotce"
+    },
+    "activity": {
+      "label": "Aktivita / účel daru",
+      "select": "— Vyberte účel —"
+    },
+    "unit": {
+      "label": "Vojenská jednotka",
+      "select": "— Nevybráno —",
+      "paymentCode": "Platební kód: {{code}} — {{name}}"
+    },
+    "amount": {
+      "label": "Výše daru",
+      "minimum": "minimum {{min}}"
+    },
+    "note": "Poznámka (volitelně)",
+    "newsletter": "Chci dostávat aktuality o využití darů a novinkách z misí",
+    "submit": "Potvrdit dar a zaplatit",
+    "submitting": "Odesílám...",
+    "gifts": {
+      "title": "Jako poděkování obdržíte",
+      "confirmationNotice": "Po přijetí platby Vám bude odesláno potvrzení o daru emailem i ke stažení ve formátu PDF."
+    }
+  },
+  "order": {
+    "title": "Darovací smlouva #{{vs}}",
+    "status": {
+      "PENDING": "Nezaplacená",
+      "PAID": "Zaplacená",
+      "PROCESSING": "Zaplacená",
+      "SHIPPED": "Zaplacená",
+      "DELIVERED": "Zaplacená",
+      "CANCELLED": "Zrušená"
+    },
+    "dedicatedTo": "Dar je určen pro: {{name}}",
+    "transfer": {
+      "title": "Zašlete dar převodem",
+      "forUnit": "pro {{name}}",
+      "qrScan": "Naskenujte QR kód pro rychlou platbu",
+      "accountNumber": "Číslo účtu",
+      "iban": "IBAN",
+      "variableSymbol": "Variabilní symbol",
+      "amount": "Částka",
+      "minDonation": "Minimální dar: {{min}} — můžete darovat i více",
+      "checkPayment": "Zkontrolovat platbu"
+    },
+    "paid": {
+      "title": "Dar přijat — děkujeme!",
+      "confirmation": "Potvrzení o daru bylo odesláno na {{email}}.",
+      "confirmationPending": "Potvrzení o daru Vám bude odesláno na email.",
+      "download": "Stáhnout potvrzení (PDF)",
+      "loginForDownload": "Přihlaste se pro opakované stažení kdykoliv."
+    },
+    "gifts": {
+      "title": "Jako poděkování obdržíte",
+      "amountLabel": "Výše daru"
+    },
+    "delivery": {
+      "title": "Doručení",
+      "note": "Poznámka"
+    },
+    "backToAll": "Zobrazit všechny darovací smlouvy",
+    "paymentConfirmed": "Platba potvrzena — potvrzení Vám bylo odesláno emailem.",
+    "paymentNotFound": "Platba zatím nebyla nalezena. Zkuste to za chvíli.",
+    "paymentError": "Chyba při kontrole platby."
+  },
+  "myOrders": {
+    "title": "Moje darovací smlouvy",
+    "empty": "Zatím nemáte žádné darovací smlouvy.",
+    "browse": "Prohlédnout dárky"
+  },
+  "donate": {
+    "title": "Darovat přímo — bez dárků",
+    "subtitle": "Váš dar půjde přímo na vybraný účel fondu Česká stopa",
+    "loginAlert": "Pro vystavení darovací smlouvy ve formátu PDF se <1>přihlaste</1>. Bez přihlášení obdržíte platební instrukce emailem.",
+    "target": {
+      "title": "Kam dar poputuje",
+      "unit": "Konkrétní jednotce",
+      "activity": "Na účel fondu"
+    },
+    "unit": {
+      "label": "Vojenská jednotka",
+      "select": "— Vyberte jednotku —",
+      "paymentCode": "Platební kód: {{code}} — {{name}}"
+    },
+    "activity": {
+      "label": "Účel / aktivita",
+      "select": "— Vyberte účel —"
+    },
+    "amount": {
+      "title": "Výše daru",
+      "other": "Jiná částka"
+    },
+    "contact": {
+      "title": "Kontaktní údaje",
+      "name": "Jméno a příjmení",
+      "email": "Email"
+    },
+    "newsletter": "Chci dostávat aktuality o využití darů a novinkách z misí",
+    "submit": "Potvrdit dar",
+    "submitting": "Odesílám...",
+    "error": "Nepodařilo se odeslat dar."
+  },
+  "auth": {
+    "login": {
+      "title": "Přihlášení",
+      "email": "Email",
+      "password": "Heslo",
+      "submit": "Přihlásit se",
+      "submitting": "Přihlašuji...",
+      "noAccount": "Nemáte účet?",
+      "register": "Registrovat",
+      "error": "Nesprávný email nebo heslo."
+    },
+    "register": {
+      "title": "Registrace",
+      "name": "Jméno",
+      "email": "Email",
+      "password": "Heslo",
+      "submit": "Zaregistrovat se",
+      "submitting": "Registruji...",
+      "haveAccount": "Máte účet?",
+      "login": "Přihlásit se",
+      "error": "Registrace se nezdařila."
+    }
+  },
+  "widget": {
+    "langLabel": "Jazyk",
+    "donateToFund": "Darovat Nadačnímu fondu České stopy",
+    "unitWidget": {
+      "forUnit": "pro {{name}}",
+      "selectUnit": "— Vyberte jednotku —",
+      "paymentCode": "Kód: {{code}}",
+      "name": "Jméno a příjmení",
+      "email": "Email",
+      "submit": "Potvrdit dar",
+      "submitting": "Odesílám...",
+      "error": "Nepodařilo se odeslat.",
+      "success": {
+        "title": "Dar zaregistrován",
+        "instruction": "Platební instrukce jsme odeslali na Váš email."
+      },
+      "donateAgain": "Darovat znovu"
+    },
+    "activityWidget": {
+      "forActivity": "na {{code}} – {{name}}",
+      "selectActivity": "— Vyberte účel —",
+      "noActivity": "Vyberte účel pro zobrazení platebních instrukcí.",
+      "note": "Do zprávy uveďte kód {{code}}."
+    },
+    "toggle": {
+      "unit": "Jednotce",
+      "activity": "Účelu fondu"
+    },
+    "payment": {
+      "accountNumber": "Číslo účtu",
+      "iban": "IBAN",
+      "vs": "VS",
+      "message": "Zpráva",
+      "amount": "Částka"
+    },
+    "footer": "Česká stopa — Nadační fond"
+  }
+}

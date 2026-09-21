@@ -1,11 +1,16 @@
+import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../../lib/api';
 import { Activity } from '../../types';
+import { setLanguage, LangCode } from '../../i18n';
 import { ActivityWidget, WidgetShell } from './widgetShared';
 
 export default function ActivityWidgetPage() {
   const [searchParams] = useSearchParams();
+
+  const langParam = searchParams.get('lang') as LangCode | null;
+  useEffect(() => { if (langParam) setLanguage(langParam); }, [langParam]);
 
   const activityParam = searchParams.get('activity') || '';
   const defaultActivityParam = searchParams.get('default-activity') || '';

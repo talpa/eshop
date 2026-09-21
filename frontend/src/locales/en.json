@@ -1,0 +1,277 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "notFound": "Not found.",
+    "save": "Save",
+    "cancel": "Cancel",
+    "back": "Back",
+    "donate": "Donate",
+    "donateBtn": "Confirm donation",
+    "donating": "Sending...",
+    "currency": "CZK",
+    "fundName": "Česká stopa",
+    "fundSubtitle": "Foundation Fund"
+  },
+  "nav": {
+    "products": "Gifts",
+    "donate": "Donate",
+    "login": "Login",
+    "logout": "Logout",
+    "myOrders": "My donations",
+    "admin": "Administration"
+  },
+  "footer": {
+    "fundDesc": "A foundation supporting military units serving in Ukraine. Every donation is documented and used transparently.",
+    "howToDonate": "How to donate",
+    "information": "Information",
+    "step1": "Choose a thank-you gift",
+    "step2": "Select a military unit",
+    "step3": "Transfer your donation (QR code)",
+    "step4": "Receive your donation receipt (PDF)",
+    "links": {
+      "donate": "Donate directly",
+      "myOrders": "My donations",
+      "login": "Login / Register",
+      "widgetGuide": "Widget for developers"
+    },
+    "copyright": "Česká stopa — Foundation Fund supporting Ukraine"
+  },
+  "home": {
+    "hero": {
+      "badge": "Česká stopa Foundation Fund",
+      "title1": "Support our soldiers",
+      "title2": "with a donation in Ukraine",
+      "subtitle": "Donate resources to support military units on mission. Every donation is documented and you receive a thank-you gift.",
+      "cta": "Choose a gift and donate"
+    },
+    "howItWorks": {
+      "title": "How the donation platform works",
+      "step1": { "title": "Choose a gift", "text": "Select a gift you will receive as a thank-you for your donation." },
+      "step2": { "title": "Select a unit", "text": "Choose the military unit you want to support with your donation." },
+      "step3": { "title": "Donate any amount", "text": "The gift price is the minimum donation — you can donate more." },
+      "step4": { "title": "Receive confirmation", "text": "After payment we automatically send you a PDF donation receipt." }
+    },
+    "units": {
+      "title": "Supported military units",
+      "clickFilter": "Click to show gifts for this unit",
+      "filtered": "Filtered",
+      "showGifts": "Show gifts →",
+      "clearFilter": "Click to clear filter"
+    },
+    "products": {
+      "title": "Choose a thank-you gift",
+      "forUnit": "Gifts for: {{name}}",
+      "clearFilter": "× Clear unit filter",
+      "empty": "No gifts match the current filter."
+    },
+    "search": {
+      "placeholder": "Search gifts...",
+      "all": "All"
+    },
+    "addedToCart": "{{name}} added to cart."
+  },
+  "product": {
+    "notFound": "Product not found.",
+    "back": "Back to gifts",
+    "minDonation": "minimum donation amount — you can donate more",
+    "linkedUnits": "This gift is linked to units:",
+    "quantity": "Quantity:",
+    "addToCart": "Add to cart",
+    "outOfStock": "Out of stock",
+    "availability": "Availability: {{count}} pcs",
+    "addedToCart": "{{name}} added to cart."
+  },
+  "cart": {
+    "title": "Cart",
+    "empty": "Your cart is empty",
+    "continueShopping": "Continue shopping",
+    "total": "Total",
+    "checkout": "Proceed to checkout"
+  },
+  "checkout": {
+    "title": "Donation agreement",
+    "subtitle": "Your contact details are confidential and used solely for Česká stopa fund purposes.",
+    "loginNotice": "Login is not required, but after logging in you can download the donation receipt at any time.",
+    "login": "Log in",
+    "name": "Full name",
+    "email": "Email",
+    "delivery": {
+      "label": "Gift delivery method",
+      "home": "Home delivery",
+      "packeta": "Zásilkovna pickup",
+      "street": "Street and number",
+      "streetPlaceholder": "e.g. Main Street 1",
+      "city": "City",
+      "cityPlaceholder": "Prague",
+      "zip": "ZIP code",
+      "zipPlaceholder": "110 00",
+      "packetaSelect": "Select Zásilkovna pickup point",
+      "packetaChange": "Change",
+      "packetaRequired": "Please select a pickup point"
+    },
+    "anonymous": {
+      "label": "Anonymous donation directly to the Foundation Fund",
+      "desc": "Your donation will go to a selected fund activity — without linking to a specific unit"
+    },
+    "activity": {
+      "label": "Activity / donation purpose",
+      "select": "— Select purpose —"
+    },
+    "unit": {
+      "label": "Military unit",
+      "select": "— Not selected —",
+      "paymentCode": "Payment code: {{code}} — {{name}}"
+    },
+    "amount": {
+      "label": "Donation amount",
+      "minimum": "minimum {{min}}"
+    },
+    "note": "Note (optional)",
+    "newsletter": "I want to receive updates about how donations are used",
+    "submit": "Confirm donation and pay",
+    "submitting": "Sending...",
+    "gifts": {
+      "title": "As a thank-you you will receive",
+      "confirmationNotice": "After payment you will receive a donation receipt by email and as a PDF download."
+    }
+  },
+  "order": {
+    "title": "Donation agreement #{{vs}}",
+    "status": {
+      "PENDING": "Unpaid",
+      "PAID": "Paid",
+      "PROCESSING": "Paid",
+      "SHIPPED": "Paid",
+      "DELIVERED": "Paid",
+      "CANCELLED": "Cancelled"
+    },
+    "dedicatedTo": "Donation is dedicated to: {{name}}",
+    "transfer": {
+      "title": "Send your donation by transfer",
+      "forUnit": "for {{name}}",
+      "qrScan": "Scan the QR code for quick payment",
+      "accountNumber": "Account number",
+      "iban": "IBAN",
+      "variableSymbol": "Variable symbol",
+      "amount": "Amount",
+      "minDonation": "Minimum donation: {{min}} — you can donate more",
+      "checkPayment": "Check payment"
+    },
+    "paid": {
+      "title": "Donation received — thank you!",
+      "confirmation": "Donation receipt has been sent to {{email}}.",
+      "confirmationPending": "Donation receipt will be sent to your email.",
+      "download": "Download receipt (PDF)",
+      "loginForDownload": "Log in to download again at any time."
+    },
+    "gifts": {
+      "title": "As a thank-you you will receive",
+      "amountLabel": "Donation amount"
+    },
+    "delivery": {
+      "title": "Delivery",
+      "note": "Note"
+    },
+    "backToAll": "View all donation agreements",
+    "paymentConfirmed": "Payment confirmed — receipt sent to your email.",
+    "paymentNotFound": "Payment not found yet. Please try again shortly.",
+    "paymentError": "Error checking payment."
+  },
+  "myOrders": {
+    "title": "My donations",
+    "empty": "You have no donation agreements yet.",
+    "browse": "Browse gifts"
+  },
+  "donate": {
+    "title": "Donate directly — no gifts",
+    "subtitle": "Your donation goes directly to a chosen purpose of the Česká stopa fund",
+    "loginAlert": "To receive a donation agreement PDF, please <1>log in</1>. Without login you will receive payment instructions by email.",
+    "target": {
+      "title": "Where your donation goes",
+      "unit": "To a specific unit",
+      "activity": "To a fund purpose"
+    },
+    "unit": {
+      "label": "Military unit",
+      "select": "— Select unit —",
+      "paymentCode": "Payment code: {{code}} — {{name}}"
+    },
+    "activity": {
+      "label": "Purpose / activity",
+      "select": "— Select purpose —"
+    },
+    "amount": {
+      "title": "Donation amount",
+      "other": "Other amount"
+    },
+    "contact": {
+      "title": "Contact details",
+      "name": "Full name",
+      "email": "Email"
+    },
+    "newsletter": "I want to receive updates about how donations are used",
+    "submit": "Confirm donation",
+    "submitting": "Sending...",
+    "error": "Failed to send donation."
+  },
+  "auth": {
+    "login": {
+      "title": "Login",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Log in",
+      "submitting": "Logging in...",
+      "noAccount": "Don't have an account?",
+      "register": "Register",
+      "error": "Incorrect email or password."
+    },
+    "register": {
+      "title": "Register",
+      "name": "Name",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Create account",
+      "submitting": "Registering...",
+      "haveAccount": "Already have an account?",
+      "login": "Log in",
+      "error": "Registration failed."
+    }
+  },
+  "widget": {
+    "langLabel": "Language",
+    "donateToFund": "Donate to Česká stopa Foundation Fund",
+    "unitWidget": {
+      "forUnit": "for {{name}}",
+      "selectUnit": "— Select unit —",
+      "paymentCode": "Code: {{code}}",
+      "name": "Full name",
+      "email": "Email",
+      "submit": "Confirm donation",
+      "submitting": "Sending...",
+      "error": "Failed to submit.",
+      "success": {
+        "title": "Donation registered",
+        "instruction": "Payment instructions have been sent to your email."
+      },
+      "donateAgain": "Donate again"
+    },
+    "activityWidget": {
+      "forActivity": "for {{code}} – {{name}}",
+      "selectActivity": "— Select purpose —",
+      "noActivity": "Select a purpose to see payment instructions.",
+      "note": "Include code {{code}} in the payment message."
+    },
+    "toggle": {
+      "unit": "To a unit",
+      "activity": "Fund purpose"
+    },
+    "payment": {
+      "accountNumber": "Account number",
+      "iban": "IBAN",
+      "vs": "VS",
+      "message": "Message",
+      "amount": "Amount"
+    },
+    "footer": "Česká stopa — Foundation Fund"
+  }
+}

@@ -4,6 +4,7 @@ import { z } from 'zod';
 import { Link, useNavigate } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
+import { useTranslation } from 'react-i18next';
 import { api } from '../../lib/api';
 import { useAuthStore } from '../../store/authStore';
 import { AuthUser } from '../../types';
@@ -18,40 +19,41 @@ type FormData = z.infer<typeof schema>;
 export default function RegisterPage() {
   const navigate = useNavigate();
   const setAuth = useAuthStore(s => s.setAuth);
+  const { t } = useTranslation();
   const { register, handleSubmit, formState: { errors } } = useForm<FormData>({ resolver: zodResolver(schema) });
 
   const mutation = useMutation({
     mutationFn: (data: FormData) => api.post<{ token: string; user: AuthUser }>('/auth/register', data),
     onSuccess: ({ data }) => { setAuth(data.token, data.user); navigate('/'); },
-    onError: (err: any) => toast.error(err.response?.data?.message || 'Registrace se nezdařila.'),
+    onError: (err: any) => toast.error(err.response?.data?.message || t('auth.register.error')),
   });
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4">
       <div className="w-full max-w-sm bg-white rounded-xl shadow-sm border border-slate-200 p-8">
-        <h1 className="text-2xl font-bold mb-6">Registrace</h1>
+        <h1 className="text-2xl font-bold mb-6">{t('auth.register.title')}</h1>
         <form onSubmit={handleSubmit(d => mutation.mutate(d))} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1">Jméno</label>
+            <label className="block text-sm font-medium mb-1">{t('auth.register.name')}</label>
             <input {...register('name')} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
             {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name.message}</p>}
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Email</label>
+            <label className="block text-sm font-medium mb-1">{t('auth.register.email')}</label>
             <input {...register('email')} type="email" className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
             {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
           </div>
           <div>
-            <label className="block text-sm font-medium mb-1">Heslo</label>
+            <label className="block text-sm font-medium mb-1">{t('auth.register.password')}</label>
             <input {...register('password')} type="password" className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
             {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
           </div>
           <button type="submit" disabled={mutation.isPending} className="w-full bg-brand-600 hover:bg-brand-700 text-white rounded-lg py-2 text-sm font-medium transition-colors disabled:opacity-50">
-            {mutation.isPending ? 'Registruji...' : 'Zaregistrovat se'}
+            {mutation.isPending ? t('auth.register.submitting') : t('auth.register.submit')}
           </button>
         </form>
         <p className="mt-4 text-sm text-center text-slate-500">
-          Máte účet? <Link to="/login" className="text-brand-600 hover:underline">Přihlásit se</Link>
+          {t('auth.register.haveAccount')} <Link to="/login" className="text-brand-600 hover:underline">{t('auth.register.login')}</Link>
         </p>
       </div>
     </div>

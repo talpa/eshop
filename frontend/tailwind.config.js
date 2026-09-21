@@ -16,6 +16,10 @@ export default {
           800: '#112c5e',
           900: '#0c1f44',
         },
+        ua: {
+          yellow: '#F7C948',
+          'yellow-dark': '#D4A800',
+        },
       },
       fontFamily: {
         sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
