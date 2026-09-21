@@ -188,6 +188,13 @@ export default function ProductsPage() {
                       {localDesc(unit, i18n.language) && <p className="text-xs text-slate-500 mt-1 leading-relaxed">{localDesc(unit, i18n.language)}</p>}
                       {!active && <p className="text-xs text-brand-600 mt-1.5 font-medium">{t('home.units.showGifts')}</p>}
                       {active && <p className="text-xs text-brand-600 mt-1.5 font-medium">{t('home.units.clearFilter')}</p>}
+                      <Link
+                        to={`/jednotky/${unit.slug}`}
+                        onClick={e => e.stopPropagation()}
+                        className="inline-flex items-center gap-1 text-xs text-slate-400 hover:text-brand-600 mt-2 transition-colors"
+                      >
+                        Profil jednotky <ChevronRight size={11} />
+                      </Link>
                     </div>
                   </button>
                 );

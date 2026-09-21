@@ -19,6 +19,7 @@ const AdminMilitaryUnitsPage = lazy(() => import('./pages/admin/AdminMilitaryUni
 const AdminActivitiesPage = lazy(() => import('./pages/admin/AdminActivitiesPage'));
 const AdminCategoriesPage = lazy(() => import('./pages/admin/AdminCategoriesPage'));
 const DonatePage = lazy(() => import('./pages/shop/DonatePage'));
+const UnitPage = lazy(() => import('./pages/shop/UnitPage'));
 const WidgetGuidePage = lazy(() => import('./pages/shop/WidgetGuidePage'));
 const WidgetPage = lazy(() => import('./pages/widget/WidgetPage'));
 const UnitWidgetPage = lazy(() => import('./pages/widget/UnitWidgetPage'));
@@ -66,6 +67,7 @@ export default function App() {
           <Route path="orders/:id" element={<RequireAuth>{wrap(<OrderPage />)}</RequireAuth>} />
           <Route path="my-orders" element={<RequireAuth>{wrap(<MyOrdersPage />)}</RequireAuth>} />
           <Route path="donate" element={wrap(<DonatePage />)} />
+          <Route path="jednotky/:slug" element={wrap(<UnitPage />)} />
           <Route path="widget-guide" element={wrap(<WidgetGuidePage />)} />
         </Route>
 
