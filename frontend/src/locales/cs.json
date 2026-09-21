@@ -60,7 +60,7 @@
     },
     "products": {
       "title": "Vyberte dárek jako poděkování",
-      "forUnit": "Dárky pro: {{name}}",
+      "forUnit": "Dárky od: {{name}}",
       "clearFilter": "× Zrušit filtr jednotky",
       "empty": "Žádné dárky odpovídající filtru."
     },

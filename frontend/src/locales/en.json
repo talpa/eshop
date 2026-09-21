@@ -60,7 +60,7 @@
     },
     "products": {
       "title": "Choose a thank-you gift",
-      "forUnit": "Gifts for: {{name}}",
+      "forUnit": "Gifts from: {{name}}",
       "clearFilter": "× Clear unit filter",
       "empty": "No gifts match the current filter."
     },
