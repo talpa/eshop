@@ -51,8 +51,12 @@ router.get('/:slug', async (req: Request, res: Response, next: NextFunction): Pr
 
 const productSchema = z.object({
   name: z.string().min(1),
+  nameEn: z.string().nullable().optional(),
+  nameUk: z.string().nullable().optional(),
   slug: z.string().min(1).regex(/^[a-z0-9-]+$/),
   description: z.string().optional(),
+  descriptionEn: z.string().nullable().optional(),
+  descriptionUk: z.string().nullable().optional(),
   priceCzk: z.number().positive(),
   stock: z.number().int().min(0).default(0),
   images: z.array(z.string()).default([]),

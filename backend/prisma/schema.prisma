@@ -101,8 +101,12 @@ model Category {
 model Product {
   id            String         @id @default(cuid())
   name          String
+  nameEn        String?
+  nameUk        String?
   slug          String         @unique
   description   String?
+  descriptionEn String?
+  descriptionUk String?
   priceCzk      Decimal        @db.Decimal(10, 2)
   stock         Int            @default(0)
   images        String[]

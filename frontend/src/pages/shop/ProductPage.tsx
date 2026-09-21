@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { ShoppingCart, ArrowLeft, Plus, Minus, Shield, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { localName, localDesc } from '../../lib/localise';
 import { api } from '../../lib/api';
 import { useCartStore } from '../../store/cartStore';
 import { Product } from '../../types';
@@ -57,7 +58,7 @@ export default function ProductPage() {
   const { slug } = useParams<{ slug: string }>();
   const [qty, setQty] = useState(1);
   const addItem = useCartStore(s => s.addItem);
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   const { data: product, isLoading } = useQuery({
     queryKey: ['product', slug],
@@ -85,12 +86,12 @@ export default function ProductPage() {
               {product.category.name}
             </Link>
           )}
-          <h1 className="text-2xl font-bold mt-1 mb-2">{product.name}</h1>
+          <h1 className="text-2xl font-bold mt-1 mb-2">{localName(product, i18n.language)}</h1>
           <div className="mb-4">
             <p className="text-3xl font-bold text-brand-600">{formatPrice(product.priceCzk)}</p>
             <p className="text-xs text-slate-400 mt-0.5">{t('product.minDonation')}</p>
           </div>
-          {product.description && <p className="text-slate-600 text-sm mb-4 leading-relaxed">{product.description}</p>}
+          {localDesc(product, i18n.language) && <p className="text-slate-600 text-sm mb-4 leading-relaxed">{localDesc(product, i18n.language)}</p>}
           {product.militaryUnits && product.militaryUnits.length > 0 && (
             <div className="mb-5 p-3 bg-brand-50 border border-brand-100 rounded-lg">
               <p className="text-xs font-semibold text-brand-700 mb-2 flex items-center gap-1">

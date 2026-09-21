@@ -215,7 +215,7 @@ export default function ProductsPage() {
               </div>
               <div className="p-3">
                 <Link to={`/products/${product.slug}`} className="font-medium text-sm hover:text-brand-600 line-clamp-2">
-                  {product.name}
+                  {localName(product, i18n.language)}
                 </Link>
                 {product.militaryUnits && product.militaryUnits.length > 0 && (
                   <div className="flex flex-wrap gap-1 mt-1.5">

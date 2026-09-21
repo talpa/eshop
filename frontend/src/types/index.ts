@@ -22,8 +22,12 @@ export interface Category {
 export interface Product {
   id: string;
   name: string;
+  nameEn?: string | null;
+  nameUk?: string | null;
   slug: string;
   description?: string;
+  descriptionEn?: string | null;
+  descriptionUk?: string | null;
   priceCzk: number | string;
   stock: number;
   images: string[];
