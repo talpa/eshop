@@ -1,6 +1,7 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { TrendingUp, Banknote, CheckCircle } from 'lucide-react';
+import { TrendingUp, Banknote, CheckCircle, Bell } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { api } from '../../lib/api';
 import { MilitaryUnit, Activity } from '../../types';
@@ -307,7 +308,14 @@ export default function AdminMilitaryUnitsPage() {
                   </span>
                 </td>
                 <td className="px-4 py-3">
-                  <div className="flex gap-2 justify-end">
+                  <div className="flex gap-2 justify-end items-center">
+                    <Link
+                      to={`/admin/unit-updates/${unit.id}`}
+                      className="flex items-center gap-1 text-xs text-amber-600 hover:underline"
+                    >
+                      <Bell size={12} />
+                      Aktuality
+                    </Link>
                     <button
                       onClick={() => { setEditing(unit); setCreating(false); setForm({ name: unit.name, nameEn: unit.nameEn || '', nameUk: unit.nameUk || '', nameDe: unit.nameDe || '', slug: unit.slug, description: unit.description || '', descriptionEn: unit.descriptionEn || '', descriptionUk: unit.descriptionUk || '', descriptionDe: unit.descriptionDe || '', activityId: unit.activityId || null }); }}
                       className="text-xs text-brand-600 hover:underline"

@@ -134,6 +134,16 @@ export interface ProductsResponse {
   limit: number;
 }
 
+export interface UnitUpdate {
+  id: string;
+  militaryUnitId: string;
+  title: string;
+  content: string;
+  sentAt: string;
+  recipientCount: number;
+  createdAt: string;
+}
+
 export interface NewsletterSubscriber {
   id: string;
   email: string;

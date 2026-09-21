@@ -44,12 +44,24 @@ model MilitaryUnit {
   descriptionUk String?
   descriptionDe String?
   activityId    String?
-  activity    Activity? @relation(fields: [activityId], references: [id])
-  isActive    Boolean   @default(true)
+  activity    Activity?    @relation(fields: [activityId], references: [id])
+  isActive    Boolean      @default(true)
   orders      Order[]
-  products    Product[] @relation("ProductMilitaryUnits")
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  products    Product[]    @relation("ProductMilitaryUnits")
+  updates     UnitUpdate[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model UnitUpdate {
+  id             String       @id @default(cuid())
+  militaryUnitId String
+  militaryUnit   MilitaryUnit @relation(fields: [militaryUnitId], references: [id])
+  title          String
+  content        String
+  sentAt         DateTime     @default(now())
+  recipientCount Int          @default(0)
+  createdAt      DateTime     @default(now())
 }
 
 model Activity {

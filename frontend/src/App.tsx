@@ -23,6 +23,7 @@ const WidgetGuidePage = lazy(() => import('./pages/shop/WidgetGuidePage'));
 const WidgetPage = lazy(() => import('./pages/widget/WidgetPage'));
 const UnitWidgetPage = lazy(() => import('./pages/widget/UnitWidgetPage'));
 const ActivityWidgetPage = lazy(() => import('./pages/widget/ActivityWidgetPage'));
+const AdminUnitUpdatesPage = lazy(() => import('./pages/admin/AdminUnitUpdatesPage'));
 
 function Loader() {
   return <div className="p-8 text-sm text-slate-500 text-center">Načítám...</div>;
@@ -81,6 +82,7 @@ export default function App() {
           <Route path="military-units" element={wrap(<AdminMilitaryUnitsPage />)} />
           <Route path="activities" element={wrap(<AdminActivitiesPage />)} />
           <Route path="categories" element={wrap(<AdminCategoriesPage />)} />
+          <Route path="unit-updates/:unitId" element={wrap(<AdminUnitUpdatesPage />)} />
         </Route>
       </Routes>
     </BrowserRouter>
