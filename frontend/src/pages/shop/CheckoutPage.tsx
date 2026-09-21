@@ -119,7 +119,7 @@ export default function CheckoutPage() {
     onError: (err: any) => toast.error(err.response?.data?.message || 'Nepodařilo se vytvořit darovací smlouvu.'),
   });
 
-  if (items.length === 0) { navigate('/cart'); return null; }
+  if (items.length === 0 && !mutation.isPending && !mutation.isSuccess) { navigate('/cart'); return null; }
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
