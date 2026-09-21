@@ -14,9 +14,10 @@ import { localName } from '../../lib/localise';
 
 export const PRESETS = [200, 500, 1000, 2000];
 
-export function buildQr(iban: string, amount: number, message: string) {
+export function buildQr(iban: string, amount: number, message: string, variableSymbol?: string) {
   if (!iban || amount <= 0) return '';
-  return `SPD*1.0*ACC:${iban}*AM:${amount.toFixed(2)}*CC:CZK*MSG:${message}`;
+  const vs = variableSymbol ? `*X-VS:${variableSymbol}` : '';
+  return `SPD*1.0*ACC:${iban}*AM:${amount.toFixed(2)}*CC:CZK*MSG:${message}${vs}`;
 }
 
 export const unitSchema = z.object({
@@ -206,7 +207,7 @@ export function UnitWidget({ units, shopConfig, fixedUnit, defaultUnitId, defaul
         </div>
         <p className="text-xs text-slate-600">{t('widget.unitWidget.success.instruction')}</p>
         <PaymentBlock
-          qr={order.payment?.qrPayload || ''}
+          qr={order.payment?.qrPayload || buildQr(shopConfig?.iban || '', Number(order.donationAmount), order.paymentNote || order.variableSymbol, order.variableSymbol)}
           accountNumber={shopConfig?.accountNumber}
           iban={shopConfig?.iban}
           variableSymbol={order.variableSymbol}

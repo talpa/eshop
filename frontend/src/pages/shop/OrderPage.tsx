@@ -5,6 +5,7 @@ import { CheckCircle, RefreshCw, FileText, Download, MapPin, Package } from 'luc
 import { useTranslation } from 'react-i18next';
 import { api } from '../../lib/api';
 import { useAuthStore } from '../../store/authStore';
+import { buildQr } from '../widget/widgetShared';
 import { Order } from '../../types';
 import { formatPrice } from '../../lib/utils';
 import toast from 'react-hot-toast';
@@ -49,6 +50,9 @@ export default function OrderPage() {
 
   const isPaid = order.status !== 'PENDING' && order.status !== 'CANCELLED';
 
+  const qrValue = order.payment?.qrPayload ||
+    buildQr(shopConfig?.iban || '', Number(order.donationAmount), order.paymentNote || order.variableSymbol, order.variableSymbol);
+
   type OrderStatus = 'PENDING' | 'PAID' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED';
 
   return (
@@ -76,14 +80,14 @@ export default function OrderPage() {
             <p className="text-center text-sm text-brand-600 font-medium mb-4">{t('order.transfer.fromUnit', { name: order.militaryUnit.name })}</p>
           )}
 
-          {order.payment?.qrPayload ? (
+          {qrValue && (
             <div className="text-center">
               <p className="text-xs text-slate-400 mb-3">{t('order.transfer.qrScan')}</p>
               <div className="flex justify-center mb-4">
-                <QRCodeSVG value={order.payment.qrPayload} size={200} />
+                <QRCodeSVG value={qrValue} size={200} />
               </div>
             </div>
-          ) : null}
+          )}
 
           <div className="bg-slate-50 rounded-lg px-4 py-3 mb-4 space-y-1.5 text-sm">
             {shopConfig?.accountNumber && (
