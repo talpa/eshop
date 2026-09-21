@@ -83,7 +83,7 @@ export default function ProductPage() {
         <div>
           {product.category && (
             <Link to={`/products?category=${product.category.slug}`} className="text-xs text-brand-600 uppercase tracking-wider font-medium">
-              {product.category.name}
+              {localName(product.category, i18n.language)}
             </Link>
           )}
           <h1 className="text-2xl font-bold mt-1 mb-2">{localName(product, i18n.language)}</h1>
@@ -99,7 +99,7 @@ export default function ProductPage() {
               </p>
               <div className="flex flex-wrap gap-1.5">
                 {product.militaryUnits.map(u => (
-                  <span key={u.id} className="text-xs bg-white border border-brand-200 text-brand-700 px-2 py-0.5 rounded-full font-medium">{u.name}</span>
+                  <span key={u.id} className="text-xs bg-white border border-brand-200 text-brand-700 px-2 py-0.5 rounded-full font-medium">{localName(u, i18n.language)}</span>
                 ))}
               </div>
             </div>

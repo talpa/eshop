@@ -33,8 +33,8 @@ export interface Product {
   images: string[];
   isActive: boolean;
   categoryId?: string;
-  category?: { id: string; name: string; slug: string };
-  militaryUnits?: { id: string; name: string; slug: string }[];
+  category?: { id: string; name: string; nameEn?: string | null; nameUk?: string | null; slug: string };
+  militaryUnits?: { id: string; name: string; nameEn?: string | null; nameUk?: string | null; slug: string }[];
   createdAt: string;
 }
 

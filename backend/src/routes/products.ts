@@ -21,8 +21,8 @@ router.get('/', async (req: Request, res: Response, next: NextFunction): Promise
       prisma.product.findMany({
         where,
         include: {
-          category: { select: { id: true, name: true, slug: true } },
-          militaryUnits: { where: { isActive: true }, select: { id: true, name: true, slug: true } },
+          category: { select: { id: true, name: true, nameEn: true, nameUk: true, slug: true } },
+          militaryUnits: { where: { isActive: true }, select: { id: true, name: true, nameEn: true, nameUk: true, slug: true } },
         },
         orderBy: { createdAt: 'desc' },
         skip,
@@ -40,8 +40,8 @@ router.get('/:slug', async (req: Request, res: Response, next: NextFunction): Pr
     const product = await prisma.product.findUnique({
       where: { slug: req.params.slug },
       include: {
-        category: { select: { id: true, name: true, slug: true } },
-        militaryUnits: { where: { isActive: true }, select: { id: true, name: true, slug: true, description: true } },
+        category: { select: { id: true, name: true, nameEn: true, nameUk: true, slug: true } },
+        militaryUnits: { where: { isActive: true }, select: { id: true, name: true, nameEn: true, nameUk: true, slug: true, description: true, descriptionEn: true, descriptionUk: true } },
       },
     });
     if (!product || !product.isActive) { res.status(404).json({ message: 'Produkt nenalezen.' }); return; }

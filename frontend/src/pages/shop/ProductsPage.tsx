@@ -220,7 +220,7 @@ export default function ProductsPage() {
                 {product.militaryUnits && product.militaryUnits.length > 0 && (
                   <div className="flex flex-wrap gap-1 mt-1.5">
                     {product.militaryUnits.slice(0, 2).map(u => (
-                      <span key={u.id} className="text-xs bg-brand-50 text-brand-700 px-1.5 py-0.5 rounded-full">{u.name}</span>
+                      <span key={u.id} className="text-xs bg-brand-50 text-brand-700 px-1.5 py-0.5 rounded-full">{localName(u, i18n.language)}</span>
                     ))}
                   </div>
                 )}
