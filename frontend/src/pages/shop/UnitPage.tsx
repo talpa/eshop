@@ -168,7 +168,7 @@ export default function UnitPage() {
         {productsData && productsData.products.length > 0 && (
           <section id="produkty">
             <h2 className="text-lg font-bold text-slate-800 mb-4">
-              Dárky pro {localName(unit, i18n.language)}
+              Dárky od {localName(unit, i18n.language)}
             </h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
               {productsData.products.map(product => (
