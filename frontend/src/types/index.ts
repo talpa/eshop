@@ -3,6 +3,7 @@ export interface AuthUser {
   email: string;
   name: string;
   role: 'ADMIN' | 'CUSTOMER';
+  preferredLanguage?: string | null;
 }
 
 export interface Category {

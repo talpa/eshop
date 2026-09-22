@@ -44,7 +44,7 @@ router.post('/register', async (req: Request, res: Response, next: NextFunction)
     });
 
     const token = generateToken(user);
-    res.status(201).json({ token, user: { id: user.id, email: user.email, name: user.name, role: user.role } });
+    res.status(201).json({ token, user: { id: user.id, email: user.email, name: user.name, role: user.role, preferredLanguage: user.preferredLanguage } });
   } catch (err) { next(err); }
 });
 
@@ -70,14 +70,14 @@ router.post('/login', async (req: Request, res: Response, next: NextFunction): P
     if (!valid) { res.status(401).json({ message: 'Nesprávný email nebo heslo.' }); return; }
 
     const token = generateToken(user);
-    res.json({ token, user: { id: user.id, email: user.email, name: user.name, role: user.role } });
+    res.json({ token, user: { id: user.id, email: user.email, name: user.name, role: user.role, preferredLanguage: user.preferredLanguage } });
   } catch (err) { next(err); }
 });
 
 // GET /api/auth/me
 router.get('/me', authenticate, (req: AuthRequest, res: Response): void => {
   const u = req.user!;
-  res.json({ id: u.id, email: u.email, name: u.name, role: u.role });
+  res.json({ id: u.id, email: u.email, name: u.name, role: u.role, preferredLanguage: u.preferredLanguage });
 });
 
 // Google OAuth
