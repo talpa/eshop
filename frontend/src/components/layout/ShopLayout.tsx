@@ -100,6 +100,7 @@ export default function ShopLayout() {
                 <li><Link to="/my-orders" className="hover:text-white transition-colors">{t('footer.links.myOrders')}</Link></li>
                 <li><Link to="/login" className="hover:text-white transition-colors">{t('footer.links.login')}</Link></li>
                 <li><Link to="/widget-guide" className="hover:text-white transition-colors">{t('footer.links.widgetGuide')}</Link></li>
+                <li><Link to="/privacy-policy" className="hover:text-white transition-colors">{t('footer.links.privacyPolicy')}</Link></li>
               </ul>
             </div>
           </div>

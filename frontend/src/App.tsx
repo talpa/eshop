@@ -28,6 +28,7 @@ const AdminUnitUpdatesPage = lazy(() => import('./pages/admin/AdminUnitUpdatesPa
 const AdminUsersPage = lazy(() => import('./pages/admin/AdminUsersPage'));
 const ProfilePage = lazy(() => import('./pages/user/ProfilePage'));
 const OAuthCallbackPage = lazy(() => import('./pages/auth/OAuthCallbackPage'));
+const PrivacyPolicyPage = lazy(() => import('./pages/shop/PrivacyPolicyPage'));
 
 function Loader() {
   return <div className="p-8 text-sm text-slate-500 text-center">Načítám...</div>;
@@ -75,6 +76,7 @@ export default function App() {
           <Route path="jednotky/:slug" element={wrap(<UnitPage />)} />
           <Route path="profil" element={<RequireAuth>{wrap(<ProfilePage />)}</RequireAuth>} />
           <Route path="widget-guide" element={wrap(<WidgetGuidePage />)} />
+          <Route path="privacy-policy" element={wrap(<PrivacyPolicyPage />)} />
         </Route>
 
         <Route path="/widget" element={<WidgetLayout />}>
