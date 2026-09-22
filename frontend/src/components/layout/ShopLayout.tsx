@@ -28,7 +28,7 @@ export default function ShopLayout() {
           </Link>
           <nav className="flex items-center gap-5">
             <Link to="/products" className="text-sm text-brand-200 hover:text-white transition-colors hidden sm:block">{t('nav.products')}</Link>
-            <a href="/#jednotky" className="text-sm text-brand-200 hover:text-white transition-colors hidden sm:block">Jednotky</a>
+            <a href="/#jednotky" className="text-sm text-brand-200 hover:text-white transition-colors hidden sm:block">{t('nav.units')}</a>
             <Link
               to="/donate"
               className="text-sm font-semibold bg-brand-600 hover:bg-brand-500 text-white px-3 py-1.5 rounded-lg transition-colors"

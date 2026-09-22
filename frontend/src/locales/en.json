@@ -14,6 +14,7 @@
   },
   "nav": {
     "products": "Gifts",
+    "units": "Units",
     "donate": "Donate",
     "login": "Login",
     "logout": "Logout",
