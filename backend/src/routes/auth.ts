@@ -96,7 +96,7 @@ router.get('/google/callback', requireOAuth(isGoogleOAuthEnabled),
 
 // Facebook OAuth
 router.get('/facebook', requireOAuth(isFacebookOAuthEnabled),
-  passport.authenticate('facebook', { scope: ['email'], session: false })
+  passport.authenticate('facebook', { scope: ['public_profile', 'email'], session: false })
 );
 
 router.get('/facebook/callback', requireOAuth(isFacebookOAuthEnabled),
