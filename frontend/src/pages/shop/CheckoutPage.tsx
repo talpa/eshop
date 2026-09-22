@@ -5,14 +5,16 @@ import { z } from 'zod';
 import { useNavigate, Link } from 'react-router-dom';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { MapPin, Package } from 'lucide-react';
+import { MapPin, Package, Star, Check } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { localName } from '../../lib/localise';
 import { api } from '../../lib/api';
 import { useCartStore } from '../../store/cartStore';
 import { useAuthStore } from '../../store/authStore';
-import { Order, MilitaryUnit, Activity } from '../../types';
+import { Order, MilitaryUnit, Activity, UserProfile, UserAddress } from '../../types';
 import { formatPrice } from '../../lib/utils';
+
+const COUNTRY_LABELS: Record<string, string> = { CZ: 'Česko', SK: 'Slovensko', DE: 'Německo', AT: 'Rakousko', PL: 'Polsko', UA: 'Ukrajina' };
 
 const schema = z.object({
   customerName: z.string().min(2, 'Zadejte jméno'),
@@ -48,6 +50,8 @@ export default function CheckoutPage() {
   const [donationInput, setDonationInput] = useState(minAmount.toFixed(0));
   const [packetaPoint, setPacketaPoint] = useState<{ id: string; name: string; address: string } | null>(null);
   const [packetaScriptLoaded, setPacketaScriptLoaded] = useState(false);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+  const [saveAddress, setSaveAddress] = useState(false);
   const { t, i18n } = useTranslation();
 
   const { data: units } = useQuery<MilitaryUnit[]>({
@@ -66,7 +70,13 @@ export default function CheckoutPage() {
     staleTime: Infinity,
   });
 
-  const { register, handleSubmit, watch, setValue, formState: { errors } } = useForm<FormData>({
+  const { data: profile } = useQuery<UserProfile>({
+    queryKey: ['profile'],
+    queryFn: () => api.get<UserProfile>('/profile').then(r => r.data),
+    enabled: !!user,
+  });
+
+  const { register, handleSubmit, watch, setValue, getValues, formState: { errors } } = useForm<FormData>({
     resolver: zodResolver(schema),
     defaultValues: {
       customerName: user?.name || '',
@@ -90,12 +100,27 @@ export default function CheckoutPage() {
   }, [minAmount, setValue]);
 
   useEffect(() => {
+    if (profile?.addresses?.length && selectedAddressId === null) {
+      const def = profile.addresses.find(a => a.isDefault) ?? profile.addresses[0];
+      applyAddress(def);
+    }
+  }, [profile?.addresses?.length]);
+
+  useEffect(() => {
     const script = document.createElement('script');
     script.src = 'https://widget.packeta.com/v6/www/js/library.js';
     script.onload = () => setPacketaScriptLoaded(true);
     document.head.appendChild(script);
     return () => { document.head.removeChild(script); };
   }, []);
+
+  const applyAddress = (addr: UserAddress) => {
+    setSelectedAddressId(addr.id);
+    setValue('street', addr.street);
+    setValue('city', addr.city);
+    setValue('zip', addr.zip);
+    setValue('country', addr.country);
+  };
 
   const openPacketaWidget = () => {
     const apiKey = shopConfig?.packetaApiKey;
@@ -109,17 +134,34 @@ export default function CheckoutPage() {
     });
   };
 
+  const saveAddressMutation = useMutation({
+    mutationFn: (data: { street: string; city: string; zip: string; country: string }) =>
+      api.post('/profile/addresses', { ...data, isDefault: false }),
+  });
+
   const mutation = useMutation({
     mutationFn: (data: FormData) =>
       api.post<Order>('/orders', {
         ...data,
         items: items.map(i => ({ productId: i.product.id, quantity: i.quantity })),
       }).then(r => r.data),
-    onSuccess: (order) => { clear(); navigate(`/orders/${order.id}`); },
+    onSuccess: (order) => {
+      if (saveAddress && !selectedAddressId) {
+        const v = getValues();
+        if (v.street && v.city && v.zip) {
+          saveAddressMutation.mutate({ street: v.street, city: v.city, zip: v.zip, country: v.country });
+        }
+      }
+      clear();
+      navigate(`/orders/${order.id}`);
+    },
     onError: (err: any) => toast.error(err.response?.data?.message || 'Nepodařilo se vytvořit darovací smlouvu.'),
   });
 
   if (items.length === 0 && !mutation.isPending && !mutation.isSuccess) { navigate('/cart'); return null; }
+
+  const savedAddresses = profile?.addresses ?? [];
+  const hasAddresses = savedAddresses.length > 0;
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
@@ -165,21 +207,88 @@ export default function CheckoutPage() {
 
           {deliveryType === 'HOME' && (
             <div className="space-y-3">
-              <div>
-                <label className="block text-sm font-medium mb-1">{t('checkout.delivery.street')}</label>
-                <input {...register('street')} placeholder={t('checkout.delivery.streetPlaceholder')} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
-                {errors.street && <p className="text-red-500 text-xs mt-1">{errors.street.message}</p>}
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-sm font-medium mb-1">{t('checkout.delivery.city')}</label>
-                  <input {...register('city')} placeholder={t('checkout.delivery.cityPlaceholder')} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
+              {hasAddresses && (
+                <div className="space-y-2">
+                  <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">Uložené adresy</p>
+                  {savedAddresses.map(addr => (
+                    <button
+                      key={addr.id}
+                      type="button"
+                      onClick={() => applyAddress(addr)}
+                      className={`w-full text-left px-3 py-2.5 rounded-lg border text-sm transition-colors ${
+                        selectedAddressId === addr.id
+                          ? 'border-brand-500 bg-brand-50 ring-1 ring-brand-400'
+                          : 'border-slate-200 hover:border-slate-300 bg-white'
+                      }`}
+                    >
+                      <div className="flex items-center justify-between gap-2">
+                        <div>
+                          {addr.label && (
+                            <span className="text-xs font-semibold text-brand-700 mr-1.5">{addr.label}</span>
+                          )}
+                          {addr.isDefault && (
+                            <span className="inline-flex items-center gap-0.5 text-xs text-slate-400 mr-1">
+                              <Star size={10} fill="currentColor" /> výchozí
+                            </span>
+                          )}
+                          <span className="text-slate-700">{addr.street}, {addr.zip} {addr.city}</span>
+                          {addr.country !== 'CZ' && (
+                            <span className="text-slate-400 ml-1">({COUNTRY_LABELS[addr.country] ?? addr.country})</span>
+                          )}
+                        </div>
+                        {selectedAddressId === addr.id && (
+                          <Check size={15} className="text-brand-600 flex-shrink-0" />
+                        )}
+                      </div>
+                    </button>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={() => { setSelectedAddressId('manual'); setValue('street', ''); setValue('city', ''); setValue('zip', ''); setValue('country', 'CZ'); }}
+                    className={`w-full text-left px-3 py-2 rounded-lg border text-sm transition-colors ${
+                      selectedAddressId === 'manual'
+                        ? 'border-brand-500 bg-brand-50 ring-1 ring-brand-400'
+                        : 'border-slate-200 hover:border-slate-300 border-dashed text-slate-500'
+                    }`}
+                  >
+                    + Zadat jinou adresu
+                  </button>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium mb-1">{t('checkout.delivery.zip')}</label>
-                  <input {...register('zip')} placeholder={t('checkout.delivery.zipPlaceholder')} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
+              )}
+
+              {(!hasAddresses || selectedAddressId === 'manual') && (
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-sm font-medium mb-1">{t('checkout.delivery.street')}</label>
+                    <input {...register('street')} placeholder={t('checkout.delivery.streetPlaceholder')} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
+                    {errors.street && <p className="text-red-500 text-xs mt-1">{errors.street.message}</p>}
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-sm font-medium mb-1">{t('checkout.delivery.city')}</label>
+                      <input {...register('city')} placeholder={t('checkout.delivery.cityPlaceholder')} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium mb-1">{t('checkout.delivery.zip')}</label>
+                      <input {...register('zip')} placeholder={t('checkout.delivery.zipPlaceholder')} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">Země</label>
+                    <select {...register('country')} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                      {Object.entries(COUNTRY_LABELS).map(([code, label]) => (
+                        <option key={code} value={code}>{label}</option>
+                      ))}
+                    </select>
+                  </div>
+                  {user && (
+                    <label className="flex items-center gap-2 text-sm cursor-pointer">
+                      <input type="checkbox" checked={saveAddress} onChange={e => setSaveAddress(e.target.checked)} className="accent-brand-600" />
+                      <span className="text-slate-600">Uložit adresu do profilu</span>
+                    </label>
+                  )}
                 </div>
-              </div>
+              )}
             </div>
           )}
 
