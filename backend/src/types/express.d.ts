@@ -6,7 +6,12 @@ declare global {
       id: string;
       email: string;
       name: string;
-      passwordHash: string;
+      passwordHash: string | null;
+      phone: string | null;
+      preferredLanguage: string | null;
+      provider: string | null;
+      providerId: string | null;
+      avatarUrl: string | null;
       role: UserRole;
       createdAt: Date;
       updatedAt: Date;

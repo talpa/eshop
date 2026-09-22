@@ -3,6 +3,8 @@ import { useAuthStore } from '../store/authStore';
 
 const BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
+export const getAuthBaseUrl = (): string => BASE_URL;
+
 export const api = axios.create({
   baseURL: BASE_URL,
   headers: { 'Content-Type': 'application/json' },

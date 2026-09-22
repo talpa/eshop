@@ -99,9 +99,12 @@ model User {
   id                String        @id @default(cuid())
   email             String        @unique
   name              String
-  passwordHash      String
+  passwordHash      String?
   phone             String?
   preferredLanguage String?
+  provider          String?
+  providerId        String?
+  avatarUrl         String?
   role              UserRole      @default(CUSTOMER)
   createdAt         DateTime      @default(now())
   updatedAt         DateTime      @updatedAt

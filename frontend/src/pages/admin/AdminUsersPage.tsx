@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Users, Mail, Phone, Globe, ShoppingBag, ChevronDown, ChevronUp, Save, MapPin } from 'lucide-react';
+import { Users, Mail, Phone, Globe, ShoppingBag, ChevronDown, ChevronUp, Save, MapPin, UserPlus, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { api } from '../../lib/api';
 import { formatPrice } from '../../lib/utils';
@@ -62,11 +62,15 @@ const STATUS_LABELS: Record<string, { label: string; color: string }> = {
 };
 
 interface EditForm { name: string; phone: string; preferredLanguage: string; }
+interface CreateForm { email: string; name: string; password: string; role: 'ADMIN' | 'CUSTOMER'; }
+const emptyCreate: CreateForm = { email: '', name: '', password: '', role: 'CUSTOMER' };
 
 export default function AdminUsersPage() {
   const qc = useQueryClient();
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [editForms, setEditForms] = useState<Record<string, EditForm>>({});
+  const [showCreate, setShowCreate] = useState(false);
+  const [createForm, setCreateForm] = useState<CreateForm>(emptyCreate);
 
   const { data: users, isLoading } = useQuery<AdminUser[]>({
     queryKey: ['admin-users'],
@@ -88,6 +92,17 @@ export default function AdminUsersPage() {
     }
   }, [detail?.id]);
 
+  const createUser = useMutation({
+    mutationFn: (data: CreateForm) => api.post('/auth/admin/create-user', data).then(r => r.data),
+    onSuccess: () => {
+      toast.success('Uživatel vytvořen.');
+      setShowCreate(false);
+      setCreateForm(emptyCreate);
+      qc.invalidateQueries({ queryKey: ['admin-users'] });
+    },
+    onError: (err: any) => toast.error(err.response?.data?.message || 'Chyba při vytváření uživatele.'),
+  });
+
   const patchUser = useMutation({
     mutationFn: ({ id, data }: { id: string; data: Record<string, unknown> }) =>
       api.patch(`/admin/users/${id}`, data).then(r => r.data),
@@ -101,11 +116,59 @@ export default function AdminUsersPage() {
 
   return (
     <div>
-      <div className="flex items-center gap-2 mb-6">
-        <Users size={22} className="text-brand-600" />
-        <h1 className="text-2xl font-bold">Uživatelé</h1>
-        {users && <span className="text-sm text-slate-400 ml-1">({users.length})</span>}
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-2">
+          <Users size={22} className="text-brand-600" />
+          <h1 className="text-2xl font-bold">Uživatelé</h1>
+          {users && <span className="text-sm text-slate-400 ml-1">({users.length})</span>}
+        </div>
+        <button
+          onClick={() => setShowCreate(true)}
+          className="flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white px-3 py-2 rounded-lg text-sm font-medium transition-colors"
+        >
+          <UserPlus size={15} /> Vytvořit uživatele
+        </button>
       </div>
+
+      {showCreate && (
+        <div className="bg-white border border-brand-200 rounded-xl p-5 mb-6 shadow-sm">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold text-slate-700">Nový uživatel</h3>
+            <button onClick={() => setShowCreate(false)} className="text-slate-400 hover:text-slate-600"><X size={16} /></button>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-medium mb-1 text-slate-600">Jméno</label>
+              <input value={createForm.name} onChange={e => setCreateForm(f => ({ ...f, name: e.target.value }))} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium mb-1 text-slate-600">Email</label>
+              <input type="email" value={createForm.email} onChange={e => setCreateForm(f => ({ ...f, email: e.target.value }))} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium mb-1 text-slate-600">Heslo</label>
+              <input type="password" value={createForm.password} onChange={e => setCreateForm(f => ({ ...f, password: e.target.value }))} placeholder="min. 6 znaků" className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
+            </div>
+            <div>
+              <label className="block text-xs font-medium mb-1 text-slate-600">Role</label>
+              <select value={createForm.role} onChange={e => setCreateForm(f => ({ ...f, role: e.target.value as 'ADMIN' | 'CUSTOMER' }))} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                <option value="CUSTOMER">Dárce</option>
+                <option value="ADMIN">Admin</option>
+              </select>
+            </div>
+          </div>
+          <div className="flex gap-2 mt-4">
+            <button
+              onClick={() => createUser.mutate(createForm)}
+              disabled={createUser.isPending || !createForm.email || !createForm.name || createForm.password.length < 6}
+              className="flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-50 transition-colors"
+            >
+              <UserPlus size={14} /> {createUser.isPending ? 'Ukládám...' : 'Vytvořit'}
+            </button>
+            <button onClick={() => setShowCreate(false)} className="px-4 py-2 rounded-lg text-sm border border-slate-300 hover:bg-slate-50">Zrušit</button>
+          </div>
+        </div>
+      )}
 
       {isLoading && <div className="text-slate-400">Načítám...</div>}
 

@@ -27,6 +27,7 @@ const ActivityWidgetPage = lazy(() => import('./pages/widget/ActivityWidgetPage'
 const AdminUnitUpdatesPage = lazy(() => import('./pages/admin/AdminUnitUpdatesPage'));
 const AdminUsersPage = lazy(() => import('./pages/admin/AdminUsersPage'));
 const ProfilePage = lazy(() => import('./pages/user/ProfilePage'));
+const OAuthCallbackPage = lazy(() => import('./pages/auth/OAuthCallbackPage'));
 
 function Loader() {
   return <div className="p-8 text-sm text-slate-500 text-center">Načítám...</div>;
@@ -60,6 +61,7 @@ export default function App() {
       <Routes>
         <Route path="/login" element={<PublicRoute>{wrap(<LoginPage />)}</PublicRoute>} />
         <Route path="/register" element={<PublicRoute>{wrap(<RegisterPage />)}</PublicRoute>} />
+        <Route path="/oauth-callback" element={wrap(<OAuthCallbackPage />)} />
 
         <Route path="/" element={<ShopLayout />}>
           <Route index element={wrap(<ProductsPage />)} />
