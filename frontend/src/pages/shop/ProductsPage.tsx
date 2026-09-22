@@ -67,27 +67,27 @@ export default function ProductsPage() {
             <div className="flex-1 min-w-0">
               <div className="inline-flex items-center gap-2 bg-brand-600/30 border border-brand-500/40 rounded-full px-4 py-1.5 text-sm text-brand-300 mb-6">
                 <Heart size={14} />
-                Dárcovská platforma
+                {t('home.hero.platformBadge')}
               </div>
               <h1 className="text-4xl md:text-5xl font-bold mb-4 leading-tight">
-                Vyberte komu<br />
-                <span className="text-brand-400">chcete pomoct</span>
+                {t('home.hero.titleMain')}<br />
+                <span className="text-brand-400">{t('home.hero.titleHighlight')}</span>
               </h1>
               <p className="text-slate-300 text-lg mb-8 leading-relaxed">
-                Prozkoumejte příběhy jednotek, sledujte jejich aktuality a podpořte je — přímou donací nebo výběrem dárku.
+                {t('home.hero.subtitleNew')}
               </p>
               <div className="flex gap-3 flex-wrap">
                 <a
                   href="#jednotky"
                   className="inline-flex items-center gap-2 bg-brand-600 hover:bg-brand-500 text-white px-6 py-3 rounded-lg font-medium transition-colors"
                 >
-                  Vybrat jednotku <ChevronRight size={16} />
+                  {t('home.hero.selectUnit')} <ChevronRight size={16} />
                 </a>
                 <Link
                   to="/donate"
                   className="inline-flex items-center gap-2 bg-white/10 hover:bg-white/20 border border-white/20 text-white px-6 py-3 rounded-lg font-medium transition-colors"
                 >
-                  <Heart size={16} /> Darovat nyní
+                  <Heart size={16} /> {t('home.hero.donateNow')}
                 </Link>
               </div>
             </div>
@@ -130,8 +130,8 @@ export default function ProductsPage() {
         <div id="jednotky" className="border-b border-slate-200 bg-white">
           <div className="max-w-6xl mx-auto px-4 py-12">
             <div className="mb-8">
-              <h2 className="text-2xl font-bold text-slate-800 mb-2">Komu chcete pomoct?</h2>
-              <p className="text-slate-500">Kliknutím na jednotku zobrazíte její profil, aktuality a možnosti podpory.</p>
+              <h2 className="text-2xl font-bold text-slate-800 mb-2">{t('home.units.whoToHelp')}</h2>
+              <p className="text-slate-500">{t('home.units.unitClickDesc')}</p>
             </div>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {units.map(unit => (
@@ -157,7 +157,7 @@ export default function ProductsPage() {
                       </p>
                     )}
                     <span className="inline-flex items-center gap-1 text-xs text-brand-600 mt-2.5 font-semibold">
-                      Zobrazit profil <ChevronRight size={12} />
+                      {t('home.units.viewProfile')} <ChevronRight size={12} />
                     </span>
                   </div>
                 </Link>
@@ -174,9 +174,9 @@ export default function ProductsPage() {
             <h2 className="text-xl font-bold text-slate-800">
               {unitSlug && units
                 ? t('home.products.fromUnit', { name: localName(units.find(u => u.slug === unitSlug) ?? { name: '' }, i18n.language) })
-                : 'Všechny dárky'}
+                : t('home.products.all')}
             </h2>
-            {!unitSlug && <p className="text-sm text-slate-500 mt-0.5">Nebo vyberte konkrétní jednotku výše</p>}
+            {!unitSlug && <p className="text-sm text-slate-500 mt-0.5">{t('home.products.selectUnitHint')}</p>}
           </div>
           {unitSlug && (
             <button onClick={() => setSearchParams(p => { p.delete('unit'); return p; })} className="text-sm text-brand-600 hover:underline">
@@ -219,7 +219,7 @@ export default function ProductsPage() {
                 onClick={() => setSearchParams(p => { p.delete('unit'); return p; })}
                 className={`px-3 py-1.5 rounded-full text-sm border transition-colors ${!unitSlug ? 'bg-slate-700 text-white border-slate-700' : 'border-slate-300 text-slate-500 hover:border-slate-500'}`}
               >
-                Všechny jednotky
+                {t('home.units.allUnits')}
               </button>
               {units.map(unit => (
                 <button

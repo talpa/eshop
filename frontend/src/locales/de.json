@@ -39,10 +39,16 @@
   "home": {
     "hero": {
       "badge": "Stiftungsfonds Česká stopa",
+      "platformBadge": "Spendenplattform",
       "title1": "Unterstützen Sie unsere Soldaten",
       "title2": "mit einer Spende in der Ukraine",
+      "titleMain": "Wählen Sie, wem",
+      "titleHighlight": "Sie helfen möchten",
       "subtitle": "Spenden Sie Ressourcen zur Unterstützung von Militäreinheiten im Einsatz. Jede Spende ist dokumentiert und Sie erhalten ein Dankeschön-Geschenk.",
-      "cta": "Geschenk wählen und spenden"
+      "subtitleNew": "Entdecken Sie die Geschichten der Einheiten, verfolgen Sie ihre Neuigkeiten und unterstützen Sie sie — mit einer Direktspende oder einem Geschenk.",
+      "cta": "Geschenk wählen und spenden",
+      "selectUnit": "Einheit wählen",
+      "donateNow": "Jetzt spenden"
     },
     "howItWorks": {
       "title": "So funktioniert die Spendenplattform",
@@ -53,6 +59,10 @@
     },
     "units": {
       "title": "Unterstützte Militäreinheiten",
+      "whoToHelp": "Wem möchten Sie helfen?",
+      "unitClickDesc": "Klicken Sie auf eine Einheit, um ihr Profil, Neuigkeiten und Unterstützungsmöglichkeiten zu sehen.",
+      "viewProfile": "Profil anzeigen",
+      "allUnits": "Alle Einheiten",
       "clickFilter": "Klicken, um Geschenke für diese Einheit anzuzeigen",
       "filtered": "Gefiltert",
       "showGifts": "Geschenke anzeigen →",
@@ -60,6 +70,8 @@
     },
     "products": {
       "title": "Wählen Sie ein Dankeschön-Geschenk",
+      "all": "Alle Geschenke",
+      "selectUnitHint": "Oder wählen Sie oben eine bestimmte Einheit",
       "fromUnit": "Geschenke von: {{name}}",
       "clearFilter": "× Einheitenfilter aufheben",
       "empty": "Keine Geschenke entsprechen dem aktuellen Filter."

@@ -39,10 +39,16 @@
   "home": {
     "hero": {
       "badge": "Česká stopa Foundation Fund",
+      "platformBadge": "Donation platform",
       "title1": "Support our soldiers",
       "title2": "with a donation in Ukraine",
+      "titleMain": "Choose who",
+      "titleHighlight": "you want to help",
       "subtitle": "Donate resources to support military units on mission. Every donation is documented and you receive a thank-you gift.",
-      "cta": "Choose a gift and donate"
+      "subtitleNew": "Explore unit stories, follow their news and support them — with a direct donation or a gift.",
+      "cta": "Choose a gift and donate",
+      "selectUnit": "Choose a unit",
+      "donateNow": "Donate now"
     },
     "howItWorks": {
       "title": "How the donation platform works",
@@ -53,6 +59,10 @@
     },
     "units": {
       "title": "Supported military units",
+      "whoToHelp": "Who do you want to help?",
+      "unitClickDesc": "Click a unit to view its profile, news and support options.",
+      "viewProfile": "View profile",
+      "allUnits": "All units",
       "clickFilter": "Click to show gifts for this unit",
       "filtered": "Filtered",
       "showGifts": "Show gifts →",
@@ -60,6 +70,8 @@
     },
     "products": {
       "title": "Choose a thank-you gift",
+      "all": "All gifts",
+      "selectUnitHint": "Or select a specific unit above",
       "fromUnit": "Gifts from: {{name}}",
       "clearFilter": "× Clear unit filter",
       "empty": "No gifts match the current filter."

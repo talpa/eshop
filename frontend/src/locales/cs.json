@@ -39,10 +39,16 @@
   "home": {
     "hero": {
       "badge": "Nadační fond Česká stopa",
+      "platformBadge": "Dárcovská platforma",
       "title1": "Podpořte naše vojáky",
       "title2": "darem na Ukrajině",
+      "titleMain": "Vyberte komu",
+      "titleHighlight": "chcete pomoct",
       "subtitle": "Darujte prostředky na pomoc vojenským jednotkám v misi. Každý dar je doložen potvrzením a Vy obdržíte dárek jako poděkování.",
-      "cta": "Vybrat dárek a darovat"
+      "subtitleNew": "Prozkoumejte příběhy jednotek, sledujte jejich aktuality a podpořte je — přímou donací nebo výběrem dárku.",
+      "cta": "Vybrat dárek a darovat",
+      "selectUnit": "Vybrat jednotku",
+      "donateNow": "Darovat nyní"
     },
     "howItWorks": {
       "title": "Jak darcovská platforma funguje",
@@ -53,6 +59,10 @@
     },
     "units": {
       "title": "Podporované vojenské jednotky",
+      "whoToHelp": "Komu chcete pomoct?",
+      "unitClickDesc": "Kliknutím na jednotku zobrazíte její profil, aktuality a možnosti podpory.",
+      "viewProfile": "Zobrazit profil",
+      "allUnits": "Všechny jednotky",
       "clickFilter": "Kliknutím zobrazíte dárky pro danou jednotku",
       "filtered": "Filtrováno",
       "showGifts": "Zobrazit dárky →",
@@ -60,6 +70,8 @@
     },
     "products": {
       "title": "Vyberte dárek jako poděkování",
+      "all": "Všechny dárky",
+      "selectUnitHint": "Nebo vyberte konkrétní jednotku výše",
       "fromUnit": "Dárky od: {{name}}",
       "clearFilter": "× Zrušit filtr jednotky",
       "empty": "Žádné dárky odpovídající filtru."
