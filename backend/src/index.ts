@@ -17,6 +17,8 @@ import newsletterRoutes from './routes/newsletter';
 import uploadRoutes from './routes/upload';
 import activityRoutes from './routes/activities';
 import unitUpdatesRoutes from './routes/unit-updates';
+import profileRoutes from './routes/profile';
+import adminUsersRoutes from './routes/admin-users';
 import { prisma } from './lib/prisma';
 import { startPaymentReconciler } from './jobs/paymentReconciler';
 
@@ -68,6 +70,8 @@ app.use('/api/newsletter', newsletterRoutes);
 app.use('/api/upload', uploadRoutes);
 app.use('/api/activities', activityRoutes);
 app.use('/api/military-units/:unitId/updates', unitUpdatesRoutes);
+app.use('/api/profile', profileRoutes);
+app.use('/api/admin/users', adminUsersRoutes);
 
 app.use(errorHandler);
 

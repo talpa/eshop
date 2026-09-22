@@ -63,6 +63,12 @@ export default function UnitPage() {
     .filter((v): v is { url: string; id: string } => v.id !== null);
 
   const photos = unit.photos ?? [];
+  const lang = i18n.language;
+  const localUpdate = (u: NonNullable<MilitaryUnit['updates']>[number]) => ({
+    title: (lang === 'en' && u.titleEn) || (lang === 'uk' && u.titleUk) || (lang === 'de' && u.titleDe) || u.title,
+    content: (lang === 'en' && u.contentEn) || (lang === 'uk' && u.contentUk) || (lang === 'de' && u.contentDe) || u.content,
+  });
+
   const updates = unit.updates ?? [];
   const visibleUpdates = updates.slice(0, shownCount);
   const hasMore = updates.length > shownCount;
@@ -144,20 +150,23 @@ export default function UnitPage() {
               <span className="text-xs text-slate-400">({updates.length})</span>
             </div>
             <div className="space-y-3">
-              {visibleUpdates.map((update, idx) => (
-                <div
-                  key={update.id}
-                  className={`rounded-xl border p-4 bg-white ${idx === 0 ? 'border-brand-200 border-l-[3px] border-l-brand-400' : 'border-slate-200'}`}
-                >
-                  <div className="flex items-start justify-between gap-3 mb-1.5">
-                    <h3 className="font-semibold text-sm text-slate-800 leading-snug">{update.title}</h3>
-                    <time className="text-xs text-slate-400 flex-shrink-0 mt-0.5 whitespace-nowrap">
-                      {new Date(update.createdAt).toLocaleDateString('cs-CZ', { day: 'numeric', month: 'short', year: 'numeric' })}
-                    </time>
+              {visibleUpdates.map((update, idx) => {
+                const loc = localUpdate(update);
+                return (
+                  <div
+                    key={update.id}
+                    className={`rounded-xl border p-4 bg-white ${idx === 0 ? 'border-brand-200 border-l-[3px] border-l-brand-400' : 'border-slate-200'}`}
+                  >
+                    <div className="flex items-start justify-between gap-3 mb-1.5">
+                      <h3 className="font-semibold text-sm text-slate-800 leading-snug">{loc.title}</h3>
+                      <time className="text-xs text-slate-400 flex-shrink-0 mt-0.5 whitespace-nowrap">
+                        {new Date(update.createdAt).toLocaleDateString('cs-CZ', { day: 'numeric', month: 'short', year: 'numeric' })}
+                      </time>
+                    </div>
+                    <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">{loc.content}</p>
                   </div>
-                  <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">{update.content}</p>
-                </div>
-              ))}
+                );
+              })}
             </div>
             <div className="mt-3 flex items-center gap-4">
               {hasMore && (

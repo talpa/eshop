@@ -25,6 +25,8 @@ const WidgetPage = lazy(() => import('./pages/widget/WidgetPage'));
 const UnitWidgetPage = lazy(() => import('./pages/widget/UnitWidgetPage'));
 const ActivityWidgetPage = lazy(() => import('./pages/widget/ActivityWidgetPage'));
 const AdminUnitUpdatesPage = lazy(() => import('./pages/admin/AdminUnitUpdatesPage'));
+const AdminUsersPage = lazy(() => import('./pages/admin/AdminUsersPage'));
+const ProfilePage = lazy(() => import('./pages/user/ProfilePage'));
 
 function Loader() {
   return <div className="p-8 text-sm text-slate-500 text-center">Načítám...</div>;
@@ -69,6 +71,7 @@ export default function App() {
           <Route path="my-orders" element={<RequireAuth>{wrap(<MyOrdersPage />)}</RequireAuth>} />
           <Route path="donate" element={wrap(<DonatePage />)} />
           <Route path="jednotky/:slug" element={wrap(<UnitPage />)} />
+          <Route path="profil" element={<RequireAuth>{wrap(<ProfilePage />)}</RequireAuth>} />
           <Route path="widget-guide" element={wrap(<WidgetGuidePage />)} />
         </Route>
 
@@ -86,6 +89,7 @@ export default function App() {
           <Route path="activities" element={wrap(<AdminActivitiesPage />)} />
           <Route path="categories" element={wrap(<AdminCategoriesPage />)} />
           <Route path="unit-updates/:unitId" element={wrap(<AdminUnitUpdatesPage />)} />
+          <Route path="users" element={wrap(<AdminUsersPage />)} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -19,6 +19,7 @@
     "login": "Login",
     "logout": "Logout",
     "myOrders": "My donations",
+    "profile": "My profile",
     "admin": "Administration"
   },
   "footer": {

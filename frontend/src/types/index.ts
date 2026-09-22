@@ -142,10 +142,40 @@ export interface UnitUpdate {
   id: string;
   militaryUnitId: string;
   title: string;
+  titleEn?: string | null;
+  titleUk?: string | null;
+  titleDe?: string | null;
   content: string;
+  contentEn?: string | null;
+  contentUk?: string | null;
+  contentDe?: string | null;
   sentAt: string;
   recipientCount: number;
   createdAt: string;
+}
+
+export interface UserAddress {
+  id: string;
+  userId: string;
+  label?: string | null;
+  street: string;
+  city: string;
+  zip: string;
+  country: string;
+  isDefault: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface UserProfile {
+  id: string;
+  email: string;
+  name: string;
+  phone?: string | null;
+  preferredLanguage?: string | null;
+  role: 'ADMIN' | 'CUSTOMER';
+  createdAt: string;
+  addresses: UserAddress[];
 }
 
 export interface NewsletterSubscriber {

@@ -5,12 +5,28 @@ import { ArrowLeft, Bell, Send, Users } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { api } from '../../lib/api';
 import { UnitUpdate, MilitaryUnit } from '../../types';
+import { LANGUAGES } from '../../i18n';
+
+type LangCode = 'cs' | 'en' | 'uk' | 'de';
+
+interface UpdateForm {
+  title: string; titleEn: string; titleUk: string; titleDe: string;
+  content: string; contentEn: string; contentUk: string; contentDe: string;
+}
+
+const emptyForm: UpdateForm = {
+  title: '', titleEn: '', titleUk: '', titleDe: '',
+  content: '', contentEn: '', contentUk: '', contentDe: '',
+};
+
+const TITLE_KEY: Record<LangCode, keyof UpdateForm> = { cs: 'title', en: 'titleEn', uk: 'titleUk', de: 'titleDe' };
+const CONTENT_KEY: Record<LangCode, keyof UpdateForm> = { cs: 'content', en: 'contentEn', uk: 'contentUk', de: 'contentDe' };
 
 export default function AdminUnitUpdatesPage() {
   const { unitId } = useParams<{ unitId: string }>();
   const qc = useQueryClient();
-  const [title, setTitle] = useState('');
-  const [content, setContent] = useState('');
+  const [form, setForm] = useState<UpdateForm>(emptyForm);
+  const [activeLang, setActiveLang] = useState<LangCode>('cs');
 
   const { data: units } = useQuery<MilitaryUnit[]>({
     queryKey: ['admin-military-units'],
@@ -26,11 +42,19 @@ export default function AdminUnitUpdatesPage() {
   const unit = units?.find(u => u.id === unitId);
 
   const sendMutation = useMutation({
-    mutationFn: () => api.post(`/military-units/${unitId}/updates`, { title, content }).then(r => r.data),
+    mutationFn: () => api.post(`/military-units/${unitId}/updates`, {
+      title: form.title,
+      titleEn: form.titleEn || null,
+      titleUk: form.titleUk || null,
+      titleDe: form.titleDe || null,
+      content: form.content,
+      contentEn: form.contentEn || null,
+      contentUk: form.contentUk || null,
+      contentDe: form.contentDe || null,
+    }).then(r => r.data),
     onSuccess: (update: UnitUpdate) => {
       toast.success(`Aktualita odeslána ${update.recipientCount} dárcům.`);
-      setTitle('');
-      setContent('');
+      setForm(emptyForm);
       qc.invalidateQueries({ queryKey: ['unit-updates', unitId] });
     },
     onError: (e: any) => toast.error(e.response?.data?.message || 'Chyba při odesílání'),
@@ -38,6 +62,8 @@ export default function AdminUnitUpdatesPage() {
 
   const formatDate = (iso: string) =>
     new Date(iso).toLocaleString('cs-CZ', { dateStyle: 'medium', timeStyle: 'short' });
+
+  const setField = (key: keyof UpdateForm, value: string) => setForm(f => ({ ...f, [key]: value }));
 
   return (
     <div>
@@ -57,29 +83,61 @@ export default function AdminUnitUpdatesPage() {
       <div className="grid lg:grid-cols-2 gap-6">
         <div className="bg-white border border-slate-200 rounded-xl p-5">
           <h2 className="font-semibold mb-4 text-sm text-slate-700 uppercase tracking-wide">Nová aktualita</h2>
+
+          {/* Language tabs */}
+          <div className="flex gap-0 border-b border-slate-200 mb-4">
+            {LANGUAGES.map(lang => {
+              const hasContent = lang.code !== 'cs' && (form[TITLE_KEY[lang.code as LangCode]] || form[CONTENT_KEY[lang.code as LangCode]]);
+              return (
+                <button
+                  key={lang.code}
+                  onClick={() => setActiveLang(lang.code as LangCode)}
+                  className={`flex items-center gap-1.5 px-3 py-2 text-sm font-medium border-b-2 -mb-px transition-colors ${
+                    activeLang === lang.code ? 'border-brand-500 text-brand-600' : 'border-transparent text-slate-500 hover:text-slate-700'
+                  }`}
+                >
+                  {lang.label}
+                  {hasContent && <span className="w-1.5 h-1.5 rounded-full bg-brand-400 inline-block" />}
+                  {lang.code === 'cs' && <span className="text-xs text-red-400 ml-0.5">*</span>}
+                </button>
+              );
+            })}
+          </div>
+
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium mb-1">Nadpis</label>
+              <label className="block text-sm font-medium mb-1">
+                Nadpis {activeLang !== 'cs' && <span className="text-xs text-slate-400 font-normal">(volitelně)</span>}
+              </label>
               <input
-                value={title}
-                onChange={e => setTitle(e.target.value)}
-                placeholder="Novinky z výcviku..."
+                value={form[TITLE_KEY[activeLang]]}
+                onChange={e => setField(TITLE_KEY[activeLang], e.target.value)}
+                placeholder={activeLang === 'cs' ? 'Novinky z výcviku...' : `Title in ${LANGUAGES.find(l => l.code === activeLang)?.name}...`}
                 className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Obsah</label>
+              <label className="block text-sm font-medium mb-1">
+                Obsah {activeLang !== 'cs' && <span className="text-xs text-slate-400 font-normal">(volitelně)</span>}
+              </label>
               <textarea
-                value={content}
-                onChange={e => setContent(e.target.value)}
+                value={form[CONTENT_KEY[activeLang]]}
+                onChange={e => setField(CONTENT_KEY[activeLang], e.target.value)}
                 rows={8}
-                placeholder="Napište zprávu dárcům jednotky..."
+                placeholder={activeLang === 'cs' ? 'Napište zprávu dárcům jednotky...' : `Content in ${LANGUAGES.find(l => l.code === activeLang)?.name}...`}
                 className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 resize-y"
               />
             </div>
+
+            {activeLang === 'cs' && (
+              <p className="text-xs text-slate-400">
+                Ostatní jazyky jsou volitelné — pokud nejsou vyplněny, obdrží příjemce českou verzi.
+              </p>
+            )}
+
             <button
               onClick={() => sendMutation.mutate()}
-              disabled={!title.trim() || !content.trim() || sendMutation.isPending}
+              disabled={!form.title.trim() || !form.content.trim() || sendMutation.isPending}
               className="flex items-center gap-2 bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-50 transition-colors"
             >
               <Send size={15} />
@@ -107,6 +165,13 @@ export default function AdminUnitUpdatesPage() {
                   </span>
                 </div>
                 <p className="text-sm text-slate-600 whitespace-pre-line line-clamp-3">{u.content}</p>
+                {(u.titleEn || u.titleUk || u.titleDe) && (
+                  <div className="flex gap-1.5 mt-2">
+                    {u.titleEn && <span className="text-xs bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded">EN</span>}
+                    {u.titleUk && <span className="text-xs bg-yellow-50 text-yellow-600 px-1.5 py-0.5 rounded">UK</span>}
+                    {u.titleDe && <span className="text-xs bg-green-50 text-green-600 px-1.5 py-0.5 rounded">DE</span>}
+                  </div>
+                )}
                 <p className="text-xs text-slate-400 mt-2">{formatDate(u.sentAt)}</p>
               </div>
             ))}

@@ -51,6 +51,9 @@ export default function ShopLayout() {
                     <LayoutDashboard size={18} />
                   </Link>
                 )}
+                <Link to="/profil" className="text-brand-200 hover:text-white transition-colors" title={t('nav.profile')}>
+                  <User size={18} />
+                </Link>
                 <Link to="/my-orders" className="text-brand-200 hover:text-white transition-colors" title={t('nav.myOrders')}>
                   <FileText size={18} />
                 </Link>

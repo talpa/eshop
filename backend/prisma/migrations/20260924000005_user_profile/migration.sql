@@ -1,0 +1,19 @@
+ALTER TABLE "User" ADD COLUMN "phone" TEXT;
+ALTER TABLE "User" ADD COLUMN "preferredLanguage" TEXT;
+
+CREATE TABLE "UserAddress" (
+  "id" TEXT NOT NULL,
+  "userId" TEXT NOT NULL,
+  "label" TEXT,
+  "street" TEXT NOT NULL,
+  "city" TEXT NOT NULL,
+  "zip" TEXT NOT NULL,
+  "country" TEXT NOT NULL DEFAULT 'CZ',
+  "isDefault" BOOLEAN NOT NULL DEFAULT false,
+  "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT "UserAddress_pkey" PRIMARY KEY ("id")
+);
+
+ALTER TABLE "UserAddress" ADD CONSTRAINT "UserAddress_userId_fkey"
+  FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE CASCADE ON UPDATE CASCADE;
