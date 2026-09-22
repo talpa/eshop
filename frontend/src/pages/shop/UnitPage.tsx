@@ -127,12 +127,12 @@ export default function UnitPage() {
           >
             <Heart size={13} /> Darovat přímo
           </Link>
-          <a
-            href="#produkty"
+          <button
+            onClick={() => document.getElementById('produkty')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
             className="inline-flex items-center gap-1.5 border border-slate-300 hover:border-brand-400 hover:text-brand-700 text-slate-600 px-4 py-2 rounded-lg text-sm transition-colors"
           >
             <ShoppingCart size={13} /> Vybrat dárek
-          </a>
+          </button>
           <span className="text-xs text-slate-400 hidden sm:block ml-1 truncate">
             {localName(unit, i18n.language)}
           </span>
