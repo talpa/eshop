@@ -260,7 +260,7 @@ export default function UnitPage() {
 
         {/* Products */}
         {products.length > 0 && (
-          <section id="produkty">
+          <section id="produkty" className="scroll-mt-32">
             <h2 className="text-base font-bold text-slate-800 mb-4">
               Dárky od {localName(unit, i18n.language)}
             </h2>
