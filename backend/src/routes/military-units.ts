@@ -17,6 +17,7 @@ const unitSchema = z.object({
   descriptionDe: z.string().optional().nullable(),
   logo: z.string().optional().nullable(),
   youtubeUrls: z.array(z.string()).optional().default([]),
+  photos: z.array(z.string()).optional().default([]),
   activityId: z.string().optional().nullable(),
   isActive: z.boolean().optional(),
 });
@@ -86,7 +87,7 @@ router.get('/by-slug/:slug', async (req: Request, res: Response, next: NextFunct
       where: { slug: req.params.slug, isActive: true },
       include: {
         activity: { select: { id: true, code: true, name: true } },
-        updates: { orderBy: { createdAt: 'desc' }, take: 10 },
+        updates: { orderBy: { createdAt: 'desc' }, take: 25 },
       },
     });
     if (!unit) { res.status(404).json({ message: 'Jednotka nenalezena.' }); return; }

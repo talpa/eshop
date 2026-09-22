@@ -67,6 +67,7 @@ export interface MilitaryUnit {
   descriptionDe?: string | null;
   logo?: string | null;
   youtubeUrls?: string[];
+  photos?: string[];
   isActive?: boolean;
   activityId?: string | null;
   activity?: { id: string; code: string; name: string; nameEn?: string | null; nameUk?: string | null; nameDe?: string | null } | null;

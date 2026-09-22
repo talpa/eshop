@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { TrendingUp, Banknote, CheckCircle, Bell, Upload, ImageOff, Youtube, Plus, X } from 'lucide-react';
+import { TrendingUp, Banknote, CheckCircle, Bell, Upload, ImageOff, Youtube, Plus, X, Images } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { api } from '../../lib/api';
 import { MilitaryUnit, Activity } from '../../types';
@@ -23,8 +23,11 @@ export default function AdminMilitaryUnitsPage() {
   const [creating, setCreating] = useState(false);
   const [form, setForm] = useState({ name: '', nameEn: '', nameUk: '', nameDe: '', slug: '', description: '', descriptionEn: '', descriptionUk: '', descriptionDe: '', logo: '', activityId: '' as string | null });
   const [youtubeUrls, setYoutubeUrls] = useState<string[]>([]);
+  const [photos, setPhotos] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const logoInputRef = useRef<HTMLInputElement>(null);
+  const photoInputRef = useRef<HTMLInputElement>(null);
 
   const { data: units, isLoading } = useQuery<MilitaryUnit[]>({
     queryKey: ['admin-military-units'],
@@ -49,16 +52,17 @@ export default function AdminMilitaryUnitsPage() {
   const resetForm = () => {
     setForm({ name: '', nameEn: '', nameUk: '', nameDe: '', slug: '', description: '', descriptionEn: '', descriptionUk: '', descriptionDe: '', logo: '', activityId: null });
     setYoutubeUrls([]);
+    setPhotos([]);
   };
 
   const createMutation = useMutation({
-    mutationFn: (data: typeof form & { youtubeUrls: string[] }) => api.post('/military-units', data),
+    mutationFn: (data: typeof form & { youtubeUrls: string[]; photos: string[] }) => api.post('/military-units', data),
     onSuccess: () => { toast.success('Jednotka přidána.'); setCreating(false); resetForm(); invalidate(); },
     onError: (e: any) => toast.error(e.response?.data?.message || 'Chyba'),
   });
 
   const updateMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string; data: Partial<typeof form> & { youtubeUrls: string[] } }) => api.patch(`/military-units/${id}`, data),
+    mutationFn: ({ id, data }: { id: string; data: Partial<typeof form> & { youtubeUrls: string[]; photos: string[] } }) => api.patch(`/military-units/${id}`, data),
     onSuccess: () => { toast.success('Uloženo.'); setEditing(null); invalidate(); },
     onError: (e: any) => toast.error(e.response?.data?.message || 'Chyba'),
   });
@@ -80,6 +84,24 @@ export default function AdminMilitaryUnitsPage() {
       toast.error('Nahrávání selhalo');
     } finally {
       setUploading(false);
+    }
+  };
+
+  const handlePhotoUpload = async (files: FileList) => {
+    setUploadingPhoto(true);
+    try {
+      const uploaded: string[] = [];
+      for (const file of Array.from(files)) {
+        const fd = new FormData();
+        fd.append('file', file);
+        const { data } = await api.post<{ url: string }>('/upload/image', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+        uploaded.push(data.url);
+      }
+      setPhotos(p => [...p, ...uploaded]);
+    } catch {
+      toast.error('Nahrávání fotek selhalo');
+    } finally {
+      setUploadingPhoto(false);
     }
   };
 
@@ -326,6 +348,45 @@ export default function AdminMilitaryUnitsPage() {
               </div>
             </div>
             <div className="sm:col-span-2">
+              <label className="block text-sm font-medium mb-2 flex items-center gap-2">
+                <Images size={14} className="text-slate-500" />
+                Fotogalerie
+              </label>
+              {photos.length > 0 && (
+                <div className="grid grid-cols-4 gap-2 mb-3">
+                  {photos.map((photo, i) => (
+                    <div key={i} className="relative aspect-square rounded-lg overflow-hidden bg-slate-100 group">
+                      <img src={getImageUrl(photo)} alt="" className="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => setPhotos(p => p.filter((_, j) => j !== i))}
+                        className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X size={10} />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+              <button
+                type="button"
+                onClick={() => photoInputRef.current?.click()}
+                disabled={uploadingPhoto}
+                className="flex items-center gap-2 px-3 py-1.5 text-sm border border-slate-300 rounded-lg hover:bg-slate-50 disabled:opacity-50"
+              >
+                <Upload size={14} />
+                {uploadingPhoto ? 'Nahrávám…' : 'Přidat fotky'}
+              </button>
+              <input
+                ref={photoInputRef}
+                type="file"
+                accept="image/*"
+                multiple
+                className="hidden"
+                onChange={e => { const fl = e.target.files; if (fl) handlePhotoUpload(fl); e.target.value = ''; }}
+              />
+            </div>
+            <div className="sm:col-span-2">
               <label className="block text-sm font-medium mb-1">Platební kód (aktivita)</label>
               <select
                 value={form.activityId || ''}
@@ -344,8 +405,8 @@ export default function AdminMilitaryUnitsPage() {
             <button
               onClick={() => {
                 const urls = youtubeUrls.filter(u => u.trim());
-                if (creating) createMutation.mutate({ ...form, youtubeUrls: urls });
-                else if (editing) updateMutation.mutate({ id: editing.id, data: { ...form, youtubeUrls: urls } });
+                if (creating) createMutation.mutate({ ...form, youtubeUrls: urls, photos });
+                else if (editing) updateMutation.mutate({ id: editing.id, data: { ...form, youtubeUrls: urls, photos } });
               }}
               disabled={createMutation.isPending || updateMutation.isPending}
               className="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-50"
@@ -403,7 +464,7 @@ export default function AdminMilitaryUnitsPage() {
                       Aktuality
                     </Link>
                     <button
-                      onClick={() => { setEditing(unit); setCreating(false); setForm({ name: unit.name, nameEn: unit.nameEn || '', nameUk: unit.nameUk || '', nameDe: unit.nameDe || '', slug: unit.slug, description: unit.description || '', descriptionEn: unit.descriptionEn || '', descriptionUk: unit.descriptionUk || '', descriptionDe: unit.descriptionDe || '', logo: unit.logo || '', activityId: unit.activityId || null }); setYoutubeUrls(unit.youtubeUrls ?? []); }}
+                      onClick={() => { setEditing(unit); setCreating(false); setForm({ name: unit.name, nameEn: unit.nameEn || '', nameUk: unit.nameUk || '', nameDe: unit.nameDe || '', slug: unit.slug, description: unit.description || '', descriptionEn: unit.descriptionEn || '', descriptionUk: unit.descriptionUk || '', descriptionDe: unit.descriptionDe || '', logo: unit.logo || '', activityId: unit.activityId || null }); setYoutubeUrls(unit.youtubeUrls ?? []); setPhotos(unit.photos ?? []); }}
                       className="text-xs text-brand-600 hover:underline"
                     >
                       Upravit

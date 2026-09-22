@@ -1,0 +1,1 @@
+ALTER TABLE "MilitaryUnit" ADD COLUMN "photos" TEXT[] NOT NULL DEFAULT '{}';
