@@ -208,21 +208,24 @@ export default function AdminUsersPage() {
                             )}
                           </div>
 
-                          {detail.addresses.length > 0 && (
-                            <div>
-                              <h4 className="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2 flex items-center gap-1.5">
-                                <MapPin size={11} /> Adresy
-                              </h4>
-                              <div className="space-y-2">
-                                {detail.addresses.map(addr => (
-                                  <div key={addr.id} className={`text-xs rounded-lg p-3 border ${addr.isDefault ? 'border-brand-200 bg-brand-50/40' : 'border-slate-200 bg-white'}`}>
-                                    {addr.label && <p className="font-semibold text-brand-700 mb-0.5">{addr.label}</p>}
-                                    <p>{addr.street}, {addr.zip} {addr.city}, {COUNTRY_LABELS[addr.country] ?? addr.country}</p>
-                                  </div>
-                                ))}
-                              </div>
-                            </div>
-                          )}
+                          <div>
+                            <h4 className="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2 flex items-center gap-1.5">
+                              <MapPin size={11} /> Adresy
+                            </h4>
+                            {detail.addresses.length === 0
+                              ? <p className="text-xs text-slate-400">Žádné uložené adresy.</p>
+                              : (
+                                <div className="space-y-2">
+                                  {detail.addresses.map(addr => (
+                                    <div key={addr.id} className={`text-xs rounded-lg p-3 border ${addr.isDefault ? 'border-brand-200 bg-brand-50/40' : 'border-slate-200 bg-white'}`}>
+                                      {addr.label && <p className="font-semibold text-brand-700 mb-0.5">{addr.label}</p>}
+                                      <p>{addr.street}, {addr.zip} {addr.city}, {COUNTRY_LABELS[addr.country] ?? addr.country}</p>
+                                    </div>
+                                  ))}
+                                </div>
+                              )
+                            }
+                          </div>
                         </div>
 
                         {/* Orders */}
