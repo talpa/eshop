@@ -1,13 +1,14 @@
-﻿import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
+import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { Package, ShoppingBag, LogOut, ArrowLeft, Shield, ListOrdered, Tag, Users } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 
 const navItems = [
   { to: '/admin/products', label: 'Produkty', icon: Package },
-  { to: '/admin/orders', label: 'DarovacÃ­ smlouvy', icon: ShoppingBag },
+  { to: '/admin/orders', label: 'Darovací smlouvy', icon: ShoppingBag },
   { to: '/admin/military-units', label: 'Jednotky', icon: Shield },
-  { to: '/admin/activities', label: 'ÄŒÃ­selnÃ­k aktivit', icon: ListOrdered },
-  { to: '/admin/categories', label: 'Skupiny vÃ½robkÅ¯', icon: Tag },
+  { to: '/admin/activities', label: 'Číselník aktivit', icon: ListOrdered },
+  { to: '/admin/categories', label: 'Skupiny výrobků', icon: Tag },
+  { to: '/admin/users', label: 'Uživatelé', icon: Users },
 ];
 
 export default function AdminLayout() {
@@ -40,10 +41,10 @@ export default function AdminLayout() {
         </nav>
         <div className="p-3 border-t border-slate-700 space-y-1">
           <Link to="/" className="flex items-center gap-2 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white">
-            <ArrowLeft size={16} /> ZpÄ›t do eshopu
+            <ArrowLeft size={16} /> Zpět do eshopu
           </Link>
           <button onClick={handleLogout} className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm text-slate-300 hover:bg-slate-800 hover:text-white">
-            <LogOut size={16} /> OdhlÃ¡sit
+            <LogOut size={16} /> Odhlásit
           </button>
         </div>
       </aside>
@@ -53,5 +54,3 @@ export default function AdminLayout() {
     </div>
   );
 }
-
-
