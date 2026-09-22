@@ -79,4 +79,22 @@ router.post('/', authenticate, requireAdmin, async (req: Request, res: Response,
   } catch (err) { next(err); }
 });
 
+router.patch('/:updateId', authenticate, requireAdmin, async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const body = updateSchema.partial().parse(req.body);
+    const update = await prisma.unitUpdate.update({
+      where: { id: req.params.updateId },
+      data: body,
+    });
+    res.json(update);
+  } catch (err) { next(err); }
+});
+
+router.delete('/:updateId', authenticate, requireAdmin, async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    await prisma.unitUpdate.delete({ where: { id: req.params.updateId } });
+    res.status(204).send();
+  } catch (err) { next(err); }
+});
+
 export default router;
