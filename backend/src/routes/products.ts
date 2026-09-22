@@ -63,7 +63,7 @@ const productSchema = z.object({
   stock: z.number().int().min(0).default(0),
   images: z.array(z.string()).default([]),
   isActive: z.boolean().default(true),
-  categoryId: z.string().optional(),
+  categoryId: z.string().optional().transform(v => v === '' ? undefined : v),
   militaryUnitIds: z.array(z.string()).optional(),
 });
 

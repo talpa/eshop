@@ -22,7 +22,7 @@ const schema = z.object({
   descriptionDe: z.string().optional(),
   priceCzk: z.coerce.number().positive('Cena musí být kladná'),
   stock: z.coerce.number().int().min(0),
-  categoryId: z.string().optional(),
+  categoryId: z.string().optional().transform(v => v === '' ? undefined : v),
   isActive: z.boolean().default(true),
 });
 type FormData = z.infer<typeof schema>;
