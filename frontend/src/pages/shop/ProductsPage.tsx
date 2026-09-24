@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Link, useSearchParams } from 'react-router-dom';
-import { ShoppingCart, Search, Shield, Heart, FileText, ChevronRight, Pencil } from 'lucide-react';
+import { ShoppingCart, Search, Shield, Heart, FileText, ChevronRight, ChevronLeft, Pencil } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { localName, localDesc } from '../../lib/localise';
 import { api } from '../../lib/api';
@@ -12,6 +12,49 @@ import { formatPrice, getImageUrl } from '../../lib/utils';
 import toast from 'react-hot-toast';
 
 const HOW_IT_WORKS_ICONS = [ShoppingCart, Shield, Heart, FileText];
+
+function CardImageSlider({ images, productSlug }: { images: string[]; productSlug: string }) {
+  const [current, setCurrent] = useState(0);
+
+  if (!images[0]) {
+    return (
+      <Link to={`/products/${productSlug}`}>
+        <div className="aspect-square bg-slate-100 flex items-center justify-center">
+          <span className="text-slate-300 text-4xl">🎁</span>
+        </div>
+      </Link>
+    );
+  }
+
+  return (
+    <div className="relative aspect-square bg-slate-100 group">
+      <Link to={`/products/${productSlug}`} className="block w-full h-full">
+        <img src={getImageUrl(images[current])} alt="" className="w-full h-full object-cover" />
+      </Link>
+      {images.length > 1 && (
+        <>
+          <button
+            onClick={e => { e.stopPropagation(); setCurrent(i => (i - 1 + images.length) % images.length); }}
+            className="absolute left-1 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+          >
+            <ChevronLeft size={14} />
+          </button>
+          <button
+            onClick={e => { e.stopPropagation(); setCurrent(i => (i + 1) % images.length); }}
+            className="absolute right-1 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/60 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+          >
+            <ChevronRight size={14} />
+          </button>
+          <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+            {images.map((_, i) => (
+              <span key={i} className={`w-1.5 h-1.5 rounded-full transition-colors ${i === current ? 'bg-white' : 'bg-white/50'}`} />
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
 
 export default function ProductsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -243,15 +286,7 @@ export default function ProductsPage() {
           {data?.products.map(product => (
             <div key={product.id} className="bg-white rounded-xl border border-slate-200 overflow-hidden hover:shadow-md hover:border-brand-300 transition-all">
               <div className="relative">
-                <Link to={`/products/${product.slug}`}>
-                  <div className="aspect-square bg-slate-100 flex items-center justify-center">
-                    {product.images[0] ? (
-                      <img src={getImageUrl(product.images[0])} alt={product.name} className="w-full h-full object-cover" />
-                    ) : (
-                      <span className="text-slate-300 text-4xl">🎁</span>
-                    )}
-                  </div>
-                </Link>
+                <CardImageSlider images={product.images} productSlug={product.slug} />
                 {user?.role === 'ADMIN' && (
                   <Link
                     to={`/admin/products?edit=${product.id}`}

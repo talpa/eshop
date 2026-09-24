@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Pencil, Trash2, X, Upload, ImageOff } from 'lucide-react';
+import { Plus, Pencil, Trash2, X, Upload, ImageOff, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -209,8 +209,13 @@ export default function AdminProductsPage() {
                         <img
                           src={getImageUrl(url)}
                           alt=""
-                          className="w-20 h-20 object-cover rounded-lg border border-slate-200"
+                          className={`w-20 h-20 object-cover rounded-lg border-2 ${i === 0 ? 'border-brand-400' : 'border-slate-200'}`}
                         />
+                        {i === 0 && (
+                          <span className="absolute top-0 left-0 bg-brand-600 text-white text-[10px] font-semibold px-1.5 py-0.5 rounded-br-lg rounded-tl-md leading-none">
+                            Hlavní
+                          </span>
+                        )}
                         <button
                           type="button"
                           onClick={() => setProductImages(prev => prev.filter((_, j) => j !== i))}
@@ -218,6 +223,26 @@ export default function AdminProductsPage() {
                         >
                           <X size={10} />
                         </button>
+                        <div className="absolute bottom-0 left-0 right-0 flex justify-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity bg-black/30 rounded-b-lg py-0.5">
+                          {i > 0 && (
+                            <button
+                              type="button"
+                              onClick={() => setProductImages(prev => { const a = [...prev]; [a[i - 1], a[i]] = [a[i], a[i - 1]]; return a; })}
+                              className="text-white hover:text-brand-300 p-0.5"
+                            >
+                              <ChevronLeft size={14} />
+                            </button>
+                          )}
+                          {i < productImages.length - 1 && (
+                            <button
+                              type="button"
+                              onClick={() => setProductImages(prev => { const a = [...prev]; [a[i], a[i + 1]] = [a[i + 1], a[i]]; return a; })}
+                              className="text-white hover:text-brand-300 p-0.5"
+                            >
+                              <ChevronRight size={14} />
+                            </button>
+                          )}
+                        </div>
                       </div>
                     ))}
                   </div>
