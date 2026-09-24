@@ -318,7 +318,7 @@ export default function AdminProductsPage() {
       )}
 
       {isLoading && <div className="text-slate-400">Načítám...</div>}
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="bg-slate-50 border-b border-slate-200">
             <tr>

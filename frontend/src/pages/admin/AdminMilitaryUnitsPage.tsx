@@ -157,7 +157,7 @@ export default function AdminMilitaryUnitsPage() {
 
       {/* Statistiky per jednotka */}
       {stats && stats.some(s => s.orderCount > 0) && (
-        <div className="bg-white border border-slate-200 rounded-xl overflow-hidden mb-8">
+        <div className="bg-white border border-slate-200 rounded-xl overflow-hidden overflow-x-auto mb-8">
           <div className="px-4 py-3 border-b border-slate-100 bg-slate-50">
             <h2 className="font-semibold text-sm">Statistiky per jednotka</h2>
           </div>
@@ -425,7 +425,7 @@ export default function AdminMilitaryUnitsPage() {
 
       {isLoading && <div className="text-slate-400">Načítám...</div>}
 
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="bg-slate-50 border-b border-slate-200">
             <tr>

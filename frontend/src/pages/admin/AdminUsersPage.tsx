@@ -172,7 +172,7 @@ export default function AdminUsersPage() {
 
       {isLoading && <div className="text-slate-400">Načítám...</div>}
 
-      <div className="bg-white border border-slate-200 rounded-xl overflow-hidden">
+      <div className="bg-white border border-slate-200 rounded-xl overflow-hidden overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="bg-slate-50 border-b border-slate-200">
             <tr>

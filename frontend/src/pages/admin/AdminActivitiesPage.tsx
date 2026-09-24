@@ -159,7 +159,7 @@ export default function AdminActivitiesPage() {
 
       {isLoading && <div className="text-slate-400">Načítám...</div>}
 
-      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden">
+      <div className="bg-white rounded-xl border border-slate-200 overflow-hidden overflow-x-auto">
         <table className="w-full text-sm">
           <thead className="bg-slate-50 border-b border-slate-200">
             <tr>
@@ -213,7 +213,7 @@ export default function AdminActivitiesPage() {
         </table>
       </div>
 
-      <div className="mt-8 bg-white border border-slate-200 rounded-xl overflow-hidden">
+      <div className="mt-8 bg-white border border-slate-200 rounded-xl overflow-hidden overflow-x-auto">
         <button
           onClick={() => setWidgetsOpen(o => !o)}
           className="w-full flex items-center justify-between px-5 py-4 text-left hover:bg-slate-50 transition-colors"
