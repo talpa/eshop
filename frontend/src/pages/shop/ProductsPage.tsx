@@ -29,7 +29,7 @@ function CardImageSlider({ images, productSlug }: { images: string[]; productSlu
   return (
     <div className="relative aspect-square bg-slate-100 group">
       <Link to={`/products/${productSlug}`} className="block w-full h-full">
-        <img src={getImageUrl(images[current])} alt="" className="w-full h-full object-cover" />
+        <img src={getImageUrl(images[current])} alt="" className="w-full h-full object-contain" />
       </Link>
       {images.length > 1 && (
         <>

@@ -23,7 +23,7 @@ function ImageSlider({ images }: { images: string[] }) {
 
   return (
     <div className="relative aspect-square bg-slate-100 rounded-xl overflow-hidden group">
-      <img src={getImageUrl(images[current])} alt="" className="w-full h-full object-cover" />
+      <img src={getImageUrl(images[current])} alt="" className="w-full h-full object-contain" />
       {images.length > 1 && (
         <>
           <button onClick={() => setCurrent(i => (i - 1 + images.length) % images.length)}
