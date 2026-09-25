@@ -24,7 +24,7 @@ router.get('/', async (req: Request, res: Response, next: NextFunction): Promise
           category: { select: { id: true, name: true, nameEn: true, nameUk: true, nameDe: true, slug: true } },
           militaryUnits: { where: { isActive: true }, select: { id: true, name: true, nameEn: true, nameUk: true, nameDe: true, slug: true } },
         },
-        orderBy: { createdAt: 'desc' },
+        orderBy: [{ sortOrder: 'asc' }, { createdAt: 'desc' }],
         skip,
         take: parseInt(limit),
       }),
@@ -80,6 +80,16 @@ router.post('/', authenticate, requireAdmin, async (req: Request, res: Response,
       include: { militaryUnits: { select: { id: true, name: true } } },
     });
     res.status(201).json(product);
+  } catch (err) { next(err); }
+});
+
+router.patch('/reorder', authenticate, requireAdmin, async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const items = z.array(z.object({ id: z.string(), sortOrder: z.number().int() })).parse(req.body);
+    await prisma.$transaction(items.map(({ id, sortOrder }) =>
+      prisma.product.update({ where: { id }, data: { sortOrder } })
+    ));
+    res.json({ ok: true });
   } catch (err) { next(err); }
 });
 

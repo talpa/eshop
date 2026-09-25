@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Pencil, Trash2, X, Upload, ImageOff, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Plus, Pencil, Trash2, X, Upload, ImageOff, ChevronLeft, ChevronRight, ChevronUp, ChevronDown } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -63,6 +63,22 @@ export default function AdminProductsPage() {
       setSearchParams({}, { replace: true });
     }
   }, [searchParams, data?.products]);
+
+  const reorderMutation = useMutation({
+    mutationFn: (items: { id: string; sortOrder: number }[]) => api.patch('/products/reorder', items),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['admin-products'] }),
+    onError: () => toast.error('Chyba při řazení'),
+  });
+
+  const move = (index: number, direction: -1 | 1) => {
+    if (!data?.products) return;
+    const sorted = [...data.products];
+    const target = index + direction;
+    if (target < 0 || target >= sorted.length) return;
+    [sorted[index], sorted[target]] = [sorted[target], sorted[index]];
+    reorderMutation.mutate(sorted.map((p, i) => ({ id: p.id, sortOrder: i })));
+    qc.setQueryData<{ products: Product[] }>(['admin-products'], d => d ? { ...d, products: sorted } : d);
+  };
 
   const saveMutation = useMutation({
     mutationFn: (data: FormData & { militaryUnitIds: string[]; images: string[] }) =>
@@ -322,14 +338,26 @@ export default function AdminProductsPage() {
         <table className="w-full text-sm">
           <thead className="bg-slate-50 border-b border-slate-200">
             <tr>
-              {['', 'Název', 'Kategorie', 'Min. dar', 'Jednotky', 'Sklad', 'Aktivní', ''].map(h => (
+              {['Pořadí', '', 'Název', 'Kategorie', 'Min. dar', 'Jednotky', 'Sklad', 'Aktivní', ''].map(h => (
                 <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">{h}</th>
               ))}
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {data?.products.map(p => (
+            {data?.products.map((p, i) => (
               <tr key={p.id} className="hover:bg-slate-50">
+                <td className="px-4 py-3">
+                  <div className="flex flex-col gap-0.5">
+                    <button onClick={() => move(i, -1)} disabled={i === 0 || reorderMutation.isPending}
+                      className="p-0.5 rounded hover:bg-slate-200 disabled:opacity-20 transition-colors">
+                      <ChevronUp size={14} />
+                    </button>
+                    <button onClick={() => move(i, 1)} disabled={i === (data.products.length - 1) || reorderMutation.isPending}
+                      className="p-0.5 rounded hover:bg-slate-200 disabled:opacity-20 transition-colors">
+                      <ChevronDown size={14} />
+                    </button>
+                  </div>
+                </td>
                 <td className="px-4 py-3">
                   {p.images?.[0] ? (
                     <img src={getImageUrl(p.images[0])} alt="" className="w-10 h-10 object-cover rounded-lg border border-slate-200" />

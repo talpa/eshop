@@ -37,6 +37,7 @@ export interface Product {
   priceCzk: number | string;
   stock: number;
   images: string[];
+  sortOrder?: number;
   isActive: boolean;
   categoryId?: string;
   category?: { id: string; name: string; nameEn?: string | null; nameUk?: string | null; nameDe?: string | null; slug: string };
