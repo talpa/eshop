@@ -176,6 +176,7 @@ export interface UserProfile {
   name: string;
   phone?: string | null;
   preferredLanguage?: string | null;
+  bankAccountNumber?: string | null;
   role: 'ADMIN' | 'CUSTOMER';
   createdAt: string;
   addresses: UserAddress[];

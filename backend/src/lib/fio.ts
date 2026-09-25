@@ -3,6 +3,7 @@ interface FioTransaction {
   amount: number;
   currency: string;
   variableSymbol?: string;
+  message?: string;
   date?: string;
 }
 
@@ -111,6 +112,7 @@ export const fetchFioTransactions = async (
       amount: Number.isFinite(normalizedAmount) ? normalizedAmount : 0,
       currency: lookup['Měna'] || lookup['currency'] || 'CZK',
       variableSymbol: lookup['VS'] || lookup['variableSymbol'],
+      message: lookup['Zpráva pro příjemce'] || lookup['Popis'] || lookup['message'],
       date: normaliseFioDate(lookup['Datum'] || lookup['date']),
     };
   });

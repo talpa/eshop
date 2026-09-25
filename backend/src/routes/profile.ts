@@ -9,6 +9,7 @@ const profileSchema = z.object({
   name: z.string().min(2).optional(),
   phone: z.string().optional().nullable(),
   preferredLanguage: z.enum(['cs', 'en', 'uk', 'de']).optional().nullable(),
+  bankAccountNumber: z.string().optional().nullable(),
 });
 
 const addressSchema = z.object({
@@ -25,7 +26,7 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response, next: Next
     const user = await prisma.user.findUnique({
       where: { id: req.user!.id },
       select: {
-        id: true, email: true, name: true, phone: true, preferredLanguage: true, role: true, createdAt: true,
+        id: true, email: true, name: true, phone: true, preferredLanguage: true, bankAccountNumber: true, role: true, createdAt: true,
         addresses: { orderBy: [{ isDefault: 'desc' }, { createdAt: 'asc' }] },
       },
     });
@@ -39,7 +40,7 @@ router.patch('/', authenticate, async (req: AuthRequest, res: Response, next: Ne
     const user = await prisma.user.update({
       where: { id: req.user!.id },
       data,
-      select: { id: true, email: true, name: true, phone: true, preferredLanguage: true, role: true },
+      select: { id: true, email: true, name: true, phone: true, preferredLanguage: true, bankAccountNumber: true, role: true },
     });
     res.json(user);
   } catch (err) { next(err); }

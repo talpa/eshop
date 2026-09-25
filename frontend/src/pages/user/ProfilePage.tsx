@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { User, Phone, Mail, MapPin, Plus, Trash2, Star, Globe, Save } from 'lucide-react';
+import { User, Phone, Mail, MapPin, Plus, Trash2, Star, Globe, Save, CreditCard, FileText } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import { api } from '../../lib/api';
@@ -17,7 +17,7 @@ export default function ProfilePage() {
   const [editingAddress, setEditingAddress] = useState<Partial<UserAddress> | null>(null);
   const [addingAddress, setAddingAddress] = useState(false);
   const [addrForm, setAddrForm] = useState(emptyAddress);
-  const [profileForm, setProfileForm] = useState<{ name: string; phone: string } | null>(null);
+  const [profileForm, setProfileForm] = useState<{ name: string; phone: string; bankAccountNumber: string } | null>(null);
 
   const { data: profile, isLoading } = useQuery<UserProfile>({
     queryKey: ['profile'],
@@ -25,11 +25,11 @@ export default function ProfilePage() {
   });
 
   useEffect(() => {
-    if (profile && !profileForm) setProfileForm({ name: profile.name, phone: profile.phone ?? '' });
+    if (profile && !profileForm) setProfileForm({ name: profile.name, phone: profile.phone ?? '', bankAccountNumber: profile.bankAccountNumber ?? '' });
   }, [profile?.id]);
 
   const patchProfile = useMutation({
-    mutationFn: (data: Partial<{ name: string; phone: string | null; preferredLanguage: string | null }>) =>
+    mutationFn: (data: Partial<{ name: string; phone: string | null; preferredLanguage: string | null; bankAccountNumber: string | null }>) =>
       api.patch('/profile', data).then(r => r.data),
     onSuccess: () => { toast.success('Profil uložen.'); qc.invalidateQueries({ queryKey: ['profile'] }); },
     onError: () => toast.error('Nepodařilo se uložit profil.'),
@@ -64,7 +64,7 @@ export default function ProfilePage() {
 
   const handleSaveProfile = () => {
     if (!profileForm) return;
-    patchProfile.mutate({ name: profileForm.name, phone: profileForm.phone || null as string | null });
+    patchProfile.mutate({ name: profileForm.name, phone: profileForm.phone || null, bankAccountNumber: profileForm.bankAccountNumber || null });
   };
 
   return (
@@ -129,6 +129,20 @@ export default function ProfilePage() {
               placeholder="+420 ..."
               className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
             />
+          </div>
+          <div>
+            <label className="block text-sm font-medium mb-1 flex items-center gap-1.5">
+              <CreditCard size={13} className="text-slate-400" /> Číslo bankovního účtu
+            </label>
+            <input
+              value={profileForm?.bankAccountNumber ?? profile.bankAccountNumber ?? ''}
+              onChange={e => setProfileForm(f => ({ ...(f ?? { name: profile.name, phone: profile.phone ?? '', bankAccountNumber: '' }), bankAccountNumber: e.target.value }))}
+              placeholder="123456789/0100"
+              className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+            />
+            <p className="text-xs text-slate-400 mt-1 flex items-center gap-1">
+              <FileText size={11} /> Vyžadováno pro stažení PDF potvrzení o daru.
+            </p>
           </div>
           <button
             onClick={handleSaveProfile}

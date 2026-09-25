@@ -102,6 +102,7 @@ model User {
   passwordHash      String?
   phone             String?
   preferredLanguage String?
+  bankAccountNumber String?
   provider          String?
   providerId        String?
   avatarUrl         String?

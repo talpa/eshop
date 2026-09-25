@@ -19,7 +19,7 @@ const formatCzk = (amount: number) =>
 const formatDate = (date: Date) =>
   date.toLocaleDateString('cs-CZ', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
-export const generateDonationPdf = (order: OrderWithDetails, res: Response): void => {
+export const generateDonationPdf = (order: OrderWithDetails, res: Response, bankAccountNumber?: string | null): void => {
   const doc = new PDFDocument({ margin: 50, size: 'A4' });
 
   res.setHeader('Content-Type', 'application/pdf');
@@ -71,9 +71,16 @@ export const generateDonationPdf = (order: OrderWithDetails, res: Response): voi
   doc.text(formatDate(order.createdAt), col2, boxY + 24);
 
   doc.font(FONT_BOLD).fontSize(9).fillColor(TEXT_GRAY);
-  doc.text('VOJENSKÁ JEDNOTKA', col2, boxY + 52);
+  doc.text('VOJENSKÁ JEDNOTKA', col2, boxY + 42);
   doc.font(FONT_REGULAR).fontSize(10).fillColor('#111');
-  doc.text(order.militaryUnit?.name || 'Neuvedena', col2, boxY + 64);
+  doc.text(order.militaryUnit?.name || 'Neuvedena', col2, boxY + 54);
+
+  if (bankAccountNumber) {
+    doc.font(FONT_BOLD).fontSize(9).fillColor(TEXT_GRAY);
+    doc.text('ČÍSLO ÚČTU DÁRCE', margin + 12, boxY + 70);
+    doc.font(FONT_REGULAR).fontSize(10).fillColor('#111');
+    doc.text(bankAccountNumber, margin + 12, boxY + 82);
+  }
 
   // Donation amount highlight
   const amountY = boxY + 125;
@@ -119,8 +126,11 @@ export const generateDonationPdf = (order: OrderWithDetails, res: Response): voi
   const footerY = doc.page.height - 50;
   doc.rect(0, footerY - 10, pageW, 60).fill(LIGHT_GRAY);
   doc.font(FONT_REGULAR).fontSize(8).fillColor(TEXT_GRAY);
+  const footerParts = [`Vygenerováno: ${formatDate(new Date())}`, `Ref.: ${order.variableSymbol}`];
+  if (bankAccountNumber) footerParts.push(`Účet dárce: ${bankAccountNumber}`);
+  footerParts.push('Dokument ke stažení kdykoliv po přihlášení');
   doc.text(
-    `Vygenerováno: ${formatDate(new Date())}  |  VS: ${order.variableSymbol}  |  Dokument ke stažení kdykoliv po přihlášení`,
+    footerParts.join('  |  '),
     margin,
     footerY + 2,
     { width: contentW, align: 'center' }

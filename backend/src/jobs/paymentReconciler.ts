@@ -6,6 +6,12 @@ import { buildDonationConfirmationEmail } from '../lib/donationEmail';
 const normaliseVs = (vs: string | undefined): string =>
   vs !== undefined && vs !== '' ? parseInt(vs, 10).toString() : '';
 
+const extractOrderNumberFromMessage = (msg: string | undefined): string => {
+  if (!msg) return '';
+  const m = msg.match(/^(\d+)\s*-/);
+  return m ? parseInt(m[1], 10).toString() : '';
+};
+
 export const startPaymentReconciler = (prisma: PrismaClient): void => {
   const enabled = (process.env.PAYMENT_RECONCILER_ENABLED || 'true').toLowerCase() !== 'false';
   const intervalMs = Number(process.env.PAYMENT_RECONCILER_INTERVAL_MS || 120_000);
@@ -41,9 +47,14 @@ export const startPaymentReconciler = (prisma: PrismaClient): void => {
         const orderVs = normaliseVs(order.variableSymbol);
         const minAmount = Number(order.donationAmount);
 
-        const match = transactions.find(
-          t => normaliseVs(t.variableSymbol) === orderVs && t.amount >= minAmount - 0.01
-        );
+        const match = transactions.find(t => {
+          if (t.amount < minAmount - 0.01) return false;
+          // Primary: match by order number in payment message (new format: "1456 - product names")
+          const msgNumber = extractOrderNumberFromMessage(t.message);
+          if (msgNumber && msgNumber === orderVs) return true;
+          // Fallback: match by variable symbol (legacy orders)
+          return normaliseVs(t.variableSymbol) === orderVs;
+        });
 
         if (!match) continue;
 

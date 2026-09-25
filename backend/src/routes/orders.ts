@@ -101,13 +101,17 @@ router.post('/', optionalAuth, orderRateLimit, async (req: AuthRequest, res: Res
     }
 
     const variableSymbol = generateVariableSymbol();
-    const paymentNote = activityCode
-      ? `${activityCode} ${activityName || ''}`.trim().slice(0, 60)
-      : `Dar ${variableSymbol}`;
 
+    const productNames = body.items.length > 0
+      ? body.items.map(i => products.find(p => p.id === i.productId)?.name || '').filter(Boolean).join(', ')
+      : 'dar';
+    const paymentNote = `${variableSymbol} - ${productNames}`.slice(0, 140);
+
+    // VS in QR = activity code if purely numeric, else order variableSymbol
+    const qrVs = activityCode && /^\d+$/.test(activityCode) ? activityCode : variableSymbol;
     const iban = process.env.SHOP_IBAN || '';
     const qrPayload = iban
-      ? generateQrPayload(iban, body.donationAmount, variableSymbol, paymentNote)
+      ? generateQrPayload(iban, body.donationAmount, qrVs, paymentNote)
       : '';
 
     const order = await prisma.$transaction(async (tx) => {
@@ -285,7 +289,13 @@ router.get('/:id/confirmation/pdf', optionalAuth, async (req: AuthRequest, res: 
       res.status(403).json({ message: 'Přístup odepřen.' }); return;
     }
 
-    generateDonationPdf(order as Parameters<typeof generateDonationPdf>[0], res);
+    let bankAccountNumber: string | null = null;
+    if (order.userId) {
+      const user = await prisma.user.findUnique({ where: { id: order.userId }, select: { bankAccountNumber: true } });
+      bankAccountNumber = user?.bankAccountNumber ?? null;
+    }
+
+    generateDonationPdf(order as Parameters<typeof generateDonationPdf>[0], res, bankAccountNumber);
   } catch (err) { next(err); }
 });
 
