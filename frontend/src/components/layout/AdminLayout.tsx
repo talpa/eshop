@@ -4,11 +4,11 @@ import { Package, ShoppingBag, LogOut, ArrowLeft, Shield, ListOrdered, Tag, User
 import { useAuthStore } from '../../store/authStore';
 
 const navItems = [
-  { to: '/admin/products', label: 'Produkty', icon: Package },
+  { to: '/admin/products', label: 'Zboží', icon: Package },
   { to: '/admin/orders', label: 'Darovací smlouvy', icon: ShoppingBag },
   { to: '/admin/military-units', label: 'Jednotky', icon: Shield },
   { to: '/admin/activities', label: 'Číselník aktivit', icon: ListOrdered },
-  { to: '/admin/categories', label: 'Skupiny výrobků', icon: Tag },
+  { to: '/admin/categories', label: 'Kategorie zboží', icon: Tag },
   { to: '/admin/users', label: 'Uživatelé', icon: Users },
 ];
 

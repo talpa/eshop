@@ -10,7 +10,7 @@ router.get('/', async (_req: Request, res: Response, next: NextFunction): Promis
     const categories = await prisma.category.findMany({
       where: { parentId: null },
       include: { children: true, _count: { select: { products: true } } },
-      orderBy: { name: 'asc' },
+      orderBy: { sortOrder: 'asc' },
     });
     res.json(categories);
   } catch (err) { next(err); }
@@ -48,6 +48,16 @@ router.post('/', authenticate, requireAdmin, async (req: Request, res: Response,
     const body = categorySchema.parse(req.body);
     const category = await prisma.category.create({ data: body });
     res.status(201).json(category);
+  } catch (err) { next(err); }
+});
+
+router.patch('/reorder', authenticate, requireAdmin, async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const items = z.array(z.object({ id: z.string(), sortOrder: z.number().int() })).parse(req.body);
+    await prisma.$transaction(items.map(({ id, sortOrder }) =>
+      prisma.category.update({ where: { id }, data: { sortOrder } })
+    ));
+    res.json({ ok: true });
   } catch (err) { next(err); }
 });
 

@@ -141,7 +141,7 @@ export default function AdminProductsPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Produkty / Dárky</h1>
+        <h1 className="text-2xl font-bold">Zboží</h1>
         <button onClick={openNew} className="flex items-center gap-2 px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-lg text-sm font-medium transition-colors">
           <Plus size={16} /> Nový produkt
         </button>

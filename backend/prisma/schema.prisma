@@ -137,6 +137,7 @@ model Category {
   descriptionEn String?
   descriptionUk String?
   descriptionDe String?
+  sortOrder   Int        @default(0)
   parentId    String?
   parent      Category?  @relation("CategoryChildren", fields: [parentId], references: [id])
   children    Category[] @relation("CategoryChildren")

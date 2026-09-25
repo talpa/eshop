@@ -17,6 +17,7 @@ export interface Category {
   descriptionEn?: string | null;
   descriptionUk?: string | null;
   descriptionDe?: string | null;
+  sortOrder?: number;
   parentId?: string;
   children?: Category[];
   _count?: { products: number };

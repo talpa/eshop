@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { ChevronUp, ChevronDown } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { api } from '../../lib/api';
 import { Category } from '../../types';
@@ -40,11 +41,27 @@ export default function AdminCategoriesPage() {
     onError: () => toast.error('Chyba při mazání'),
   });
 
+  const reorderMutation = useMutation({
+    mutationFn: (items: { id: string; sortOrder: number }[]) => api.patch('/categories/reorder', items),
+    onSuccess: () => invalidate(),
+    onError: () => toast.error('Chyba při řazení'),
+  });
+
+  const move = (index: number, direction: -1 | 1) => {
+    if (!categories) return;
+    const sorted = [...categories];
+    const target = index + direction;
+    if (target < 0 || target >= sorted.length) return;
+    [sorted[index], sorted[target]] = [sorted[target], sorted[index]];
+    reorderMutation.mutate(sorted.map((c, i) => ({ id: c.id, sortOrder: i })));
+    qc.setQueryData<Category[]>(['categories'], sorted);
+  };
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold">Skupiny výrobků</h1>
+          <h1 className="text-2xl font-bold">Kategorie zboží</h1>
           <p className="text-sm text-slate-500 mt-1">Kategorie produktů — překlady jsou zobrazeny zákazníkům podle jejich jazyka.</p>
         </div>
         <button
@@ -169,14 +186,32 @@ export default function AdminCategoriesPage() {
         <table className="w-full text-sm">
           <thead className="bg-slate-50 border-b border-slate-200">
             <tr>
-              {['Název', 'Slug', 'EN', 'UK', 'Produktů', ''].map(h => (
+              {['Pořadí', 'Název', 'Slug', 'EN', 'UK', 'Produktů', ''].map(h => (
                 <th key={h} className="text-left px-4 py-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">{h}</th>
               ))}
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {categories?.map(cat => (
+            {categories?.map((cat, i) => (
               <tr key={cat.id} className="hover:bg-slate-50">
+                <td className="px-4 py-3">
+                  <div className="flex flex-col gap-0.5">
+                    <button
+                      onClick={() => move(i, -1)}
+                      disabled={i === 0 || reorderMutation.isPending}
+                      className="p-0.5 rounded hover:bg-slate-200 disabled:opacity-20 transition-colors"
+                    >
+                      <ChevronUp size={14} />
+                    </button>
+                    <button
+                      onClick={() => move(i, 1)}
+                      disabled={i === (categories.length - 1) || reorderMutation.isPending}
+                      className="p-0.5 rounded hover:bg-slate-200 disabled:opacity-20 transition-colors"
+                    >
+                      <ChevronDown size={14} />
+                    </button>
+                  </div>
+                </td>
                 <td className="px-4 py-3">
                   <p className="font-medium">{cat.name}</p>
                   {cat.description && <p className="text-xs text-slate-400 mt-0.5 truncate max-w-xs">{cat.description}</p>}
