@@ -19,31 +19,36 @@ function pick(lang: string, cs: string, en?: string | null, uk?: string | null, 
   return cs;
 }
 
-const UI: Record<string, { label: string; cta: string; received: string; unsubscribe: string }> = {
-  cs: {
-    label: 'Aktualita jednotky',
-    cta: 'Navštívit eshop',
-    received: 'Tuto zprávu dostáváte, protože jste podpořili jednotku',
-    unsubscribe: 'Pro odhlášení z budoucích aktualit nás prosím kontaktujte na info@darek.fondceskestopy.eu.',
-  },
-  en: {
-    label: 'Unit update',
-    cta: 'Visit the shop',
-    received: 'You receive this message because you supported the unit',
-    unsubscribe: 'To unsubscribe from future updates, please contact us at info@darek.fondceskestopy.eu.',
-  },
-  uk: {
-    label: 'Оновлення підрозділу',
-    cta: 'Відвідати магазин',
-    received: 'Ви отримуєте цей лист, оскільки підтримали підрозділ',
-    unsubscribe: 'Щоб відписатися від майбутніх оновлень, зв\'яжіться з нами: info@darek.fondceskestopy.eu.',
-  },
-  de: {
-    label: 'Neuigkeit der Einheit',
-    cta: 'Shop besuchen',
-    received: 'Sie erhalten diese Nachricht, weil Sie die Einheit unterstützt haben',
-    unsubscribe: 'Um sich von zukünftigen Updates abzumelden, kontaktieren Sie uns: info@darek.fondceskestopy.eu.',
-  },
+const getContactEmail = (): string => process.env.SMTP_USER || 'info@fondceskestopy.eu';
+
+const buildUI = () => {
+  const email = getContactEmail();
+  return {
+    cs: {
+      label: 'Aktualita jednotky',
+      cta: 'Navštívit eshop',
+      received: 'Tuto zprávu dostáváte, protože jste podpořili jednotku',
+      unsubscribe: `Pro odhlášení z budoucích aktualit nás prosím kontaktujte na ${email}.`,
+    },
+    en: {
+      label: 'Unit update',
+      cta: 'Visit the shop',
+      received: 'You receive this message because you supported the unit',
+      unsubscribe: `To unsubscribe from future updates, please contact us at ${email}.`,
+    },
+    uk: {
+      label: 'Оновлення підрозділу',
+      cta: 'Відвідати магазин',
+      received: 'Ви отримуєте цей лист, оскільки підтримали підрозділ',
+      unsubscribe: `Щоб відписатися від майбутніх оновлень, зв'яжіться з нами: ${email}.`,
+    },
+    de: {
+      label: 'Neuigkeit der Einheit',
+      cta: 'Shop besuchen',
+      received: 'Sie erhalten diese Nachricht, weil Sie die Einheit unterstützt haben',
+      unsubscribe: `Um sich von zukünftigen Updates abzumelden, kontaktieren Sie uns: ${email}.`,
+    },
+  };
 };
 
 const SUBJECTS: Record<string, (t: string, u: string) => string> = {
@@ -54,8 +59,9 @@ const SUBJECTS: Record<string, (t: string, u: string) => string> = {
 };
 
 export const buildUnitUpdateEmail = (p: UnitUpdateEmailParams) => {
-  const lang = (p.lang && UI[p.lang]) ? p.lang : 'cs';
-  const ui = UI[lang];
+  const UI = buildUI();
+  const lang = (p.lang && (UI as Record<string, unknown>)[p.lang]) ? p.lang : 'cs';
+  const ui = UI[lang as keyof typeof UI];
   const title = pick(lang, p.title, p.titleEn, p.titleUk, p.titleDe);
   const content = pick(lang, p.content, p.contentEn, p.contentUk, p.contentDe);
 
