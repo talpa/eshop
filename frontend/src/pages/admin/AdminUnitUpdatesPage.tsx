@@ -160,11 +160,10 @@ export default function AdminUnitUpdatesPage() {
                 className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 resize-y"
               />
             </div>
-            {activeLang === 'cs' && (
-              <p className="text-xs text-slate-400">
-                Ostatní jazyky jsou volitelné — pokud nejsou vyplněny, obdrží příjemce českou verzi.
-              </p>
-            )}
+            <p className="text-xs text-slate-400">
+              Formátování: <code className="bg-slate-100 px-1 rounded">**tučně**</code>, <code className="bg-slate-100 px-1 rounded">[odkaz](https://...)</code>, YouTube URL na samostatném řádku se vloží jako video.
+              {activeLang === 'cs' && <> Ostatní jazyky jsou volitelné — pokud nejsou vyplněny, obdrží příjemce českou verzi.</>}
+            </p>
             <button
               onClick={() => sendMutation.mutate()}
               disabled={!form.title.trim() || !form.content.trim() || sendMutation.isPending}
@@ -203,6 +202,9 @@ export default function AdminUnitUpdatesPage() {
                         rows={5}
                         className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 resize-y"
                       />
+                      <p className="text-xs text-slate-400">
+                        Formátování: <code className="bg-slate-100 px-1 rounded">**tučně**</code>, <code className="bg-slate-100 px-1 rounded">[odkaz](https://...)</code>, YouTube URL na samostatném řádku se vloží jako video.
+                      </p>
                       <div className="flex gap-2">
                         <button
                           onClick={() => editMutation.mutate(u.id)}
@@ -244,7 +246,7 @@ export default function AdminUnitUpdatesPage() {
                         </button>
                       </div>
                     </div>
-                    <p className="text-sm text-slate-600 whitespace-pre-line line-clamp-3">{u.content}</p>
+                    <p className="text-sm text-slate-600 line-clamp-3">{u.content}</p>
                     {(u.titleEn || u.titleUk || u.titleDe) && (
                       <div className="flex gap-1.5 mt-2">
                         {u.titleEn && <span className="text-xs bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded">EN</span>}

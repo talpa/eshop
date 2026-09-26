@@ -9,6 +9,7 @@ import { MilitaryUnit, ProductsResponse } from '../../types';
 import { localName, localDesc } from '../../lib/localise';
 import { formatPrice, getImageUrl } from '../../lib/utils';
 import toast from 'react-hot-toast';
+import MarkdownContent from '../../components/MarkdownContent';
 
 function getYouTubeId(url: string): string | null {
   const m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/);
@@ -163,7 +164,7 @@ export default function UnitPage() {
                         {new Date(update.createdAt).toLocaleDateString('cs-CZ', { day: 'numeric', month: 'short', year: 'numeric' })}
                       </time>
                     </div>
-                    <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">{loc.content}</p>
+                    <MarkdownContent content={loc.content} className="text-sm text-slate-600 leading-relaxed" />
                   </div>
                 );
               })}
