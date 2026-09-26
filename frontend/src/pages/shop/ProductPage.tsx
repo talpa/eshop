@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { ShoppingCart, ArrowLeft, Plus, Minus, Shield, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { localName, localDesc } from '../../lib/localise';
+import MarkdownContent from '../../components/MarkdownContent';
 import { api } from '../../lib/api';
 import { useCartStore } from '../../store/cartStore';
 import { Product } from '../../types';
@@ -91,7 +92,7 @@ export default function ProductPage() {
             <p className="text-3xl font-bold text-brand-600">{formatPrice(product.priceCzk)}</p>
             <p className="text-xs text-slate-400 mt-0.5">{t('product.minDonation')}</p>
           </div>
-          {localDesc(product, i18n.language) && <p className="text-slate-600 text-sm mb-4 leading-relaxed">{localDesc(product, i18n.language)}</p>}
+          {localDesc(product, i18n.language) && <MarkdownContent content={localDesc(product, i18n.language)!} className="text-slate-600 text-sm mb-4 leading-relaxed" />}
           {product.militaryUnits && product.militaryUnits.length > 0 && (
             <div className="mb-5 p-3 bg-brand-50 border border-brand-100 rounded-lg">
               <p className="text-xs font-semibold text-brand-700 mb-2 flex items-center gap-1">

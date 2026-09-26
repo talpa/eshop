@@ -30,22 +30,35 @@ function parseSegments(content: string): Segment[] {
   return segments;
 }
 
-const mdComponents: Components = {
-  a({ href, children }) {
-    return (
-      <a href={href} target="_blank" rel="noopener noreferrer" className="text-brand-600 underline hover:text-brand-800">
-        {children}
-      </a>
-    );
-  },
-  p({ children }) { return <p className="mb-3 last:mb-0">{children}</p>; },
-  strong({ children }) { return <strong className="font-semibold">{children}</strong>; },
-  ul({ children }) { return <ul className="list-disc pl-5 mb-3 space-y-0.5">{children}</ul>; },
-  ol({ children }) { return <ol className="list-decimal pl-5 mb-3 space-y-0.5">{children}</ol>; },
-};
+function makeComponents(linkClass: string): Components {
+  return {
+    a({ href, children }) {
+      return (
+        <a href={href} target="_blank" rel="noopener noreferrer" className={linkClass}>
+          {children}
+        </a>
+      );
+    },
+    p({ children }) { return <p className="mb-3 last:mb-0">{children}</p>; },
+    strong({ children }) { return <strong className="font-semibold">{children}</strong>; },
+    ul({ children }) { return <ul className="list-disc pl-5 mb-3 space-y-0.5">{children}</ul>; },
+    ol({ children }) { return <ol className="list-decimal pl-5 mb-3 space-y-0.5">{children}</ol>; },
+  };
+}
 
-export default function MarkdownContent({ content, className }: { content: string; className?: string }) {
+interface Props {
+  content: string;
+  className?: string;
+  dark?: boolean;
+}
+
+export default function MarkdownContent({ content, className, dark }: Props) {
+  const linkClass = dark
+    ? 'text-brand-300 underline hover:text-white'
+    : 'text-brand-600 underline hover:text-brand-800';
+  const components = makeComponents(linkClass);
   const segments = parseSegments(content);
+
   return (
     <div className={className}>
       {segments.map((seg, i) =>
@@ -60,7 +73,7 @@ export default function MarkdownContent({ content, className }: { content: strin
             />
           </div>
         ) : (
-          <ReactMarkdown key={i} components={mdComponents} remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>{seg.text}</ReactMarkdown>
+          <ReactMarkdown key={i} components={components} remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>{seg.text}</ReactMarkdown>
         )
       )}
     </div>

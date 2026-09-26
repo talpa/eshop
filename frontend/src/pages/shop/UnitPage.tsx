@@ -110,9 +110,11 @@ export default function UnitPage() {
                 </span>
               )}
               {localDesc(unit, i18n.language) && (
-                <p className="mt-2 text-sm text-slate-300 leading-relaxed line-clamp-3">
-                  {localDesc(unit, i18n.language)}
-                </p>
+                <MarkdownContent
+                  content={localDesc(unit, i18n.language)!}
+                  className="mt-2 text-sm text-slate-300 leading-relaxed"
+                  dark
+                />
               )}
             </div>
           </div>
