@@ -1,17 +1,38 @@
 import ReactMarkdown from 'react-markdown';
 import type { Components } from 'react-markdown';
 
+const YT_RE = /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/;
+const YT_MARKER = '__ytEmbed__';
+
 function getYouTubeId(url: string): string | null {
-  const m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/);
+  const m = url.match(YT_RE);
   return m ? m[1] : null;
+}
+
+function preprocessYouTube(content: string): string {
+  return content
+    .split('\n')
+    .map(line => {
+      const trimmed = line.trim();
+      if (!trimmed.startsWith('http')) return line;
+      const ytId = getYouTubeId(trimmed);
+      return ytId ? `${YT_MARKER}${ytId}` : line;
+    })
+    .join('\n');
 }
 
 const components: Components = {
   p({ children }) {
-    const text = typeof children === 'string' ? children : (Array.isArray(children) && children.length === 1 && typeof children[0] === 'string' ? children[0] : null);
+    const text = typeof children === 'string'
+      ? children
+      : Array.isArray(children) && children.length === 1 && typeof children[0] === 'string'
+        ? children[0]
+        : null;
+
     if (text) {
-      const ytId = getYouTubeId(text.trim());
-      if (ytId) {
+      const trimmed = text.trim();
+      if (trimmed.startsWith(YT_MARKER)) {
+        const ytId = trimmed.slice(YT_MARKER.length);
         return (
           <div className="relative w-full rounded-xl overflow-hidden bg-black shadow-md my-3" style={{ paddingBottom: '56.25%' }}>
             <iframe
@@ -25,6 +46,7 @@ const components: Components = {
         );
       }
     }
+
     return <p className="mb-3 last:mb-0">{children}</p>;
   },
   a({ href, children }) {
@@ -48,7 +70,7 @@ const components: Components = {
 export default function MarkdownContent({ content, className }: { content: string; className?: string }) {
   return (
     <div className={className}>
-      <ReactMarkdown components={components}>{content}</ReactMarkdown>
+      <ReactMarkdown components={components}>{preprocessYouTube(content)}</ReactMarkdown>
     </div>
   );
 }
