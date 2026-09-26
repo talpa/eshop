@@ -108,7 +108,7 @@ export default function ProfilePage() {
             <label className="block text-sm font-medium mb-1">Jméno a příjmení</label>
             <input
               value={profileForm?.name ?? profile.name}
-              onChange={e => setProfileForm(f => ({ ...(f ?? { name: profile.name, phone: profile.phone ?? '' }), name: e.target.value }))}
+              onChange={e => setProfileForm(f => ({ ...(f ?? { name: profile.name, phone: profile.phone ?? '', bankAccountNumber: profile.bankAccountNumber ?? '' }), name: e.target.value }))}
               className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
             />
           </div>
@@ -125,7 +125,7 @@ export default function ProfilePage() {
             </label>
             <input
               value={profileForm?.phone ?? profile.phone ?? ''}
-              onChange={e => setProfileForm(f => ({ ...(f ?? { name: profile.name, phone: '' }), phone: e.target.value }))}
+              onChange={e => setProfileForm(f => ({ ...(f ?? { name: profile.name, phone: '', bankAccountNumber: profile.bankAccountNumber ?? '' }), phone: e.target.value }))}
               placeholder="+420 ..."
               className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
             />
