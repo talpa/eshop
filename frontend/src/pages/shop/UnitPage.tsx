@@ -130,12 +130,14 @@ export default function UnitPage() {
           >
             <Heart size={13} /> {t('unit.donateDirect')}
           </Link>
-          <button
-            onClick={() => document.getElementById('produkty')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-            className="inline-flex items-center gap-1.5 border border-slate-300 hover:border-brand-400 hover:text-brand-700 text-slate-600 px-4 py-2 rounded-lg text-sm transition-colors"
-          >
-            <ShoppingCart size={13} /> {t('unit.selectGift')}
-          </button>
+          {products.length > 0 && (
+            <button
+              onClick={() => document.getElementById('produkty')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+              className="inline-flex items-center gap-1.5 border border-slate-300 hover:border-brand-400 hover:text-brand-700 text-slate-600 px-4 py-2 rounded-lg text-sm transition-colors"
+            >
+              <ShoppingCart size={13} /> {t('unit.selectGift')}
+            </button>
+          )}
           <span className="text-xs text-slate-400 hidden sm:block ml-1 truncate">
             {localName(unit, i18n.language)}
           </span>
