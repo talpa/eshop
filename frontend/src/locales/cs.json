@@ -55,10 +55,22 @@
     },
     "howItWorks": {
       "title": "Jak darcovská platforma funguje",
-      "step1": { "title": "Vyberte dárek", "text": "Zvolte dárek, který obdržíte jako poděkování za Váš dar." },
-      "step2": { "title": "Zvolte jednotku", "text": "Vyberte vojenskou jednotku, které chcete Váš dar věnovat." },
-      "step3": { "title": "Darujte libovolnou částku", "text": "Cena dárku je minimální výše daru — darovat můžete i více." },
-      "step4": { "title": "Obdržíte potvrzení", "text": "Po zaplacení Vám automaticky zašleme potvrzení o daru ve formátu PDF." }
+      "step1": {
+        "title": "Vyberte dárek",
+        "text": "Zvolte dárek, který obdržíte jako poděkování za Váš dar."
+      },
+      "step2": {
+        "title": "Zvolte jednotku",
+        "text": "Vyberte vojenskou jednotku, které chcete Váš dar věnovat."
+      },
+      "step3": {
+        "title": "Darujte libovolnou částku",
+        "text": "Cena dárku je minimální výše daru — darovat můžete i více."
+      },
+      "step4": {
+        "title": "Obdržíte potvrzení",
+        "text": "Po zaplacení Vám automaticky zašleme potvrzení o daru ve formátu PDF."
+      }
     },
     "units": {
       "title": "Podporované vojenské jednotky",
@@ -343,5 +355,20 @@
     "donateDirectly": "Chcete darovat přímo? Použijte stránku",
     "donatePage": "Darovat přímo",
     "donateWithoutEmbed": "bez potřeby embeddingu."
+  },
+  "unit": {
+    "notFound": "Jednotka nenalezena.",
+    "backToShop": "Zpět na eshop",
+    "donateDirect": "Darovat přímo",
+    "selectGift": "Vybrat dárek",
+    "updates": "Aktuality",
+    "olderUpdates": "Starší aktuality ({{count}})",
+    "hideOlder": "Skrýt starší",
+    "photos": "Fotky",
+    "videos": "Videa",
+    "giftsFrom": "Dárky od {{name}}",
+    "minDonation": "min. dar",
+    "fullShop": "Celý eshop",
+    "directDonation": "Přímý dar"
   }
 }

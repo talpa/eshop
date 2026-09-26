@@ -55,10 +55,22 @@
     },
     "howItWorks": {
       "title": "How the donation platform works",
-      "step1": { "title": "Choose a gift", "text": "Select a gift you will receive as a thank-you for your donation." },
-      "step2": { "title": "Select a unit", "text": "Choose the military unit you want to support with your donation." },
-      "step3": { "title": "Donate any amount", "text": "The gift price is the minimum donation — you can donate more." },
-      "step4": { "title": "Receive confirmation", "text": "After payment we automatically send you a PDF donation receipt." }
+      "step1": {
+        "title": "Choose a gift",
+        "text": "Select a gift you will receive as a thank-you for your donation."
+      },
+      "step2": {
+        "title": "Select a unit",
+        "text": "Choose the military unit you want to support with your donation."
+      },
+      "step3": {
+        "title": "Donate any amount",
+        "text": "The gift price is the minimum donation — you can donate more."
+      },
+      "step4": {
+        "title": "Receive confirmation",
+        "text": "After payment we automatically send you a PDF donation receipt."
+      }
     },
     "units": {
       "title": "Supported military units",
@@ -343,5 +355,20 @@
     "donateDirectly": "Want to donate directly? Use the",
     "donatePage": "Donate directly",
     "donateWithoutEmbed": "page without embedding."
+  },
+  "unit": {
+    "notFound": "Unit not found.",
+    "backToShop": "Back to shop",
+    "donateDirect": "Donate directly",
+    "selectGift": "Choose a gift",
+    "updates": "News",
+    "olderUpdates": "Older news ({{count}})",
+    "hideOlder": "Hide older",
+    "photos": "Photos",
+    "videos": "Videos",
+    "giftsFrom": "Gifts from {{name}}",
+    "minDonation": "min. donation",
+    "fullShop": "Full shop",
+    "directDonation": "Direct donation"
   }
 }

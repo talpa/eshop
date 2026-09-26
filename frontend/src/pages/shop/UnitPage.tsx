@@ -52,8 +52,8 @@ export default function UnitPage() {
   if (!unit) {
     return (
       <div className="max-w-4xl mx-auto px-4 py-16 text-center">
-        <p className="text-slate-500 mb-4">Jednotka nenalezena.</p>
-        <Link to="/" className="text-brand-600 hover:underline text-sm">← Zpět na eshop</Link>
+        <p className="text-slate-500 mb-4">{t('unit.notFound')}</p>
+        <Link to="/" className="text-brand-600 hover:underline text-sm">← {t('unit.backToShop')}</Link>
       </div>
     );
   }
@@ -91,7 +91,7 @@ export default function UnitPage() {
             to="/"
             className="inline-flex items-center gap-1 text-xs text-slate-400 hover:text-white mb-5 transition-colors"
           >
-            <ChevronLeft size={14} /> Zpět na eshop
+            <ChevronLeft size={14} /> {t('unit.backToShop')}
           </Link>
           <div className="flex gap-4 items-start">
             <div className="w-20 h-20 rounded-xl bg-white/10 border border-white/20 flex items-center justify-center flex-shrink-0 overflow-hidden">
@@ -125,13 +125,13 @@ export default function UnitPage() {
             to={`/donate?unit=${unit.slug}`}
             className="inline-flex items-center gap-1.5 bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-lg font-semibold text-sm transition-colors"
           >
-            <Heart size={13} /> Darovat přímo
+            <Heart size={13} /> {t('unit.donateDirect')}
           </Link>
           <button
             onClick={() => document.getElementById('produkty')?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
             className="inline-flex items-center gap-1.5 border border-slate-300 hover:border-brand-400 hover:text-brand-700 text-slate-600 px-4 py-2 rounded-lg text-sm transition-colors"
           >
-            <ShoppingCart size={13} /> Vybrat dárek
+            <ShoppingCart size={13} /> {t('unit.selectGift')}
           </button>
           <span className="text-xs text-slate-400 hidden sm:block ml-1 truncate">
             {localName(unit, i18n.language)}
@@ -146,7 +146,7 @@ export default function UnitPage() {
           <section>
             <div className="flex items-center gap-2 mb-4">
               <Bell size={15} className="text-brand-500" />
-              <h2 className="text-base font-bold text-slate-800">Aktuality</h2>
+              <h2 className="text-base font-bold text-slate-800">{t('unit.updates')}</h2>
               <span className="text-xs text-slate-400">({updates.length})</span>
             </div>
             <div className="space-y-3">
@@ -175,7 +175,7 @@ export default function UnitPage() {
                   className="flex items-center gap-1.5 text-sm text-brand-600 hover:text-brand-700 font-medium transition-colors"
                 >
                   <ChevronDown size={14} />
-                  Starší aktuality ({updates.length - shownCount})
+                  {t('unit.olderUpdates', { count: updates.length - shownCount })}
                 </button>
               )}
               {shownCount > UPDATES_STEP && (
@@ -183,7 +183,7 @@ export default function UnitPage() {
                   onClick={() => setShownCount(UPDATES_STEP)}
                   className="text-xs text-slate-400 hover:text-slate-600 transition-colors"
                 >
-                  Skrýt starší
+                  {t('unit.hideOlder')}
                 </button>
               )}
             </div>
@@ -202,7 +202,7 @@ export default function UnitPage() {
                   }`}
                 >
                   <Image size={14} />
-                  Fotky
+                  {t('unit.photos')}
                   <span className="text-xs opacity-50">({photos.length})</span>
                 </button>
               )}
@@ -214,7 +214,7 @@ export default function UnitPage() {
                   }`}
                 >
                   <Play size={14} />
-                  Videa
+                  {t('unit.videos')}
                   <span className="text-xs opacity-50">({youtubeVideos.length})</span>
                 </button>
               )}
@@ -262,7 +262,7 @@ export default function UnitPage() {
         {products.length > 0 && (
           <section id="produkty" className="scroll-mt-32">
             <h2 className="text-base font-bold text-slate-800 mb-4">
-              Dárky od {localName(unit, i18n.language)}
+              {t('unit.giftsFrom', { name: localName(unit, i18n.language) })}
             </h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
               {products.map(product => (
@@ -293,7 +293,7 @@ export default function UnitPage() {
                     <div className="flex items-center justify-between mt-2">
                       <div>
                         <span className="font-bold text-sm text-brand-600">{formatPrice(product.priceCzk)}</span>
-                        <span className="text-xs text-slate-400 block leading-none">min. dar</span>
+                        <span className="text-xs text-slate-400 block leading-none">{t('unit.minDonation')}</span>
                       </div>
                       <button
                         onClick={() => { addItem(product); toast.success(t('home.addedToCart', { name: product.name })); }}
@@ -316,10 +316,10 @@ export default function UnitPage() {
 
         <div className="flex items-center gap-4 pt-2 border-t border-slate-100 text-xs text-slate-400">
           <Link to="/" className="inline-flex items-center gap-1 hover:text-brand-600 transition-colors">
-            <ExternalLink size={11} /> Celý eshop
+            <ExternalLink size={11} /> {t('unit.fullShop')}
           </Link>
           <Link to="/donate" className="inline-flex items-center gap-1 hover:text-brand-600 transition-colors">
-            <Heart size={11} /> Přímý dar
+            <Heart size={11} /> {t('unit.directDonation')}
           </Link>
         </div>
 

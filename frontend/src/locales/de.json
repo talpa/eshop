@@ -55,10 +55,22 @@
     },
     "howItWorks": {
       "title": "So funktioniert die Spendenplattform",
-      "step1": { "title": "Geschenk wählen", "text": "Wählen Sie ein Geschenk, das Sie als Dankeschön für Ihre Spende erhalten." },
-      "step2": { "title": "Einheit wählen", "text": "Wählen Sie die Militäreinheit, der Sie Ihre Spende widmen möchten." },
-      "step3": { "title": "Beliebigen Betrag spenden", "text": "Der Geschenkpreis ist der Mindestbetrag — Sie können auch mehr spenden." },
-      "step4": { "title": "Bestätigung erhalten", "text": "Nach der Zahlung senden wir Ihnen automatisch eine PDF-Spendenquittung." }
+      "step1": {
+        "title": "Geschenk wählen",
+        "text": "Wählen Sie ein Geschenk, das Sie als Dankeschön für Ihre Spende erhalten."
+      },
+      "step2": {
+        "title": "Einheit wählen",
+        "text": "Wählen Sie die Militäreinheit, der Sie Ihre Spende widmen möchten."
+      },
+      "step3": {
+        "title": "Beliebigen Betrag spenden",
+        "text": "Der Geschenkpreis ist der Mindestbetrag — Sie können auch mehr spenden."
+      },
+      "step4": {
+        "title": "Bestätigung erhalten",
+        "text": "Nach der Zahlung senden wir Ihnen automatisch eine PDF-Spendenquittung."
+      }
     },
     "units": {
       "title": "Unterstützte Militäreinheiten",
@@ -343,5 +355,20 @@
     "donateDirectly": "Möchten Sie direkt spenden? Nutzen Sie die",
     "donatePage": "Direkt spenden",
     "donateWithoutEmbed": "Seite ohne Einbettung."
+  },
+  "unit": {
+    "notFound": "Einheit nicht gefunden.",
+    "backToShop": "Zurück zum Shop",
+    "donateDirect": "Direkt spenden",
+    "selectGift": "Geschenk wählen",
+    "updates": "Neuigkeiten",
+    "olderUpdates": "Ältere Neuigkeiten ({{count}})",
+    "hideOlder": "Ältere ausblenden",
+    "photos": "Fotos",
+    "videos": "Videos",
+    "giftsFrom": "Geschenke von {{name}}",
+    "minDonation": "Min. Spende",
+    "fullShop": "Zum Shop",
+    "directDonation": "Direktspende"
   }
 }
