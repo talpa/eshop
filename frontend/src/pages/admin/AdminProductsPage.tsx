@@ -159,7 +159,7 @@ export default function AdminProductsPage() {
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">Zboží</h1>
         <button onClick={openNew} className="flex items-center gap-2 px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-lg text-sm font-medium transition-colors">
-          <Plus size={16} /> Nový produkt
+          <Plus size={16} /> Nové zboží
         </button>
       </div>
 
@@ -167,54 +167,35 @@ export default function AdminProductsPage() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-lg p-6 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold">{editing ? 'Upravit produkt' : 'Nový produkt'}</h2>
+              <h2 className="text-lg font-bold">{editing ? 'Upravit zboží' : 'Nové zboží'}</h2>
               <button onClick={() => setShowForm(false)}><X size={20} /></button>
             </div>
             <form onSubmit={handleSubmit(d => saveMutation.mutate({ ...d, militaryUnitIds: selectedUnitIds, images: productImages }))} className="space-y-3">
-              {[
-                { name: 'name' as const, label: 'Název' },
-                { name: 'slug' as const, label: 'Slug (URL)' },
-              ].map(({ name, label }) => (
-                <div key={name}>
-                  <label className="block text-xs font-medium mb-1">{label}</label>
-                  <input {...register(name)} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
-                  {errors[name] && <p className="text-red-500 text-xs mt-1">{errors[name]?.message}</p>}
-                </div>
-              ))}
               <div>
-                <label className="block text-xs font-medium mb-1">Popis</label>
-                <textarea {...register('description')} rows={2} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
+                <label className="block text-xs font-medium mb-1">Slug (URL)</label>
+                <input {...register('slug')} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
+                {errors.slug && <p className="text-red-500 text-xs mt-1">{errors.slug?.message}</p>}
               </div>
 
-              <div className="border-t border-slate-200 pt-3 mt-1">
-                <p className="text-xs font-semibold text-slate-500 uppercase mb-2">Překlady (EN / UK / DE)</p>
-                <div className="space-y-2">
+              {([
+                { lang: 'CZ', nameField: 'name' as const, descField: 'description' as const, label: 'Čeština' },
+                { lang: 'EN', nameField: 'nameEn' as const, descField: 'descriptionEn' as const, label: 'Angličtina' },
+                { lang: 'UK', nameField: 'nameUk' as const, descField: 'descriptionUk' as const, label: 'Ukrajinština' },
+                { lang: 'DE', nameField: 'nameDe' as const, descField: 'descriptionDe' as const, label: 'Němčina' },
+              ]).map(({ lang, nameField, descField, label }) => (
+                <div key={lang} className="border border-slate-200 rounded-lg p-3 space-y-2">
+                  <p className="text-xs font-semibold text-slate-500 uppercase">{label} ({lang})</p>
                   <div>
-                    <label className="block text-xs font-medium mb-1">Název EN</label>
-                    <input {...register('nameEn')} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
+                    <label className="block text-xs font-medium mb-1">Název</label>
+                    <input {...register(nameField)} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
+                    {errors[nameField] && <p className="text-red-500 text-xs mt-1">{errors[nameField]?.message}</p>}
                   </div>
                   <div>
-                    <label className="block text-xs font-medium mb-1">Název UK</label>
-                    <input {...register('nameUk')} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium mb-1">Name DE</label>
-                    <input {...register('nameDe')} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium mb-1">Popis EN</label>
-                    <textarea {...register('descriptionEn')} rows={2} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium mb-1">Popis UK</label>
-                    <textarea {...register('descriptionUk')} rows={2} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium mb-1">Beschreibung DE</label>
-                    <textarea {...register('descriptionDe')} rows={2} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
+                    <label className="block text-xs font-medium mb-1">Popis</label>
+                    <textarea {...register(descField)} rows={2} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
                   </div>
                 </div>
-              </div>
+              ))}
 
               <div>
                 <label className="block text-xs font-medium mb-2">Obrázky</label>
