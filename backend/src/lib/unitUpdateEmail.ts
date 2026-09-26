@@ -24,25 +24,25 @@ const UI: Record<string, { label: string; cta: string; received: string; unsubsc
     label: 'Aktualita jednotky',
     cta: 'Navštívit eshop',
     received: 'Tuto zprávu dostáváte, protože jste podpořili jednotku',
-    unsubscribe: 'Pro odhlášení z budoucích aktualit nás prosím kontaktujte na info@fondceskestopy.eu.',
+    unsubscribe: 'Pro odhlášení z budoucích aktualit nás prosím kontaktujte na info@darek.fondceskestopy.eu.',
   },
   en: {
     label: 'Unit update',
     cta: 'Visit the shop',
     received: 'You receive this message because you supported the unit',
-    unsubscribe: 'To unsubscribe from future updates, please contact us at info@fondceskestopy.eu.',
+    unsubscribe: 'To unsubscribe from future updates, please contact us at info@darek.fondceskestopy.eu.',
   },
   uk: {
     label: 'Оновлення підрозділу',
     cta: 'Відвідати магазин',
     received: 'Ви отримуєте цей лист, оскільки підтримали підрозділ',
-    unsubscribe: 'Щоб відписатися від майбутніх оновлень, зв\'яжіться з нами: info@fondceskestopy.eu.',
+    unsubscribe: 'Щоб відписатися від майбутніх оновлень, зв\'яжіться з нами: info@darek.fondceskestopy.eu.',
   },
   de: {
     label: 'Neuigkeit der Einheit',
     cta: 'Shop besuchen',
     received: 'Sie erhalten diese Nachricht, weil Sie die Einheit unterstützt haben',
-    unsubscribe: 'Um sich von zukünftigen Updates abzumelden, kontaktieren Sie uns: info@fondceskestopy.eu.',
+    unsubscribe: 'Um sich von zukünftigen Updates abzumelden, kontaktieren Sie uns: info@darek.fondceskestopy.eu.',
   },
 };
 

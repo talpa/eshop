@@ -9,7 +9,7 @@ export default function PrivacyPolicyPage() {
         <span className="text-xs text-slate-400 uppercase tracking-wide font-medium">Nadační fond České stopy</span>
       </div>
       <h1 className="text-3xl font-bold text-slate-900 mb-2">Zásady ochrany osobních údajů</h1>
-      <p className="text-sm text-slate-400 mb-10">Platné od 1. října 2026 · <a href="https://eshop.fondceskestopy.eu" className="hover:text-brand-600">eshop.fondceskestopy.eu</a></p>
+      <p className="text-sm text-slate-400 mb-10">Platné od 1. října 2026 · <a href="https://darek.fondceskestopy.eu" className="hover:text-brand-600">darek.fondceskestopy.eu</a></p>
 
       <div className="prose prose-slate max-w-none space-y-8 text-slate-700">
 
@@ -17,7 +17,7 @@ export default function PrivacyPolicyPage() {
           <h2 className="text-lg font-bold text-slate-800 mb-3">1. Správce osobních údajů</h2>
           <p className="text-sm leading-relaxed">
             Správcem osobních údajů je <strong>Nadační fond České stopy</strong>, provozující dárcovskou platformu na adrese{' '}
-            <a href="https://eshop.fondceskestopy.eu" className="text-brand-600 hover:underline">https://eshop.fondceskestopy.eu</a>.
+            <a href="https://darek.fondceskestopy.eu" className="text-brand-600 hover:underline">https://darek.fondceskestopy.eu</a>.
             V případě dotazů nás kontaktujte na e-mailu uvedeném na webu.
           </p>
         </section>

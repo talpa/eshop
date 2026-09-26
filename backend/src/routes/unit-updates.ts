@@ -51,7 +51,7 @@ router.post('/', authenticate, requireAdmin, async (req: Request, res: Response,
     const update = await prisma.unitUpdate.create({ data: { militaryUnitId: unitId, ...body, recipientCount: emails.length } });
 
     if (emails.length > 0) {
-      const shopUrl = process.env.FRONTEND_URL?.split(',')[0]?.trim() || 'https://eshop.fondceskestopy.eu';
+      const shopUrl = process.env.FRONTEND_URL?.split(',')[0]?.trim() || 'https://darek.fondceskestopy.eu';
 
       // Fetch preferred language for each recipient
       const users = await prisma.user.findMany({
