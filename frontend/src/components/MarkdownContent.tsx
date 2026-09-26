@@ -1,5 +1,7 @@
 import ReactMarkdown from 'react-markdown';
 import type { Components } from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
 
 const YT_RE = /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/;
 
@@ -58,7 +60,7 @@ export default function MarkdownContent({ content, className }: { content: strin
             />
           </div>
         ) : (
-          <ReactMarkdown key={i} components={mdComponents}>{seg.text}</ReactMarkdown>
+          <ReactMarkdown key={i} components={mdComponents} remarkPlugins={[remarkGfm]} rehypePlugins={[rehypeRaw]}>{seg.text}</ReactMarkdown>
         )
       )}
     </div>

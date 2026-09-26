@@ -22,6 +22,8 @@
     "react-i18next": "^17.0.14",
     "react-markdown": "^10.1.0",
     "react-router-dom": "^6.24.0",
+    "rehype-raw": "^7.0.0",
+    "remark-gfm": "^4.0.1",
     "zod": "^3.23.8",
     "zustand": "^4.5.4"
   },

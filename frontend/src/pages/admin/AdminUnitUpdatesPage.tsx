@@ -161,7 +161,7 @@ export default function AdminUnitUpdatesPage() {
               />
             </div>
             <p className="text-xs text-slate-400">
-              Formátování: <code className="bg-slate-100 px-1 rounded">**tučně**</code>, <code className="bg-slate-100 px-1 rounded">[odkaz](https://...)</code>, YouTube URL na samostatném řádku se vloží jako video.
+              Formátování: <code className="bg-slate-100 px-1 rounded">**tučně**</code> <code className="bg-slate-100 px-1 rounded">*kurzíva*</code> <code className="bg-slate-100 px-1 rounded">~~přeškrtnuté~~</code> <code className="bg-slate-100 px-1 rounded">&lt;u&gt;podtržené&lt;/u&gt;</code> <code className="bg-slate-100 px-1 rounded">[odkaz](https://...)</code> · YouTube URL na samostatném řádku = vložené video.
               {activeLang === 'cs' && <> Ostatní jazyky jsou volitelné — pokud nejsou vyplněny, obdrží příjemce českou verzi.</>}
             </p>
             <button
