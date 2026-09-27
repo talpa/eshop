@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
 
 const SITE_NAME = 'Česká stopa';
@@ -44,9 +45,19 @@ export default function PageMeta({ title, description, image, path, noindex = fa
 }
 
 export function JsonLd({ data }: { data: object }) {
-  return (
-    <Helmet>
-      <script type="application/ld+json">{JSON.stringify(data)}</script>
-    </Helmet>
-  );
+  const ref = useRef<HTMLScriptElement | null>(null);
+  useEffect(() => {
+    const script = document.createElement('script');
+    script.type = 'application/ld+json';
+    script.textContent = JSON.stringify(data);
+    document.head.appendChild(script);
+    ref.current = script;
+    return () => {
+      if (ref.current && document.head.contains(ref.current)) {
+        document.head.removeChild(ref.current);
+        ref.current = null;
+      }
+    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  return null;
 }
