@@ -276,7 +276,7 @@ export default function ProductsPage() {
             >
               {t('home.search.all')}
             </button>
-            {categories?.map(cat => (
+            {Array.isArray(categories) && categories.map(cat => (
               <button
                 key={cat.id}
                 onClick={() => setSearchParams(p => { p.set('category', cat.slug); return p; })}
@@ -308,12 +308,12 @@ export default function ProductsPage() {
         </div>
 
         {isLoading && <div className="text-center py-12 text-slate-400">{t('common.loading')}</div>}
-        {!isLoading && (data?.products?.length ?? 0) === 0 && (
+        {!isLoading && (Array.isArray(data?.products) ? data.products.length : 0) === 0 && (
           <div className="text-center py-12 text-slate-400">{t('home.products.empty')}</div>
         )}
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-          {data?.products?.map(product => (
+          {Array.isArray(data?.products) && data.products.map(product => (
             <div key={product.id} className="bg-white rounded-xl border border-slate-200 overflow-hidden hover:shadow-md hover:border-brand-300 transition-all">
               <div className="relative">
                 <CardImageSlider images={product.images} productSlug={product.slug} productName={localName(product, i18n.language)} />
