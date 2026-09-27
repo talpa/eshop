@@ -4,12 +4,13 @@ import { useTranslation } from 'react-i18next';
 import { useCartStore } from '../../store/cartStore';
 import { useAuthStore } from '../../store/authStore';
 import { formatPrice, getImageUrl } from '../../lib/utils';
+import { localName } from '../../lib/localise';
 
 export default function CartPage() {
   const { items, removeItem, updateQuantity, total } = useCartStore();
   const token = useAuthStore(s => s.token);
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   if (items.length === 0) {
     return (
@@ -38,7 +39,7 @@ export default function CartPage() {
                 : <span className="w-full h-full flex items-center justify-center text-2xl">📦</span>}
             </div>
             <div className="flex-1 min-w-0">
-              <Link to={`/products/${product.slug}`} className="font-medium text-sm hover:text-brand-600 line-clamp-1">{product.name}</Link>
+              <Link to={`/products/${product.slug}`} className="font-medium text-sm hover:text-brand-600 line-clamp-1">{localName(product, i18n.language)}</Link>
               <p className="text-brand-600 font-bold text-sm">{formatPrice(product.priceCzk)}</p>
             </div>
             <div className="flex items-center gap-2">
