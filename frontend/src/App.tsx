@@ -1,9 +1,29 @@
-import { lazy, Suspense } from 'react';
+import { lazy, Suspense, Component, ReactNode } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from './store/authStore';
 import ShopLayout from './components/layout/ShopLayout';
 import AdminLayout from './components/layout/AdminLayout';
 import WidgetLayout from './components/layout/WidgetLayout';
+
+class ErrorBoundary extends Component<{ children: ReactNode }, { error: Error | null }> {
+  state = { error: null };
+  static getDerivedStateFromError(error: Error) { return { error }; }
+  render() {
+    if (this.state.error) {
+      return (
+        <div className="min-h-screen flex items-center justify-center p-8 text-center">
+          <div>
+            <p className="text-slate-500 mb-4">Nepodařilo se načíst stránku.</p>
+            <button onClick={() => window.location.reload()} className="px-4 py-2 bg-brand-600 text-white rounded-lg text-sm">
+              Obnovit stránku
+            </button>
+          </div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 const LoginPage = lazy(() => import('./pages/auth/LoginPage'));
 const RegisterPage = lazy(() => import('./pages/auth/RegisterPage'));
@@ -58,6 +78,7 @@ function PublicRoute({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   return (
+    <ErrorBoundary>
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<PublicRoute>{wrap(<LoginPage />)}</PublicRoute>} />
@@ -97,5 +118,6 @@ export default function App() {
         </Route>
       </Routes>
     </BrowserRouter>
+    </ErrorBoundary>
   );
 }
