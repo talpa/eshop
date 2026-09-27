@@ -3,7 +3,7 @@ import { Trash2, Plus, Minus, ShoppingBag } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useCartStore } from '../../store/cartStore';
 import { useAuthStore } from '../../store/authStore';
-import { formatPrice } from '../../lib/utils';
+import { formatPrice, getImageUrl } from '../../lib/utils';
 
 export default function CartPage() {
   const { items, removeItem, updateQuantity, total } = useCartStore();
@@ -34,7 +34,7 @@ export default function CartPage() {
           <div key={product.id} className="flex items-center gap-4 bg-white p-4 rounded-xl border border-slate-200">
             <div className="w-16 h-16 bg-slate-100 rounded-lg flex-shrink-0 overflow-hidden">
               {product.images[0]
-                ? <img src={product.images[0]} alt={product.name} className="w-full h-full object-cover" />
+                ? <img src={getImageUrl(product.images[0])} alt={product.name} className="w-full h-full object-cover" />
                 : <span className="w-full h-full flex items-center justify-center text-2xl">📦</span>}
             </div>
             <div className="flex-1 min-w-0">
