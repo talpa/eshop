@@ -10,6 +10,7 @@ import { localName, localDesc } from '../../lib/localise';
 import { formatPrice, getImageUrl } from '../../lib/utils';
 import toast from 'react-hot-toast';
 import MarkdownContent from '../../components/MarkdownContent';
+import PageMeta, { JsonLd } from '../../components/PageMeta';
 
 function getYouTubeId(url: string): string | null {
   const m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/);
@@ -87,8 +88,27 @@ export default function UnitPage() {
   const visibleUpdates = updates.slice(0, shownCount);
   const hasMore = updates.length > shownCount;
 
+  const unitName = localName(unit, lang);
+  const unitDesc = localDesc(unit, lang);
+  const unitLogo = unit.logo ? getImageUrl(unit.logo) : undefined;
+
   return (
     <div>
+      <PageMeta
+        title={unitName}
+        description={unitDesc || undefined}
+        image={unitLogo}
+        path={`/jednotky/${unit.slug}`}
+      />
+      <JsonLd data={{
+        '@context': 'https://schema.org',
+        '@type': 'Organization',
+        name: unitName,
+        description: unitDesc || undefined,
+        ...(unitLogo ? { logo: unitLogo } : {}),
+        url: `${typeof window !== 'undefined' ? window.location.origin : ''}/jednotky/${unit.slug}`,
+        parentOrganization: { '@type': 'Organization', name: 'Nadační fond České stopy' },
+      }} />
       {/* Hero */}
       <div className="bg-gradient-to-b from-slate-900 to-slate-800 text-white">
         <div className="max-w-4xl mx-auto px-4 pt-6 pb-10">
@@ -212,7 +232,7 @@ export default function UnitPage() {
                 rel="noopener noreferrer"
                 className="aspect-square rounded-xl overflow-hidden bg-slate-100 block hover:opacity-90 transition-opacity"
               >
-                <img src={getImageUrl(photo)} alt="" className="w-full h-full object-cover" loading="lazy" />
+                <img src={getImageUrl(photo)} alt={`${unitName} – fotografie ${i + 1}`} className="w-full h-full object-cover" loading="lazy" />
               </a>
             ))}
           </div>

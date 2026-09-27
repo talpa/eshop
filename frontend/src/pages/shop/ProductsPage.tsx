@@ -10,10 +10,11 @@ import { useAuthStore } from '../../store/authStore';
 import { Product, ProductsResponse, Category, MilitaryUnit } from '../../types';
 import { formatPrice, getImageUrl } from '../../lib/utils';
 import toast from 'react-hot-toast';
+import PageMeta, { JsonLd } from '../../components/PageMeta';
 
 const HOW_IT_WORKS_ICONS = [ShoppingCart, Shield, Heart, FileText];
 
-function CardImageSlider({ images, productSlug }: { images: string[]; productSlug: string }) {
+function CardImageSlider({ images, productSlug, productName }: { images: string[]; productSlug: string; productName: string }) {
   const [current, setCurrent] = useState(0);
 
   if (!images[0]) {
@@ -29,7 +30,7 @@ function CardImageSlider({ images, productSlug }: { images: string[]; productSlu
   return (
     <div className="relative aspect-square bg-slate-100 group">
       <Link to={`/products/${productSlug}`} className="block w-full h-full">
-        <img src={getImageUrl(images[current])} alt="" className="w-full h-full object-contain" />
+        <img src={getImageUrl(images[current])} alt={productName} className="w-full h-full object-contain" />
       </Link>
       {images.length > 1 && (
         <>
@@ -103,6 +104,35 @@ export default function ProductsPage() {
 
   return (
     <div>
+      <PageMeta
+        path="/"
+        description="Podpořte vojenské jednotky působící na Ukrajině. Vyberte symbolický dárek jako poděkování, darujte a obdržíte darovací smlouvu."
+      />
+      <JsonLd data={{
+        '@context': 'https://schema.org',
+        '@graph': [
+          {
+            '@type': 'Organization',
+            '@id': `${typeof window !== 'undefined' ? window.location.origin : ''}/#organization`,
+            name: 'Nadační fond České stopy',
+            url: typeof window !== 'undefined' ? window.location.origin : '',
+            logo: `${typeof window !== 'undefined' ? window.location.origin : ''}/app-icon-1024.png`,
+            description: 'Nadační fond pro podporu vojenských jednotek působících na Ukrajině.',
+          },
+          {
+            '@type': 'WebSite',
+            '@id': `${typeof window !== 'undefined' ? window.location.origin : ''}/#website`,
+            url: typeof window !== 'undefined' ? window.location.origin : '',
+            name: 'Česká stopa',
+            publisher: { '@id': `${typeof window !== 'undefined' ? window.location.origin : ''}/#organization` },
+            potentialAction: {
+              '@type': 'SearchAction',
+              target: { '@type': 'EntryPoint', urlTemplate: `${typeof window !== 'undefined' ? window.location.origin : ''}/products?search={search_term_string}` },
+              'query-input': 'required name=search_term_string',
+            },
+          },
+        ],
+      }} />
       {/* Hero — unit-focused */}
       <div className="bg-gradient-to-br from-slate-900 via-brand-900 to-slate-800 text-white overflow-hidden">
         <div className="max-w-6xl mx-auto px-4 py-16 md:py-24">
@@ -286,7 +316,7 @@ export default function ProductsPage() {
           {data?.products.map(product => (
             <div key={product.id} className="bg-white rounded-xl border border-slate-200 overflow-hidden hover:shadow-md hover:border-brand-300 transition-all">
               <div className="relative">
-                <CardImageSlider images={product.images} productSlug={product.slug} />
+                <CardImageSlider images={product.images} productSlug={product.slug} productName={localName(product, i18n.language)} />
                 {user?.role === 'ADMIN' && (
                   <Link
                     to={`/admin/products?edit=${product.id}`}

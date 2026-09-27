@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom';
 import { Shield } from 'lucide-react';
+import PageMeta from '../../components/PageMeta';
 
 export default function PrivacyPolicyPage() {
   return (
     <div className="max-w-3xl mx-auto px-4 py-12">
+      <PageMeta title="Ochrana osobních údajů" description="Zásady ochrany osobních údajů Nadačního fondu České stopy." path="/privacy-policy" />
       <div className="flex items-center gap-2 mb-2">
         <Shield size={18} className="text-brand-600" />
         <span className="text-xs text-slate-400 uppercase tracking-wide font-medium">Nadační fond České stopy</span>

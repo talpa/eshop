@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /login
+Disallow: /register
+Disallow: /cart
+Disallow: /checkout
+Disallow: /my-orders
+Disallow: /profil
+Disallow: /orders/
+Disallow: /widget
+Disallow: /oauth-callback
+
+Sitemap: https://darek.fondceskestopy.eu/api/sitemap.xml

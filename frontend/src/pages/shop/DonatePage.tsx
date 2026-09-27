@@ -8,6 +8,7 @@ import toast from 'react-hot-toast';
 import { Heart, AlertCircle } from 'lucide-react';
 import { useTranslation, Trans } from 'react-i18next';
 import { localName } from '../../lib/localise';
+import PageMeta from '../../components/PageMeta';
 import { buildQr, PaymentBlock } from '../widget/widgetShared';
 import { api } from '../../lib/api';
 import { useAuthStore } from '../../store/authStore';
@@ -102,6 +103,7 @@ export default function DonatePage() {
 
   return (
     <div className="max-w-xl mx-auto px-4 py-8">
+      <PageMeta title="Darovat" path="/donate" noindex />
       <div className="flex items-center gap-3 mb-2">
         <div className="w-10 h-10 bg-brand-100 rounded-xl flex items-center justify-center">
           <Heart size={20} className="text-brand-600" />

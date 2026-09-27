@@ -5,13 +5,14 @@ import { ShoppingCart, ArrowLeft, Plus, Minus, Shield, ChevronLeft, ChevronRight
 import { useTranslation } from 'react-i18next';
 import { localName, localDesc } from '../../lib/localise';
 import MarkdownContent from '../../components/MarkdownContent';
+import PageMeta, { JsonLd } from '../../components/PageMeta';
 import { api } from '../../lib/api';
 import { useCartStore } from '../../store/cartStore';
 import { Product } from '../../types';
 import { formatPrice, getImageUrl } from '../../lib/utils';
 import toast from 'react-hot-toast';
 
-function ImageSlider({ images }: { images: string[] }) {
+function ImageSlider({ images, alt }: { images: string[]; alt: string }) {
   const [current, setCurrent] = useState(0);
 
   if (images.length === 0) {
@@ -24,7 +25,7 @@ function ImageSlider({ images }: { images: string[] }) {
 
   return (
     <div className="relative aspect-square bg-slate-100 rounded-xl overflow-hidden group">
-      <img src={getImageUrl(images[current])} alt="" className="w-full h-full object-contain" />
+      <img src={getImageUrl(images[current])} alt={alt} className="w-full h-full object-contain" />
       {images.length > 1 && (
         <>
           <button onClick={() => setCurrent(i => (i - 1 + images.length) % images.length)}
@@ -45,7 +46,7 @@ function ImageSlider({ images }: { images: string[] }) {
             {images.map((url, i) => (
               <button key={i} onClick={() => setCurrent(i)}
                 className={`flex-shrink-0 w-14 h-14 rounded-lg overflow-hidden border-2 transition-colors ${i === current ? 'border-brand-500' : 'border-transparent'}`}>
-                <img src={getImageUrl(url)} alt="" className="w-full h-full object-cover" />
+                <img src={getImageUrl(url)} alt={alt} className="w-full h-full object-cover" />
               </button>
             ))}
           </div>
@@ -69,6 +70,10 @@ export default function ProductPage() {
   if (isLoading) return <div className="max-w-4xl mx-auto px-4 py-12 text-slate-400">{t('common.loading')}</div>;
   if (!product) return <div className="max-w-4xl mx-auto px-4 py-12 text-slate-400">{t('product.notFound')}</div>;
 
+  const productName = localName(product, i18n.language);
+  const productDesc = localDesc(product, i18n.language);
+  const productImage = product.images?.[0] ? getImageUrl(product.images[0]) : undefined;
+
   const handleAdd = () => {
     addItem(product, qty);
     toast.success(t('product.addedToCart', { name: product.name }));
@@ -76,11 +81,34 @@ export default function ProductPage() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
+      <PageMeta
+        title={productName}
+        description={productDesc || undefined}
+        image={productImage}
+        path={`/products/${product.slug}`}
+        type="product"
+      />
+      <JsonLd data={{
+        '@context': 'https://schema.org',
+        '@type': 'Product',
+        name: productName,
+        description: productDesc || undefined,
+        image: productImage,
+        url: `${typeof window !== 'undefined' ? window.location.origin : ''}/products/${product.slug}`,
+        offers: {
+          '@type': 'Offer',
+          priceCurrency: 'CZK',
+          price: Number(product.priceCzk),
+          availability: product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+          seller: { '@type': 'Organization', name: 'Nadační fond České stopy' },
+        },
+        ...(product.category ? { category: localName(product.category, i18n.language) } : {}),
+      }} />
       <Link to="/products" className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-800 mb-6">
         <ArrowLeft size={14} /> {t('product.back')}
       </Link>
       <div className="grid md:grid-cols-2 gap-8">
-        <ImageSlider images={product.images || []} />
+        <ImageSlider images={product.images || []} alt={productName} />
         <div>
           {product.category && (
             <Link to={`/products?category=${product.category.slug}`} className="text-xs text-brand-600 uppercase tracking-wider font-medium">

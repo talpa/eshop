@@ -54,6 +54,30 @@ app.use(express.json({ limit: '10mb' }));
 app.use(passport.initialize());
 
 app.get('/api/health', (_req, res) => res.json({ status: 'ok' }));
+
+app.get('/api/sitemap.xml', async (_req, res) => {
+  try {
+    const [products, units] = await Promise.all([
+      prisma.product.findMany({ where: { isActive: true }, select: { slug: true, updatedAt: true }, orderBy: { sortOrder: 'asc' } }),
+      prisma.militaryUnit.findMany({ where: { isActive: true }, select: { slug: true, updatedAt: true } }),
+    ]);
+    const base = (process.env.FRONTEND_URL || 'https://darek.fondceskestopy.eu').split(',')[0].trim().replace(/\/$/, '');
+    const fmt = (d: Date) => d.toISOString().split('T')[0];
+    const today = fmt(new Date());
+    const urls = [
+      `  <url><loc>${base}/</loc><changefreq>daily</changefreq><priority>1.0</priority><lastmod>${today}</lastmod></url>`,
+      `  <url><loc>${base}/donate</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>`,
+      ...units.map(u => `  <url><loc>${base}/jednotky/${u.slug}</loc><changefreq>weekly</changefreq><priority>0.9</priority><lastmod>${fmt(u.updatedAt)}</lastmod></url>`),
+      ...products.map(p => `  <url><loc>${base}/products/${p.slug}</loc><changefreq>weekly</changefreq><priority>0.8</priority><lastmod>${fmt(p.updatedAt)}</lastmod></url>`),
+    ];
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.join('\n')}\n</urlset>`;
+    res.setHeader('Content-Type', 'application/xml; charset=utf-8');
+    res.setHeader('Cache-Control', 'public, max-age=3600');
+    res.send(xml);
+  } catch {
+    res.status(500).send('Error generating sitemap');
+  }
+});
 app.get('/api/config', (_req, res) => res.json({
   accountNumber: process.env.SHOP_BANK_ACCOUNT || '',
   iban: process.env.SHOP_IBAN || '',
