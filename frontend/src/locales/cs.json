@@ -212,7 +212,7 @@
   "donate": {
     "title": "Darovat přímo — bez dárků",
     "subtitle": "Váš dar půjde přímo na vybraný účel fondu Česká stopa",
-    "loginAlert": "Pro vystavení darovací smlouvy ve formátu PDF se <1>přihlaste</1>. Bez přihlášení obdržíte platební instrukce emailem.",
+    "loginAlert": "Pro vystavení darovací smlouvy ve formátu PDF se <1>přihlaste</1>. Bez přihlášení neobdržíte platební instrukce emailem.",
     "target": {
       "title": "Kam dar poputuje",
       "unit": "Konkrétní jednotce",

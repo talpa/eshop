@@ -11,4 +11,4 @@ Disallow: /orders/
 Disallow: /widget
 Disallow: /oauth-callback
 
-Sitemap: https://darek.fondceskestopy.eu/api/sitemap.xml
+Sitemap: https://darek.fondceskestopy.eu/sitemap.xml
