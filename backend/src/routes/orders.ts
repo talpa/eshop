@@ -204,16 +204,48 @@ router.post('/', optionalAuth, orderRateLimit, async (req: AuthRequest, res: Res
 router.get('/', authenticate, async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const isAdmin = req.user!.role === 'ADMIN';
-    const orders = await prisma.order.findMany({
-      where: isAdmin ? {} : { userId: req.user!.id },
-      include: {
-        items: true,
-        payment: { select: { status: true, paidAt: true } },
-        militaryUnit: { select: { id: true, name: true } },
-      },
-      orderBy: { createdAt: 'desc' },
-    });
-    res.json(orders);
+
+    if (!isAdmin) {
+      const orders = await prisma.order.findMany({
+        where: { userId: req.user!.id },
+        include: {
+          items: true,
+          payment: { select: { status: true, paidAt: true } },
+          militaryUnit: { select: { id: true, name: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+      });
+      res.json({ orders, total: orders.length, page: 1, limit: orders.length });
+      return;
+    }
+
+    const { page = '1', limit = '25', donationStatus, unitId } = req.query as Record<string, string>;
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const take = parseInt(limit);
+
+    let where: Record<string, unknown> = {};
+    if (donationStatus === 'PENDING') where = { status: 'PENDING', fundsUsed: false };
+    else if (donationStatus === 'PAID') where = { status: { in: ['PAID', 'PROCESSING', 'SHIPPED', 'DELIVERED'] }, fundsUsed: false };
+    else if (donationStatus === 'VYPLACENA') where = { fundsUsed: true, status: { not: 'CANCELLED' } };
+    else if (donationStatus === 'CANCELLED') where = { status: 'CANCELLED' };
+    if (unitId) where.militaryUnitId = unitId;
+
+    const [orders, total] = await Promise.all([
+      prisma.order.findMany({
+        where,
+        include: {
+          items: true,
+          payment: { select: { status: true, paidAt: true } },
+          militaryUnit: { select: { id: true, name: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take,
+      }),
+      prisma.order.count({ where }),
+    ]);
+
+    res.json({ orders, total, page: parseInt(page), limit: take });
   } catch (err) { next(err); }
 });
 

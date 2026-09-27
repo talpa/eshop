@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Users, Mail, Phone, Globe, ShoppingBag, ChevronDown, ChevronUp, Save, MapPin, UserPlus, X } from 'lucide-react';
+import { Users, Mail, Phone, Globe, ShoppingBag, ChevronDown, ChevronUp, Save, MapPin, UserPlus, X, Search } from 'lucide-react';
+import Pagination from '../../components/Pagination';
 import toast from 'react-hot-toast';
 import { api } from '../../lib/api';
 import { formatPrice } from '../../lib/utils';
@@ -65,17 +66,29 @@ interface EditForm { name: string; phone: string; preferredLanguage: string; }
 interface CreateForm { email: string; name: string; password: string; role: 'ADMIN' | 'CUSTOMER'; }
 const emptyCreate: CreateForm = { email: '', name: '', password: '', role: 'CUSTOMER' };
 
+interface UsersResponse { users: AdminUser[]; total: number; page: number; limit: number; }
+
 export default function AdminUsersPage() {
   const qc = useQueryClient();
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [editForms, setEditForms] = useState<Record<string, EditForm>>({});
   const [showCreate, setShowCreate] = useState(false);
   const [createForm, setCreateForm] = useState<CreateForm>(emptyCreate);
+  const [page, setPage] = useState(1);
+  const [search, setSearch] = useState('');
+  const [searchInput, setSearchInput] = useState('');
+  const LIMIT = 25;
 
-  const { data: users, isLoading } = useQuery<AdminUser[]>({
-    queryKey: ['admin-users'],
-    queryFn: () => api.get<AdminUser[]>('/admin/users').then(r => r.data),
+  const { data: usersData, isLoading } = useQuery<UsersResponse>({
+    queryKey: ['admin-users', page, search],
+    queryFn: () => {
+      const params: Record<string, string> = { page: String(page), limit: String(LIMIT) };
+      if (search) params.search = search;
+      return api.get<UsersResponse>('/admin/users', { params }).then(r => r.data);
+    },
   });
+
+  const users = usersData?.users ?? [];
 
   const { data: detail } = useQuery<AdminUserDetail>({
     queryKey: ['admin-user-detail', expandedId],
@@ -120,7 +133,7 @@ export default function AdminUsersPage() {
         <div className="flex items-center gap-2">
           <Users size={22} className="text-brand-600" />
           <h1 className="text-2xl font-bold">Uživatelé</h1>
-          {users && <span className="text-sm text-slate-400 ml-1">({users.length})</span>}
+          {usersData && <span className="text-sm text-slate-400 ml-1">({usersData.total})</span>}
         </div>
         <button
           onClick={() => setShowCreate(true)}
@@ -170,6 +183,17 @@ export default function AdminUsersPage() {
         </div>
       )}
 
+      <div className="mb-4 relative">
+        <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+        <input
+          value={searchInput}
+          onChange={e => setSearchInput(e.target.value)}
+          onKeyDown={e => { if (e.key === 'Enter') { setSearch(searchInput); setPage(1); } }}
+          placeholder="Hledat podle jména nebo emailu… (Enter)"
+          className="w-full pl-9 pr-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
+        />
+      </div>
+
       {isLoading && <div className="text-slate-400">Načítám...</div>}
 
       <div className="bg-white border border-slate-200 rounded-xl overflow-hidden overflow-x-auto">
@@ -182,7 +206,7 @@ export default function AdminUsersPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {users?.map(user => (
+            {users.map(user => (
               <>
                 <tr
                   key={user.id}
@@ -326,6 +350,7 @@ export default function AdminUsersPage() {
           </tbody>
         </table>
       </div>
+      {usersData && <Pagination page={page} total={usersData.total} limit={LIMIT} onChange={setPage} />}
     </div>
   );
 }

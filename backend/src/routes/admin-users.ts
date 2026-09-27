@@ -5,16 +5,28 @@ import { authenticate, requireAdmin } from '../middleware/auth';
 
 const router = Router();
 
-router.get('/', authenticate, requireAdmin, async (_req: Request, res: Response, next: NextFunction): Promise<void> => {
+router.get('/', authenticate, requireAdmin, async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const users = await prisma.user.findMany({
-      orderBy: { createdAt: 'desc' },
-      select: {
-        id: true, email: true, name: true, phone: true, preferredLanguage: true, role: true, createdAt: true,
-        _count: { select: { orders: true } },
-      },
-    });
-    res.json(users);
+    const { page = '1', limit = '25', search } = req.query as Record<string, string>;
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const take = parseInt(limit);
+    const where = search
+      ? { OR: [{ email: { contains: search } }, { name: { contains: search } }] }
+      : {};
+    const [users, total] = await Promise.all([
+      prisma.user.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        skip,
+        take,
+        select: {
+          id: true, email: true, name: true, phone: true, preferredLanguage: true, role: true, createdAt: true,
+          _count: { select: { orders: true } },
+        },
+      }),
+      prisma.user.count({ where }),
+    ]);
+    res.json({ users, total, page: parseInt(page), limit: take });
   } catch (err) { next(err); }
 });
 

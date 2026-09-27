@@ -20,7 +20,7 @@ const PAID_STATUSES = new Set(['PAID', 'PROCESSING', 'SHIPPED', 'DELIVERED']);
 export default function MyOrdersPage() {
   const { data: orders, isLoading } = useQuery({
     queryKey: ['my-orders'],
-    queryFn: () => api.get<Order[]>('/orders').then(r => r.data),
+    queryFn: () => api.get<{ orders: Order[] }>('/orders').then(r => r.data.orders),
   });
   const { data: profile } = useQuery<UserProfile>({
     queryKey: ['profile'],

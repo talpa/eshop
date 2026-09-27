@@ -3,8 +3,9 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { api } from '../../lib/api';
-import { Order } from '../../types';
+import { Order, MilitaryUnit } from '../../types';
 import { formatPrice } from '../../lib/utils';
+import Pagination from '../../components/Pagination';
 
 type DonationStatus = 'PENDING' | 'PAID' | 'VYPLACENA' | 'CANCELLED';
 
@@ -29,17 +30,39 @@ const STATUS_COLORS: Record<DonationStatus, string> = {
   CANCELLED: 'text-red-600 bg-red-50 border-red-200',
 };
 
+interface OrdersResponse { orders: Order[]; total: number; page: number; limit: number; }
+
 export default function AdminOrdersPage() {
   const qc = useQueryClient();
   const [filterStatus, setFilterStatus] = useState<DonationStatus | ''>('');
   const [filterUnit, setFilterUnit] = useState('');
+  const [page, setPage] = useState(1);
+  const LIMIT = 25;
 
-  const { data: orders, isLoading } = useQuery<Order[]>({
-    queryKey: ['admin-orders'],
-    queryFn: () => api.get<Order[]>('/orders').then(r => r.data),
+  const { data: unitsData } = useQuery<MilitaryUnit[]>({
+    queryKey: ['admin-military-units'],
+    queryFn: () => api.get<MilitaryUnit[]>('/military-units/admin').then(r => r.data),
   });
 
+  const { data, isLoading } = useQuery<OrdersResponse>({
+    queryKey: ['admin-orders', page, filterStatus, filterUnit],
+    queryFn: () => {
+      const params: Record<string, string> = { page: String(page), limit: String(LIMIT) };
+      if (filterStatus) params.donationStatus = filterStatus;
+      if (filterUnit) params.unitId = filterUnit;
+      return api.get<OrdersResponse>('/orders', { params }).then(r => r.data);
+    },
+  });
+
+  const orders = data?.orders ?? [];
+
   const invalidate = () => qc.invalidateQueries({ queryKey: ['admin-orders'] });
+
+  const changeFilter = (status: DonationStatus | '', unit: string) => {
+    setFilterStatus(status);
+    setFilterUnit(unit);
+    setPage(1);
+  };
 
   const cancelMutation = useMutation({
     mutationFn: (id: string) => api.patch(`/orders/${id}/status`, { status: 'CANCELLED' }),
@@ -65,21 +88,13 @@ export default function AdminOrdersPage() {
     onError: () => toast.error('Nepodařilo se odeslat potvrzení.'),
   });
 
-  const units = [...new Set(orders?.map(o => o.militaryUnit?.name).filter(Boolean))];
+  const paidTotal = orders
+    .filter(o => getDonationStatus(o) === 'PAID' || getDonationStatus(o) === 'VYPLACENA')
+    .reduce((sum, o) => sum + Number(o.donationAmount), 0);
 
-  const filtered = orders?.filter(o => {
-    if (filterUnit && o.militaryUnit?.name !== filterUnit) return false;
-    if (filterStatus && getDonationStatus(o) !== filterStatus) return false;
-    return true;
-  });
-
-  const paidTotal = filtered
-    ?.filter(o => getDonationStatus(o) === 'PAID' || getDonationStatus(o) === 'VYPLACENA')
-    .reduce((sum, o) => sum + Number(o.donationAmount), 0) ?? 0;
-
-  const payoutTotal = filtered
-    ?.filter(o => getDonationStatus(o) === 'VYPLACENA')
-    .reduce((sum, o) => sum + Number(o.donationAmount), 0) ?? 0;
+  const payoutTotal = orders
+    .filter(o => getDonationStatus(o) === 'VYPLACENA')
+    .reduce((sum, o) => sum + Number(o.donationAmount), 0);
 
   return (
     <div>
@@ -88,7 +103,7 @@ export default function AdminOrdersPage() {
       <div className="flex flex-wrap gap-3 mb-5">
         <select
           value={filterStatus}
-          onChange={e => setFilterStatus(e.target.value as DonationStatus | '')}
+          onChange={e => changeFilter(e.target.value as DonationStatus | '', filterUnit)}
           className="text-sm border border-slate-300 rounded-lg px-3 py-1.5"
         >
           <option value="">Všechny stavy</option>
@@ -98,11 +113,11 @@ export default function AdminOrdersPage() {
         </select>
         <select
           value={filterUnit}
-          onChange={e => setFilterUnit(e.target.value)}
+          onChange={e => changeFilter(filterStatus, e.target.value)}
           className="text-sm border border-slate-300 rounded-lg px-3 py-1.5"
         >
           <option value="">Všechny jednotky</option>
-          {units.map(u => <option key={u} value={u!}>{u}</option>)}
+          {unitsData?.map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
         </select>
 
         {paidTotal > 0 && (
@@ -131,7 +146,7 @@ export default function AdminOrdersPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {filtered?.map(order => {
+            {orders.map(order => {
               const donStatus = getDonationStatus(order);
               return (
                 <tr key={order.id} className="hover:bg-slate-50">
@@ -214,6 +229,7 @@ export default function AdminOrdersPage() {
           </tbody>
         </table>
       </div>
+      {data && <Pagination page={page} total={data.total} limit={LIMIT} onChange={setPage} />}
     </div>
   );
 }

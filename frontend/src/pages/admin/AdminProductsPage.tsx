@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import Pagination from '../../components/Pagination';
 import { Plus, Pencil, Trash2, X, Upload, ImageOff, ChevronLeft, ChevronRight, ChevronUp, ChevronDown } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
@@ -32,14 +33,16 @@ export default function AdminProductsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [editing, setEditing] = useState<Product | null>(null);
   const [showForm, setShowForm] = useState(false);
+  const [page, setPage] = useState(1);
+  const LIMIT = 25;
   const [selectedUnitIds, setSelectedUnitIds] = useState<string[]>([]);
   const [productImages, setProductImages] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data, isLoading } = useQuery({
-    queryKey: ['admin-products'],
-    queryFn: () => api.get<{ products: Product[] }>('/products?limit=100').then(r => r.data),
+    queryKey: ['admin-products', page],
+    queryFn: () => api.get<{ products: Product[]; total: number }>(`/products?page=${page}&limit=${LIMIT}`).then(r => r.data),
   });
 
   const { data: categories } = useQuery({
@@ -77,7 +80,7 @@ export default function AdminProductsPage() {
     if (target < 0 || target >= sorted.length) return;
     [sorted[index], sorted[target]] = [sorted[target], sorted[index]];
     reorderMutation.mutate(sorted.map((p, i) => ({ id: p.id, sortOrder: i })));
-    qc.setQueryData<{ products: Product[] }>(['admin-products'], d => d ? { ...d, products: sorted } : d);
+    qc.setQueryData<{ products: Product[]; total: number }>(['admin-products', page], d => d ? { ...d, products: sorted } : d);
   };
 
   const saveMutation = useMutation({
@@ -375,6 +378,7 @@ export default function AdminProductsPage() {
           </tbody>
         </table>
       </div>
+      {data && <Pagination page={page} total={data.total} limit={LIMIT} onChange={setPage} />}
     </div>
   );
 }
