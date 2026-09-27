@@ -199,7 +199,7 @@ export default function ProductsPage() {
       </div>
 
       {/* Jednotky — primární vstup */}
-      {Array.isArray(units) && units.length > 0 && (
+      {units && units.length > 0 && (
         <div id="jednotky" className="border-b border-slate-200 bg-white">
           <div className="max-w-6xl mx-auto px-4 py-12">
             <div className="mb-8">
@@ -245,7 +245,7 @@ export default function ProductsPage() {
         <div className="flex items-center justify-between mb-6">
           <div>
             <h2 className="text-xl font-bold text-slate-800">
-              {unitSlug && Array.isArray(units)
+              {unitSlug && units
                 ? t('home.products.fromUnit', { name: localName(units.find(u => u.slug === unitSlug) ?? { name: '' }, i18n.language) })
                 : t('home.products.all')}
             </h2>
@@ -286,7 +286,7 @@ export default function ProductsPage() {
               </button>
             ))}
           </div>
-          {Array.isArray(units) && units.length > 0 && (
+          {units && units.length > 0 && (
             <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => setSearchParams(p => { p.delete('unit'); return p; })}
@@ -308,12 +308,12 @@ export default function ProductsPage() {
         </div>
 
         {isLoading && <div className="text-center py-12 text-slate-400">{t('common.loading')}</div>}
-        {!isLoading && (data?.products?.length ?? 0) === 0 && (
+        {!isLoading && data?.products.length === 0 && (
           <div className="text-center py-12 text-slate-400">{t('home.products.empty')}</div>
         )}
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-          {data?.products?.map(product => (
+          {data?.products.map(product => (
             <div key={product.id} className="bg-white rounded-xl border border-slate-200 overflow-hidden hover:shadow-md hover:border-brand-300 transition-all">
               <div className="relative">
                 <CardImageSlider images={product.images} productSlug={product.slug} productName={localName(product, i18n.language)} />
