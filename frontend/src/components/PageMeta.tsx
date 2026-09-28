@@ -46,10 +46,11 @@ export default function PageMeta({ title, description, image, path, noindex = fa
 
 export function JsonLd({ data }: { data: object }) {
   const ref = useRef<HTMLScriptElement | null>(null);
+  const serialized = JSON.stringify(data);
   useEffect(() => {
     const script = document.createElement('script');
     script.type = 'application/ld+json';
-    script.textContent = JSON.stringify(data);
+    script.textContent = serialized;
     document.head.appendChild(script);
     ref.current = script;
     return () => {
@@ -58,6 +59,6 @@ export function JsonLd({ data }: { data: object }) {
         ref.current = null;
       }
     };
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [serialized]);
   return null;
 }

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useTranslation } from 'react-i18next';
-import { Shield, ChevronLeft, ShoppingCart, Bell, ChevronDown, Heart, Image, Play } from 'lucide-react';
+import { Shield, ChevronLeft, ChevronRight, ShoppingCart, Bell, ChevronDown, Heart, Image, Play } from 'lucide-react';
 import { api } from '../../lib/api';
 import { useCartStore } from '../../store/cartStore';
 import { MilitaryUnit, ProductsResponse } from '../../types';
@@ -31,6 +31,11 @@ export default function UnitPage() {
     queryKey: ['unit-detail', slug],
     queryFn: () => api.get<MilitaryUnit>(`/military-units/by-slug/${slug}`).then(r => r.data),
     enabled: !!slug,
+  });
+
+  const { data: allUnits } = useQuery<MilitaryUnit[]>({
+    queryKey: ['military-units'],
+    queryFn: () => api.get<MilitaryUnit[]>('/military-units').then(r => r.data),
   });
 
   const { data: productsData } = useQuery<ProductsResponse>({
@@ -92,6 +97,61 @@ export default function UnitPage() {
   const unitDesc = localDesc(unit, lang);
   const unitLogo = unit.logo ? getImageUrl(unit.logo) : undefined;
 
+  const unitIndex = allUnits?.findIndex(u => u.slug === slug) ?? -1;
+  const prevUnit = unitIndex > 0 ? allUnits![unitIndex - 1] : null;
+  const nextUnit = allUnits && unitIndex >= 0 && unitIndex < allUnits.length - 1 ? allUnits[unitIndex + 1] : null;
+
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://darek.fondceskestopy.eu';
+  const unitUrl = `${origin}/jednotky/${unit.slug}`;
+
+  const jsonLdData = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Česká stopa', item: origin },
+          { '@type': 'ListItem', position: 2, name: unitName, item: unitUrl },
+        ],
+      },
+      {
+        '@type': 'Organization',
+        '@id': `${unitUrl}#organization`,
+        name: unitName,
+        description: unitDesc || undefined,
+        ...(unitLogo ? { logo: unitLogo } : {}),
+        url: unitUrl,
+        parentOrganization: {
+          '@type': 'Organization',
+          name: 'Nadační fond České stopy',
+          url: origin,
+        },
+      },
+      ...(products.length > 0 ? [{
+        '@type': 'ItemList',
+        name: `Dárky pro ${unitName}`,
+        description: `Symbolické dárky na podporu ${unitName}`,
+        itemListElement: products.slice(0, 10).map((p, i) => ({
+          '@type': 'ListItem',
+          position: i + 1,
+          item: {
+            '@type': 'Product',
+            name: localName(p, lang),
+            description: localDesc(p, lang) || undefined,
+            url: `${origin}/products/${p.slug}`,
+            ...(p.images?.[0] ? { image: getImageUrl(p.images[0]) } : {}),
+            offers: {
+              '@type': 'Offer',
+              priceCurrency: 'CZK',
+              price: Number(p.priceCzk),
+              availability: p.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+            },
+          },
+        })),
+      }] : []),
+    ],
+  };
+
   return (
     <div>
       <PageMeta
@@ -100,21 +160,35 @@ export default function UnitPage() {
         image={unitLogo}
         path={`/jednotky/${unit.slug}`}
       />
-      <JsonLd data={{
-        '@context': 'https://schema.org',
-        '@type': 'Organization',
-        name: unitName,
-        description: unitDesc || undefined,
-        ...(unitLogo ? { logo: unitLogo } : {}),
-        url: `${typeof window !== 'undefined' ? window.location.origin : ''}/jednotky/${unit.slug}`,
-        parentOrganization: { '@type': 'Organization', name: 'Nadační fond České stopy' },
-      }} />
+      <JsonLd data={jsonLdData} />
       {/* Hero */}
       <div className="bg-gradient-to-b from-slate-900 to-slate-800 text-white">
         <div className="max-w-4xl mx-auto px-4 pt-6 pb-10">
-          <Link to="/" className="inline-flex items-center gap-1 text-xs text-slate-400 hover:text-white mb-6 transition-colors">
-            <ChevronLeft size={14} /> {t('unit.backToShop')}
-          </Link>
+          <div className="flex items-center justify-between mb-6">
+            <Link to="/" className="inline-flex items-center gap-1 text-xs text-slate-400 hover:text-white transition-colors">
+              <ChevronLeft size={14} /> {t('unit.backToShop')}
+            </Link>
+            {(prevUnit || nextUnit) && (
+              <div className="flex items-center gap-1">
+                <Link
+                  to={prevUnit ? `/jednotky/${prevUnit.slug}` : '#'}
+                  aria-disabled={!prevUnit}
+                  className={`inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-lg border transition-colors ${prevUnit ? 'border-white/20 text-slate-300 hover:bg-white/10 hover:text-white' : 'border-white/10 text-white/20 pointer-events-none'}`}
+                >
+                  <ChevronLeft size={12} />
+                  {prevUnit ? localName(prevUnit, lang) : ''}
+                </Link>
+                <Link
+                  to={nextUnit ? `/jednotky/${nextUnit.slug}` : '#'}
+                  aria-disabled={!nextUnit}
+                  className={`inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-lg border transition-colors ${nextUnit ? 'border-white/20 text-slate-300 hover:bg-white/10 hover:text-white' : 'border-white/10 text-white/20 pointer-events-none'}`}
+                >
+                  {nextUnit ? localName(nextUnit, lang) : ''}
+                  <ChevronRight size={12} />
+                </Link>
+              </div>
+            )}
+          </div>
 
           <div className="flex gap-5 items-start">
             <div className="w-24 h-24 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center flex-shrink-0 overflow-hidden">

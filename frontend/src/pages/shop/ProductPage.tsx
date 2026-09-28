@@ -90,19 +90,31 @@ export default function ProductPage() {
       />
       <JsonLd data={{
         '@context': 'https://schema.org',
-        '@type': 'Product',
-        name: productName,
-        description: productDesc || undefined,
-        image: productImage,
-        url: `${typeof window !== 'undefined' ? window.location.origin : ''}/products/${product.slug}`,
-        offers: {
-          '@type': 'Offer',
-          priceCurrency: 'CZK',
-          price: Number(product.priceCzk),
-          availability: product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
-          seller: { '@type': 'Organization', name: 'Nadační fond České stopy' },
-        },
-        ...(product.category ? { category: localName(product.category, i18n.language) } : {}),
+        '@graph': [
+          {
+            '@type': 'BreadcrumbList',
+            itemListElement: [
+              { '@type': 'ListItem', position: 1, name: 'Česká stopa', item: typeof window !== 'undefined' ? window.location.origin : 'https://darek.fondceskestopy.eu' },
+              { '@type': 'ListItem', position: 2, name: 'Dárky', item: `${typeof window !== 'undefined' ? window.location.origin : 'https://darek.fondceskestopy.eu'}/products` },
+              { '@type': 'ListItem', position: 3, name: productName, item: `${typeof window !== 'undefined' ? window.location.origin : 'https://darek.fondceskestopy.eu'}/products/${product.slug}` },
+            ],
+          },
+          {
+            '@type': 'Product',
+            name: productName,
+            description: productDesc || undefined,
+            image: productImage,
+            url: `${typeof window !== 'undefined' ? window.location.origin : 'https://darek.fondceskestopy.eu'}/products/${product.slug}`,
+            offers: {
+              '@type': 'Offer',
+              priceCurrency: 'CZK',
+              price: Number(product.priceCzk),
+              availability: product.stock > 0 ? 'https://schema.org/InStock' : 'https://schema.org/OutOfStock',
+              seller: { '@type': 'Organization', name: 'Nadační fond České stopy' },
+            },
+            ...(product.category ? { category: localName(product.category, i18n.language) } : {}),
+          },
+        ],
       }} />
       <Link to="/products" className="inline-flex items-center gap-1 text-sm text-slate-500 hover:text-slate-800 mb-6">
         <ArrowLeft size={14} /> {t('product.back')}
