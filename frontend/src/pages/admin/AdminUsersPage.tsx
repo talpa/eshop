@@ -66,6 +66,10 @@ interface EditForm { name: string; phone: string; preferredLanguage: string; }
 interface CreateForm { email: string; name: string; password: string; role: 'ADMIN' | 'CUSTOMER'; }
 const emptyCreate: CreateForm = { email: '', name: '', password: '', role: 'CUSTOMER' };
 
+interface AddrForm { label: string; street: string; city: string; zip: string; country: string; isDefault: boolean; }
+const emptyAddr: AddrForm = { label: '', street: '', city: '', zip: '', country: 'CZ', isDefault: false };
+const COUNTRIES = ['CZ', 'SK', 'DE', 'AT', 'PL', 'UA'];
+
 interface UsersResponse { users: AdminUser[]; total: number; page: number; limit: number; }
 
 export default function AdminUsersPage() {
@@ -74,6 +78,9 @@ export default function AdminUsersPage() {
   const [editForms, setEditForms] = useState<Record<string, EditForm>>({});
   const [showCreate, setShowCreate] = useState(false);
   const [createForm, setCreateForm] = useState<CreateForm>(emptyCreate);
+  const [addrEditing, setAddrEditing] = useState<Record<string, AddrForm>>({});
+  const [addrAdding, setAddrAdding] = useState<string | null>(null);
+  const [newAddrForm, setNewAddrForm] = useState<AddrForm>(emptyAddr);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState('');
   const [searchInput, setSearchInput] = useState('');
@@ -125,6 +132,39 @@ export default function AdminUsersPage() {
       qc.invalidateQueries({ queryKey: ['admin-user-detail', expandedId] });
     },
     onError: () => toast.error('Chyba při ukládání.'),
+  });
+
+  const addAddr = useMutation({
+    mutationFn: ({ userId, data }: { userId: string; data: AddrForm }) =>
+      api.post(`/admin/users/${userId}/addresses`, data),
+    onSuccess: () => {
+      toast.success('Adresa přidána.');
+      setAddrAdding(null);
+      setNewAddrForm(emptyAddr);
+      qc.invalidateQueries({ queryKey: ['admin-user-detail', expandedId] });
+    },
+    onError: () => toast.error('Chyba při přidávání adresy.'),
+  });
+
+  const patchAddr = useMutation({
+    mutationFn: ({ userId, addrId, data }: { userId: string; addrId: string; data: AddrForm }) =>
+      api.patch(`/admin/users/${userId}/addresses/${addrId}`, data),
+    onSuccess: () => {
+      toast.success('Adresa uložena.');
+      setAddrEditing({});
+      qc.invalidateQueries({ queryKey: ['admin-user-detail', expandedId] });
+    },
+    onError: () => toast.error('Chyba při ukládání adresy.'),
+  });
+
+  const deleteAddr = useMutation({
+    mutationFn: ({ userId, addrId }: { userId: string; addrId: string }) =>
+      api.delete(`/admin/users/${userId}/addresses/${addrId}`),
+    onSuccess: () => {
+      toast.success('Adresa smazána.');
+      qc.invalidateQueries({ queryKey: ['admin-user-detail', expandedId] });
+    },
+    onError: () => toast.error('Chyba při mazání adresy.'),
   });
 
   return (
@@ -296,19 +336,89 @@ export default function AdminUsersPage() {
                           </div>
 
                           <div>
-                            <h4 className="text-xs font-semibold text-slate-600 uppercase tracking-wide mb-2 flex items-center gap-1.5">
-                              <MapPin size={11} /> Adresy
-                            </h4>
-                            {detail.addresses.length === 0
+                            <div className="flex items-center justify-between mb-2">
+                              <h4 className="text-xs font-semibold text-slate-600 uppercase tracking-wide flex items-center gap-1.5">
+                                <MapPin size={11} /> Adresy
+                              </h4>
+                              <button
+                                onClick={() => { setAddrAdding(user.id); setNewAddrForm(emptyAddr); }}
+                                className="text-xs text-brand-600 hover:underline"
+                              >+ Přidat</button>
+                            </div>
+
+                            {addrAdding === user.id && (
+                              <div className="border border-brand-200 rounded-lg p-3 mb-2 bg-brand-50/30 space-y-2">
+                                <p className="text-xs font-semibold text-brand-700">Nová adresa</p>
+                                {(['label','street','city','zip'] as const).map(f => (
+                                  <input key={f} placeholder={f === 'label' ? 'Štítek (volitelně)' : f}
+                                    value={newAddrForm[f]}
+                                    onChange={e => setNewAddrForm(v => ({ ...v, [f]: e.target.value }))}
+                                    className="w-full border border-slate-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-brand-500" />
+                                ))}
+                                <select value={newAddrForm.country} onChange={e => setNewAddrForm(v => ({ ...v, country: e.target.value }))}
+                                  className="w-full border border-slate-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-brand-500">
+                                  {COUNTRIES.map(c => <option key={c} value={c}>{COUNTRY_LABELS[c] ?? c}</option>)}
+                                </select>
+                                <label className="flex items-center gap-1.5 text-xs cursor-pointer">
+                                  <input type="checkbox" checked={newAddrForm.isDefault} onChange={e => setNewAddrForm(v => ({ ...v, isDefault: e.target.checked }))} />
+                                  Výchozí adresa
+                                </label>
+                                <div className="flex gap-2">
+                                  <button onClick={() => addAddr.mutate({ userId: user.id, data: newAddrForm })} disabled={addAddr.isPending || !newAddrForm.street}
+                                    className="px-2 py-1 bg-brand-600 text-white rounded text-xs disabled:opacity-50">Uložit</button>
+                                  <button onClick={() => setAddrAdding(null)} className="px-2 py-1 border border-slate-300 rounded text-xs hover:bg-slate-50">Zrušit</button>
+                                </div>
+                              </div>
+                            )}
+
+                            {detail.addresses.length === 0 && addrAdding !== user.id
                               ? <p className="text-xs text-slate-400">Žádné uložené adresy.</p>
                               : (
                                 <div className="space-y-2">
-                                  {detail.addresses.map(addr => (
-                                    <div key={addr.id} className={`text-xs rounded-lg p-3 border ${addr.isDefault ? 'border-brand-200 bg-brand-50/40' : 'border-slate-200 bg-white'}`}>
-                                      {addr.label && <p className="font-semibold text-brand-700 mb-0.5">{addr.label}</p>}
-                                      <p>{addr.street}, {addr.zip} {addr.city}, {COUNTRY_LABELS[addr.country] ?? addr.country}</p>
-                                    </div>
-                                  ))}
+                                  {detail.addresses.map(addr => {
+                                    const isEdit = !!addrEditing[addr.id];
+                                    const ef = addrEditing[addr.id] ?? { label: addr.label ?? '', street: addr.street, city: addr.city, zip: addr.zip, country: addr.country, isDefault: addr.isDefault };
+                                    return (
+                                      <div key={addr.id} className={`text-xs rounded-lg p-3 border ${addr.isDefault ? 'border-brand-200 bg-brand-50/40' : 'border-slate-200 bg-white'}`}>
+                                        {!isEdit ? (
+                                          <div className="flex items-start justify-between gap-2">
+                                            <div>
+                                              {addr.label && <p className="font-semibold text-brand-700 mb-0.5">{addr.label}</p>}
+                                              <p>{addr.street}, {addr.zip} {addr.city}, {COUNTRY_LABELS[addr.country] ?? addr.country}</p>
+                                              {addr.isDefault && <span className="text-brand-600 font-medium">výchozí</span>}
+                                            </div>
+                                            <div className="flex gap-2 flex-shrink-0">
+                                              <button onClick={() => setAddrEditing(v => ({ ...v, [addr.id]: ef }))} className="text-brand-600 hover:underline">Upravit</button>
+                                              <button onClick={() => { if (confirm('Smazat adresu?')) deleteAddr.mutate({ userId: user.id, addrId: addr.id }); }} className="text-red-500 hover:underline">Smazat</button>
+                                            </div>
+                                          </div>
+                                        ) : (
+                                          <div className="space-y-1.5">
+                                            {(['label','street','city','zip'] as const).map(f => (
+                                              <input key={f} placeholder={f === 'label' ? 'Štítek (volitelně)' : f}
+                                                value={ef[f]}
+                                                onChange={e => setAddrEditing(v => ({ ...v, [addr.id]: { ...v[addr.id], [f]: e.target.value } }))}
+                                                className="w-full border border-slate-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-brand-500" />
+                                            ))}
+                                            <select value={ef.country} onChange={e => setAddrEditing(v => ({ ...v, [addr.id]: { ...v[addr.id], country: e.target.value } }))}
+                                              className="w-full border border-slate-300 rounded px-2 py-1 text-xs">
+                                              {COUNTRIES.map(c => <option key={c} value={c}>{COUNTRY_LABELS[c] ?? c}</option>)}
+                                            </select>
+                                            <label className="flex items-center gap-1.5 text-xs cursor-pointer">
+                                              <input type="checkbox" checked={ef.isDefault} onChange={e => setAddrEditing(v => ({ ...v, [addr.id]: { ...v[addr.id], isDefault: e.target.checked } }))} />
+                                              Výchozí adresa
+                                            </label>
+                                            <div className="flex gap-2">
+                                              <button onClick={() => patchAddr.mutate({ userId: user.id, addrId: addr.id, data: ef })} disabled={patchAddr.isPending}
+                                                className="px-2 py-1 bg-brand-600 text-white rounded text-xs disabled:opacity-50">Uložit</button>
+                                              <button onClick={() => setAddrEditing(v => { const n = { ...v }; delete n[addr.id]; return n; })}
+                                                className="px-2 py-1 border border-slate-300 rounded text-xs hover:bg-slate-50">Zrušit</button>
+                                            </div>
+                                          </div>
+                                        )}
+                                      </div>
+                                    );
+                                  })}
                                 </div>
                               )
                             }

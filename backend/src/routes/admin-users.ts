@@ -72,4 +72,42 @@ router.patch('/:id', authenticate, requireAdmin, async (req: Request, res: Respo
   } catch (err) { next(err); }
 });
 
+const addressSchema = z.object({
+  label: z.string().optional().nullable(),
+  street: z.string().min(1),
+  city: z.string().min(1),
+  zip: z.string().min(1),
+  country: z.string().default('CZ'),
+  isDefault: z.boolean().optional(),
+});
+
+router.post('/:id/addresses', authenticate, requireAdmin, async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const data = addressSchema.parse(req.body);
+    if (data.isDefault) {
+      await prisma.userAddress.updateMany({ where: { userId: req.params.id }, data: { isDefault: false } });
+    }
+    const address = await prisma.userAddress.create({ data: { ...data, userId: req.params.id } });
+    res.status(201).json(address);
+  } catch (err) { next(err); }
+});
+
+router.patch('/:id/addresses/:addrId', authenticate, requireAdmin, async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const data = addressSchema.partial().parse(req.body);
+    if (data.isDefault) {
+      await prisma.userAddress.updateMany({ where: { userId: req.params.id }, data: { isDefault: false } });
+    }
+    const address = await prisma.userAddress.update({ where: { id: req.params.addrId }, data });
+    res.json(address);
+  } catch (err) { next(err); }
+});
+
+router.delete('/:id/addresses/:addrId', authenticate, requireAdmin, async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    await prisma.userAddress.delete({ where: { id: req.params.addrId } });
+    res.status(204).send();
+  } catch (err) { next(err); }
+});
+
 export default router;
