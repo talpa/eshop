@@ -212,9 +212,10 @@ export default function DonatePage() {
           </div>
         )}
 
-        {/* UNIT MODE — creates order */}
+        {/* UNIT MODE */}
         {target === 'unit' && (
-          <form onSubmit={handleSubmit(d => mutation.mutate(d))} className="space-y-6">
+          <div className="space-y-6">
+            {/* Unit + amount — always shown */}
             <div className="bg-white border border-slate-200 rounded-xl p-5 space-y-4">
               <div>
                 <label className="block text-sm font-medium mb-1">{t('donate.unit.label')}</label>
@@ -254,30 +255,60 @@ export default function DonatePage() {
               </div>
             </div>
 
-            <div className="bg-white border border-slate-200 rounded-xl p-5 space-y-4">
-              <h2 className="font-semibold text-sm text-slate-700">{t('donate.contact.title')}</h2>
-              <div>
-                <label className="block text-sm font-medium mb-1">{t('donate.contact.name')}</label>
-                <input {...register('customerName')} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
-                {errors.customerName && <p className="text-red-500 text-xs mt-1">{errors.customerName.message}</p>}
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1">{t('donate.contact.email')}</label>
-                <input {...register('customerEmail')} type="email" className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
-                {errors.customerEmail && <p className="text-red-500 text-xs mt-1">{errors.customerEmail.message}</p>}
-              </div>
-              <label className="flex items-start gap-2 text-sm cursor-pointer">
-                <input type="checkbox" {...register('subscribeNewsletter')} className="mt-0.5" />
-                <span className="text-slate-600">{t('donate.newsletter')}</span>
-              </label>
-            </div>
+            {/* Nepřihlášený — platební instrukce bez zakládání objednávky */}
+            {!user && (() => {
+              const activity = selectedUnit?.activity;
+              const amount = watch('donationAmount');
+              const msg = activity ? `${activity.code} ${localName(activity, i18n.language)}`.slice(0, 60) : '';
+              const qr = activity && shopConfig?.iban ? buildQr(shopConfig.iban, amount, msg) : '';
+              return activity && shopConfig ? (
+                <div className="bg-white border border-slate-200 rounded-xl p-5 space-y-3">
+                  <h2 className="font-semibold text-sm text-slate-700">{t('order.transfer.title')}</h2>
+                  <PaymentBlock
+                    qr={qr}
+                    accountNumber={shopConfig.accountNumber}
+                    iban={shopConfig.iban}
+                    variableSymbol={activity.code}
+                    amount={amount}
+                    message={msg}
+                  />
+                  <p className="text-xs text-slate-400 text-center leading-relaxed">
+                    {t('widget.activityWidget.note', { code: activity.code })}
+                  </p>
+                </div>
+              ) : selectedUnit && !activity ? (
+                <p className="text-xs text-slate-400 text-center py-2">{t('donate.unit.noActivity')}</p>
+              ) : null;
+            })()}
 
-            <button type="submit" disabled={mutation.isPending}
-              className="w-full bg-brand-600 hover:bg-brand-700 text-white rounded-xl py-3.5 font-semibold text-base transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
-              <Heart size={18} />
-              {mutation.isPending ? t('donate.submitting') : t('donate.submit')}
-            </button>
-          </form>
+            {/* Přihlášený — formulář kontaktů + odeslání = vznik objednávky */}
+            {user && (
+              <form onSubmit={handleSubmit(d => mutation.mutate(d))} className="space-y-6">
+                <div className="bg-white border border-slate-200 rounded-xl p-5 space-y-4">
+                  <h2 className="font-semibold text-sm text-slate-700">{t('donate.contact.title')}</h2>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">{t('donate.contact.name')}</label>
+                    <input {...register('customerName')} className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
+                    {errors.customerName && <p className="text-red-500 text-xs mt-1">{errors.customerName.message}</p>}
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium mb-1">{t('donate.contact.email')}</label>
+                    <input {...register('customerEmail')} type="email" className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500" />
+                    {errors.customerEmail && <p className="text-red-500 text-xs mt-1">{errors.customerEmail.message}</p>}
+                  </div>
+                  <label className="flex items-start gap-2 text-sm cursor-pointer">
+                    <input type="checkbox" {...register('subscribeNewsletter')} className="mt-0.5" />
+                    <span className="text-slate-600">{t('donate.newsletter')}</span>
+                  </label>
+                </div>
+                <button type="submit" disabled={mutation.isPending}
+                  className="w-full bg-brand-600 hover:bg-brand-700 text-white rounded-xl py-3.5 font-semibold text-base transition-colors disabled:opacity-50 flex items-center justify-center gap-2">
+                  <Heart size={18} />
+                  {mutation.isPending ? t('donate.submitting') : t('donate.submit')}
+                </button>
+              </form>
+            )}
+          </div>
         )}
       </div>
     </div>

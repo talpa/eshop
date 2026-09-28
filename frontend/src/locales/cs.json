@@ -212,7 +212,7 @@
   "donate": {
     "title": "Darovat přímo — bez dárků",
     "subtitle": "Váš dar půjde přímo na vybraný účel fondu Česká stopa",
-    "loginAlert": "Pro vystavení darovací smlouvy ve formátu PDF se <1>přihlaste</1>. Bez přihlášení neobdržíte platební instrukce emailem.",
+    "loginAlert": "Pro vystavení darovací smlouvy ve formátu PDF se <1>přihlaste</1>. Bez přihlášení platební instrukce obdržíte přímo zde.",
     "target": {
       "title": "Kam dar poputuje",
       "unit": "Konkrétní jednotce",
@@ -221,7 +221,8 @@
     "unit": {
       "label": "Vojenská jednotka",
       "select": "— Vyberte jednotku —",
-      "paymentCode": "Platební kód: {{code}} — {{name}}"
+      "paymentCode": "Platební kód: {{code}} — {{name}}",
+      "noActivity": "Tato jednotka nemá přiřazen platební kód. Kontaktujte správce."
     },
     "activity": {
       "label": "Účel / aktivita",
