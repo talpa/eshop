@@ -7,11 +7,11 @@ const router = Router();
 
 router.get('/', async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { categorySlug, search, page = '1', limit = '20', unitSlug } = req.query as Record<string, string>;
+    const { categorySlug, search, page = '1', limit = '20', unitSlug, showAll } = req.query as Record<string, string>;
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
     const where = {
-      isActive: true,
+      ...(showAll !== 'true' && { isActive: true }),
       ...(categorySlug && { category: { slug: categorySlug } }),
       ...(search && { name: { contains: search, mode: 'insensitive' as const } }),
       ...(unitSlug && { militaryUnits: { some: { slug: unitSlug } } }),

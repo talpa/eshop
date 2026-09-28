@@ -42,7 +42,7 @@ export default function AdminProductsPage() {
 
   const { data, isLoading } = useQuery({
     queryKey: ['admin-products', page],
-    queryFn: () => api.get<{ products: Product[]; total: number }>(`/products?page=${page}&limit=${LIMIT}`).then(r => r.data),
+    queryFn: () => api.get<{ products: Product[]; total: number }>(`/products?page=${page}&limit=${LIMIT}&showAll=true`).then(r => r.data),
   });
 
   const { data: categories } = useQuery({
@@ -138,7 +138,7 @@ export default function AdminProductsPage() {
       priceCzk: Number(p.priceCzk),
       stock: p.stock,
       categoryId: p.categoryId || undefined,
-      isActive: false,
+      isActive: true,
       militaryUnitIds: (p.militaryUnits || []).map(u => u.id),
       images: p.images || [],
     }),
