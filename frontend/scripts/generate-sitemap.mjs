@@ -15,18 +15,12 @@ const STATIC_URLS = [
 ];
 
 function buildXml(urls) {
-  return `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls.map(u => `  <url>
-    <loc>${u.loc}</loc>
-    <lastmod>${TODAY}</lastmod>
-    <changefreq>${u.changefreq}</changefreq>
-    <priority>${u.priority}</priority>
-  </url>`).join('\n')}
-</urlset>`;
+  return `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map(u => `  <url>\n    <loc>${u.loc}</loc>\n    <lastmod>${TODAY}</lastmod>\n    <changefreq>${u.changefreq}</changefreq>\n    <priority>${u.priority}</priority>\n  </url>`).join('\n')}\n</urlset>`;
 }
 
-async function generate() {
+try {
+  let urls = STATIC_URLS;
+
   try {
     const [unitsRes, productsRes] = await Promise.all([
       fetch(`${API_URL}/military-units`, { signal: AbortSignal.timeout(15000) }),
@@ -38,18 +32,20 @@ async function generate() {
     const units = await unitsRes.json();
     const { products } = await productsRes.json();
 
-    const urls = [
+    urls = [
       ...STATIC_URLS,
       ...units.map(u => ({ loc: `${SITE_URL}/jednotky/${u.slug}`, priority: '0.9', changefreq: 'weekly' })),
       ...products.map(p => ({ loc: `${SITE_URL}/products/${p.slug}`, priority: '0.6', changefreq: 'monthly' })),
     ];
 
-    fs.writeFileSync(path.join(DIST_DIR, 'sitemap.xml'), buildXml(urls), 'utf-8');
     console.log(`✓ Sitemap: ${urls.length} URLs (${units.length} jednotek, ${products.length} produktů)`);
-  } catch (err) {
-    console.warn(`⚠ Sitemap: API nedostupné (${err.message}), zachovávám statické URL.`);
-    fs.writeFileSync(path.join(DIST_DIR, 'sitemap.xml'), buildXml(STATIC_URLS), 'utf-8');
+  } catch (apiErr) {
+    console.warn(`⚠ Sitemap API: ${apiErr.message} — používám statické URL.`);
   }
-}
 
-generate();
+  fs.writeFileSync(path.join(DIST_DIR, 'sitemap.xml'), buildXml(urls), 'utf-8');
+} catch (err) {
+  console.error(`⚠ Sitemap: nelze zapsat soubor: ${err.message}`);
+  // intentionally exit 0 — sitemap failure must never break the build
+  process.exit(0);
+}
