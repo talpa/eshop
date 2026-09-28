@@ -50,8 +50,9 @@ export default function OrderPage() {
 
   const isPaid = order.status !== 'PENDING' && order.status !== 'CANCELLED';
 
+  const displayVs = order.activityCode || order.variableSymbol;
   const qrValue = order.payment?.qrPayload ||
-    buildQr(shopConfig?.iban || '', Number(order.donationAmount), order.paymentNote || order.variableSymbol, order.variableSymbol);
+    buildQr(shopConfig?.iban || '', Number(order.donationAmount), order.paymentNote || displayVs, displayVs);
 
   type OrderStatus = 'PENDING' | 'PAID' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED';
 
@@ -60,7 +61,7 @@ export default function OrderPage() {
       <div className="flex items-center gap-3 mb-6">
         <FileText size={24} className="text-brand-600" />
         <div>
-          <h1 className="text-2xl font-bold">{t('order.title', { vs: order.variableSymbol })}</h1>
+          <h1 className="text-2xl font-bold">{t('order.title', { vs: displayVs })}</h1>
           <span className={`text-sm font-medium ${isPaid ? 'text-green-600' : 'text-amber-600'}`}>
             {t(`order.status.${order.status as OrderStatus}`, { defaultValue: order.status })}
           </span>
@@ -104,7 +105,7 @@ export default function OrderPage() {
             )}
             <div className="flex justify-between border-t border-slate-200 pt-1.5 mt-1.5">
               <span className="text-slate-500">{t('order.transfer.variableSymbol')}</span>
-              <span className="font-mono font-bold text-slate-800 text-base">{order.variableSymbol}</span>
+              <span className="font-mono font-bold text-slate-800 text-base">{displayVs}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-slate-500">{t('order.transfer.amount')}</span>

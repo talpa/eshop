@@ -107,8 +107,8 @@ router.post('/', optionalAuth, orderRateLimit, async (req: AuthRequest, res: Res
       : 'dar';
     const paymentNote = `${variableSymbol} - ${productNames}`.slice(0, 140);
 
-    // VS in QR = activity code if purely numeric, else order variableSymbol
-    const qrVs = activityCode && /^\d+$/.test(activityCode) ? activityCode : variableSymbol;
+    // VS pro platbu = vždy activityCode (pro rozpoznání fondů), interní variableSymbol jen v popisu pro reconciliation
+    const qrVs = activityCode || variableSymbol;
     const iban = process.env.SHOP_IBAN || '';
     const qrPayload = iban
       ? generateQrPayload(iban, body.donationAmount, qrVs, paymentNote)
