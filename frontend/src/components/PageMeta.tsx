@@ -21,7 +21,7 @@ interface Props {
 export default function PageMeta({ title, description, image, path, noindex = false, type = 'website' }: Props) {
   const fullTitle = title ? `${title} | ${SITE_NAME}` : DEFAULT_TITLE;
   const desc = description || DEFAULT_DESC;
-  const img = image || `${siteUrl()}/app-icon-1024.png`;
+  const img = image || `${siteUrl()}/og-image.jpg`;
   const canonical = path ? `${siteUrl()}${path}` : undefined;
 
   return (
