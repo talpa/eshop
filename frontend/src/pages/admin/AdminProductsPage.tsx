@@ -34,7 +34,7 @@ export default function AdminProductsPage() {
   const [editing, setEditing] = useState<Product | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [page, setPage] = useState(1);
-  const LIMIT = 25;
+  const LIMIT = 10;
   const [selectedUnitIds, setSelectedUnitIds] = useState<string[]>([]);
   const [productImages, setProductImages] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
@@ -81,7 +81,7 @@ export default function AdminProductsPage() {
     if (target < 0 || target >= sorted.length) return;
     [sorted[index], sorted[target]] = [sorted[target], sorted[index]];
     reorderMutation.mutate(sorted.map((p, i) => ({ id: p.id, sortOrder: i })));
-    qc.setQueryData<{ products: Product[]; total: number }>(['admin-products', page], d => d ? { ...d, products: sorted } : d);
+    qc.setQueryData<{ products: Product[]; total: number }>(['admin-products', page, showInactive], d => d ? { ...d, products: sorted } : d);
   };
 
   const saveMutation = useMutation({
