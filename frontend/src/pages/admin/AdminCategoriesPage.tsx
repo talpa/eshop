@@ -75,89 +75,46 @@ export default function AdminCategoriesPage() {
       {(creating || editing) && (
         <div className="bg-white border border-slate-200 rounded-xl p-5 mb-6">
           <h2 className="font-semibold mb-4">{creating ? 'Nová kategorie' : 'Upravit kategorii'}</h2>
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-3">
             <div>
-              <label className="block text-sm font-medium mb-1">Název (CS)</label>
-              <input
-                value={form.name}
-                onChange={e => setForm(f => ({ ...f, name: e.target.value, slug: editing ? f.slug : slugify(e.target.value) }))}
-                className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Slug</label>
+              <label className="block text-xs font-medium mb-1">Slug (URL)</label>
               <input
                 value={form.slug}
                 onChange={e => setForm(f => ({ ...f, slug: e.target.value }))}
-                className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm font-mono"
+                className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-brand-500"
               />
             </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Název EN</label>
-              <input
-                value={form.nameEn}
-                onChange={e => setForm(f => ({ ...f, nameEn: e.target.value }))}
-                placeholder="Name in English"
-                className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Назва UK</label>
-              <input
-                value={form.nameUk}
-                onChange={e => setForm(f => ({ ...f, nameUk: e.target.value }))}
-                placeholder="Назва українською"
-                className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Name DE</label>
-              <input
-                value={form.nameDe}
-                onChange={e => setForm(f => ({ ...f, nameDe: e.target.value }))}
-                placeholder="Name auf Deutsch"
-                className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
-              />
-            </div>
-            <div className="sm:col-span-2">
-              <label className="block text-sm font-medium mb-1">Popis (CS, volitelně)</label>
-              <textarea
-                value={form.description}
-                onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
-                rows={2}
-                className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Popis EN</label>
-              <textarea
-                value={form.descriptionEn}
-                onChange={e => setForm(f => ({ ...f, descriptionEn: e.target.value }))}
-                rows={2}
-                placeholder="Description in English"
-                className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Опис UK</label>
-              <textarea
-                value={form.descriptionUk}
-                onChange={e => setForm(f => ({ ...f, descriptionUk: e.target.value }))}
-                rows={2}
-                placeholder="Опис українською"
-                className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium mb-1">Beschreibung DE</label>
-              <textarea
-                value={form.descriptionDe}
-                onChange={e => setForm(f => ({ ...f, descriptionDe: e.target.value }))}
-                rows={2}
-                placeholder="Beschreibung auf Deutsch"
-                className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm"
-              />
-            </div>
+            {([
+              { lang: 'CZ', label: 'Čeština', nameKey: 'name', descKey: 'description' },
+              { lang: 'EN', label: 'Angličtina', nameKey: 'nameEn', descKey: 'descriptionEn' },
+              { lang: 'UK', label: 'Ukrajinština', nameKey: 'nameUk', descKey: 'descriptionUk' },
+              { lang: 'DE', label: 'Němčina', nameKey: 'nameDe', descKey: 'descriptionDe' },
+            ] as const).map(({ lang, label, nameKey, descKey }) => (
+              <div key={lang} className="border border-slate-200 rounded-lg p-3 space-y-2">
+                <p className="text-xs font-semibold text-slate-500 uppercase">{label} ({lang})</p>
+                <div>
+                  <label className="block text-xs font-medium mb-1">Název</label>
+                  <input
+                    value={form[nameKey]}
+                    onChange={e => setForm(f => ({
+                      ...f,
+                      [nameKey]: e.target.value,
+                      ...(nameKey === 'name' && !editing ? { slug: slugify(e.target.value) } : {}),
+                    }))}
+                    className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium mb-1">Popis</label>
+                  <textarea
+                    value={form[descKey]}
+                    onChange={e => setForm(f => ({ ...f, [descKey]: e.target.value }))}
+                    rows={2}
+                    className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+                  />
+                </div>
+              </div>
+            ))}
           </div>
           <div className="flex gap-3 mt-4">
             <button
