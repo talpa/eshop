@@ -264,7 +264,7 @@ export default function UnitPage() {
                   <Link to={`/products/${product.slug}`}>
                     <div className="aspect-square bg-slate-100 flex items-center justify-center">
                       {product.images[0]
-                        ? <img src={getImageUrl(product.images[0])} alt={product.name} className="w-full h-full object-cover" />
+                        ? <img src={getImageUrl(product.images[0])} alt={product.name} className="w-full h-full object-contain" />
                         : <span className="text-3xl text-slate-300">🎁</span>}
                     </div>
                   </Link>
