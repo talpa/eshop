@@ -38,11 +38,12 @@ export default function AdminProductsPage() {
   const [selectedUnitIds, setSelectedUnitIds] = useState<string[]>([]);
   const [productImages, setProductImages] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
+  const [showInactive, setShowInactive] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data, isLoading } = useQuery({
-    queryKey: ['admin-products', page],
-    queryFn: () => api.get<{ products: Product[]; total: number }>(`/products?page=${page}&limit=${LIMIT}&showAll=true`).then(r => r.data),
+    queryKey: ['admin-products', page, showInactive],
+    queryFn: () => api.get<{ products: Product[]; total: number }>(`/products?page=${page}&limit=${LIMIT}${showInactive ? '&showAll=true' : ''}`).then(r => r.data),
   });
 
   const { data: categories } = useQuery({
@@ -183,9 +184,15 @@ export default function AdminProductsPage() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">Zboží</h1>
-        <button onClick={openNew} className="flex items-center gap-2 px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-lg text-sm font-medium transition-colors">
-          <Plus size={16} /> Nové zboží
-        </button>
+        <div className="flex items-center gap-3">
+          <label className="flex items-center gap-2 text-sm text-slate-600 cursor-pointer select-none">
+            <input type="checkbox" checked={showInactive} onChange={e => { setShowInactive(e.target.checked); setPage(1); }} className="rounded" />
+            Zobrazit neaktivní
+          </label>
+          <button onClick={openNew} className="flex items-center gap-2 px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-lg text-sm font-medium transition-colors">
+            <Plus size={16} /> Nové zboží
+          </button>
+        </div>
       </div>
 
       {showForm && (
