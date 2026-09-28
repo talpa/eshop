@@ -341,7 +341,7 @@ export default function ProductsPage() {
                 <div className="flex items-center justify-between mt-2">
                   <div>
                     <span className="font-bold text-brand-600">{formatPrice(product.priceCzk)}</span>
-                    <span className="text-xs text-slate-400 block leading-none">min. dar</span>
+                    <span className="text-xs text-slate-400 block leading-none">{t('unit.minDonation')}</span>
                   </div>
                   <button
                     onClick={() => handleAddToCart(product)}
