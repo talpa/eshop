@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import Pagination from '../../components/Pagination';
-import { Plus, Pencil, Trash2, X, Upload, ImageOff, ChevronLeft, ChevronRight, ChevronUp, ChevronDown } from 'lucide-react';
+import { Plus, Pencil, Trash2, X, Upload, ImageOff, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, Copy } from 'lucide-react';
 import { useSearchParams } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -122,6 +122,28 @@ export default function AdminProductsPage() {
   const deleteMutation = useMutation({
     mutationFn: (id: string) => api.delete(`/products/${id}`),
     onSuccess: () => { toast.success('Produkt deaktivován.'); qc.invalidateQueries({ queryKey: ['admin-products'] }); },
+  });
+
+  const duplicateMutation = useMutation({
+    mutationFn: (p: Product) => api.post('/products', {
+      name: `${p.name} (kopie)`,
+      nameEn: p.nameEn || undefined,
+      nameUk: p.nameUk || undefined,
+      nameDe: p.nameDe || undefined,
+      slug: `${p.slug}-kopie-${Date.now()}`,
+      description: p.description || undefined,
+      descriptionEn: p.descriptionEn || undefined,
+      descriptionUk: p.descriptionUk || undefined,
+      descriptionDe: p.descriptionDe || undefined,
+      priceCzk: Number(p.priceCzk),
+      stock: p.stock,
+      categoryId: p.categoryId || undefined,
+      isActive: false,
+      militaryUnitIds: (p.militaryUnits || []).map(u => u.id),
+      images: p.images || [],
+    }),
+    onSuccess: () => { toast.success('Produkt duplikován.'); qc.invalidateQueries({ queryKey: ['admin-products'] }); },
+    onError: () => toast.error('Chyba při duplikování.'),
   });
 
   const openEdit = (product: Product) => {
@@ -369,8 +391,9 @@ export default function AdminProductsPage() {
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex gap-2 justify-end">
-                    <button onClick={() => openEdit(p)} className="p-1.5 text-slate-400 hover:text-brand-600"><Pencil size={14} /></button>
-                    <button onClick={() => { if (confirm('Deaktivovat produkt?')) deleteMutation.mutate(p.id); }} className="p-1.5 text-slate-400 hover:text-red-500"><Trash2 size={14} /></button>
+                    <button onClick={() => openEdit(p)} className="p-1.5 text-slate-400 hover:text-brand-600" title="Upravit"><Pencil size={14} /></button>
+                    <button onClick={() => duplicateMutation.mutate(p)} disabled={duplicateMutation.isPending} className="p-1.5 text-slate-400 hover:text-emerald-600 disabled:opacity-40" title="Duplikovat"><Copy size={14} /></button>
+                    <button onClick={() => { if (confirm('Deaktivovat produkt?')) deleteMutation.mutate(p.id); }} className="p-1.5 text-slate-400 hover:text-red-500" title="Deaktivovat"><Trash2 size={14} /></button>
                   </div>
                 </td>
               </tr>
