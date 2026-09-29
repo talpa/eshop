@@ -377,4 +377,13 @@ router.post('/:id/resend-confirmation', authenticate, async (req: AuthRequest, r
   } catch (err) { next(err); }
 });
 
+router.delete('/:id', authenticate, requireAdmin, async (req: AuthRequest, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const order = await prisma.order.findUnique({ where: { id: req.params.id } });
+    if (!order) { res.status(404).json({ message: 'Smlouva nenalezena.' }); return; }
+    await prisma.order.delete({ where: { id: req.params.id } });
+    res.status(204).send();
+  } catch (err) { next(err); }
+});
+
 export default router;

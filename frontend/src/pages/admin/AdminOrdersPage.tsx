@@ -88,6 +88,12 @@ export default function AdminOrdersPage() {
     onError: () => toast.error('Nepodařilo se odeslat potvrzení.'),
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => api.delete(`/orders/${id}`),
+    onSuccess: () => { toast.success('Smlouva smazána.'); invalidate(); },
+    onError: () => toast.error('Chyba při mazání.'),
+  });
+
   const paidTotal = orders
     .filter(o => getDonationStatus(o) === 'PAID' || getDonationStatus(o) === 'VYPLACENA')
     .reduce((sum, o) => sum + Number(o.donationAmount), 0);
@@ -219,9 +225,21 @@ export default function AdminOrdersPage() {
                     {new Date(order.createdAt).toLocaleDateString('cs-CZ')}
                   </td>
                   <td className="px-3 py-3">
-                    <Link to={`/orders/${order.id}`} className="text-xs text-slate-400 hover:text-brand-600">
-                      Detail
-                    </Link>
+                    <div className="flex items-center gap-3">
+                      <Link to={`/orders/${order.id}`} className="text-xs text-slate-400 hover:text-brand-600">
+                        Detail
+                      </Link>
+                      <button
+                        onClick={() => {
+                          if (confirm(`Smazat smlouvu ${order.variableSymbol} (${order.customerName})? Tato akce je nevratná.`))
+                            deleteMutation.mutate(order.id);
+                        }}
+                        disabled={deleteMutation.isPending}
+                        className="text-xs text-red-400 hover:text-red-600 disabled:opacity-40"
+                      >
+                        Smazat
+                      </button>
+                    </div>
                   </td>
                 </tr>
               );
