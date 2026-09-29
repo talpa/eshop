@@ -158,7 +158,7 @@ export default function AdminOrdersPage() {
                 <tr key={order.id} className="hover:bg-slate-50">
                   <td className="px-3 py-3">
                     <Link to={`/orders/${order.id}`} className="font-mono text-xs text-brand-600 hover:underline">
-                      {order.variableSymbol}
+                      {order.activityCode || order.variableSymbol}
                     </Link>
                   </td>
                   <td className="px-3 py-3">
@@ -231,7 +231,7 @@ export default function AdminOrdersPage() {
                       </Link>
                       <button
                         onClick={() => {
-                          if (confirm(`Smazat smlouvu ${order.variableSymbol} (${order.customerName})? Tato akce je nevratná.`))
+                          if (confirm(`Smazat smlouvu ${order.activityCode || order.variableSymbol} (${order.customerName})? Tato akce je nevratná.`))
                             deleteMutation.mutate(order.id);
                         }}
                         disabled={deleteMutation.isPending}
